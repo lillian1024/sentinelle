@@ -2,6 +2,7 @@
 
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/source-settings.hh"
+#include <memory>
 #include <yaml-cpp/yaml.h>
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace utils
 
                         void readModule(YAML::Node node);
 
-                        std::vector<SourceSettings> sources;
+                        std::vector<std::unique_ptr<SourceSettings>> sources;
                     protected:
                 };
             }

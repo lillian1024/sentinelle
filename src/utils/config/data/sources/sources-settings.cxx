@@ -1,7 +1,7 @@
 #include "sources-settings.hh"
 #include "yaml-cpp/node/node.h"
 #include <cstddef>
-#include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -39,14 +39,10 @@ namespace utils
                     for (size_t i = 0; i < source_list.size(); i++)
                     {
                         YAML::Node c_source = source_list[i];
-                        /*if (!source.IsDefined() || !source.second.IsDefined())
-                        {
-                            throw std::runtime_error(msgPrefix + "Unable to parse config: error while parsing a source!");
-                        }*/
 
-                        SourceSettings sourceData = SourceSettings::getSourceSettingsFromNode(c_source);
+                        std::unique_ptr<SourceSettings> sourceData = SourceSettings::getSourceSettingsFromNode(c_source);
 
-                        sources.push_back(sourceData);
+                        sources.push_back(std::move(sourceData));
                     }
                 }
             }

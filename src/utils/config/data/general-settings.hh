@@ -16,7 +16,7 @@ namespace utils
                 void readModule(YAML::Node node);
 
                 inline std::string getServerName() { return server_name; }
-                inline sources::SourcesSettings getSourceSettings() { return sources_settings; }
+                inline sources::SourcesSettings& getSourceSettings() { return sources_settings; }
             protected:
                 std::string server_name;
                 sources::SourcesSettings sources_settings;

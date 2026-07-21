@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <yaml-cpp/yaml.h>
 
 #define SOURCE_TYPE_FIELD "type"
@@ -15,7 +16,9 @@ namespace utils
                 class SourceSettings
                 {
                     public:
-                        static SourceSettings getSourceSettingsFromNode(YAML::Node node);
+                        static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node);
+
+                        virtual std::string dumpSettings() = 0;
                     protected:
 
                 };

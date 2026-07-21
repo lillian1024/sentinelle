@@ -15,7 +15,7 @@ namespace utils
 
             void reloadSettings();
 
-            data::GeneralSettings getGeneralSettings()
+            data::GeneralSettings& getGeneralSettings()
             {
                 return generalSettings;
             }
