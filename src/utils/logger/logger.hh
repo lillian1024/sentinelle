@@ -59,6 +59,9 @@ namespace utils
                 void Init();
 
                 bool Log(std::string category_name, std::string message, LogLevel level);
+
+                void LogPlain(std::string message);
+                void LogPlain(std::string message, LogLevel level);
             protected:
                 std::streambuf* getLogFileBuffer();
 

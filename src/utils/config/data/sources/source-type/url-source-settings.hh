@@ -3,6 +3,7 @@
 #include "utils/config/data/sources/source-settings.hh"
 #include "yaml-cpp/node/node.h"
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <yaml-cpp/yaml.h>
@@ -22,22 +23,12 @@ namespace utils
 
                         static const std::string URL_SOURE_TYPE_NAME;
 
-                        std::string getUrl()
+                        std::string getUrl() const
                         {
                             return url;
                         }
 
-                        float getActiveFps()
-                        {
-                            return active_fps;
-                        }
-
-                        float getPassiveFps()
-                        {
-                            return passive_fps;
-                        }
-
-                        virtual std::string dumpSettings()
+                        virtual std::string dumpSettings() const
                         {
                             std::ostringstream string_builder;
 
@@ -50,11 +41,13 @@ namespace utils
                             return string_builder.str();
                         }
 
-                        virtual SourceSettings::SourceType getType();
+                        virtual std::unique_ptr<SourceSettings> clone() const;
+
+                        virtual SourceSettings::SourceType getType() const;
+
+                        cv::VideoCapture getVideoCapture() const;
                     protected:
                         std::string url;
-                        float active_fps;
-                        float passive_fps;
                 };
             }
         }

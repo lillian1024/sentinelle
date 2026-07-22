@@ -2,6 +2,7 @@
 
 #include "core/components/sources/source.hh"
 #include "utils/singleton/singleton.hh"
+#include <memory>
 #include <vector>
 
 namespace core
@@ -17,11 +18,13 @@ namespace core
 
                 void OrchestrateSource(components::source::Source& source);
 
-                static const std::string ORCHESTRATOR_MSG_PREFIX;
+                static const std::string ORCHESTRATOR_CATEGORY_NAME;
             protected:
                 static void startSourceOrchestration(components::source::Source& source);
 
-                std::vector<components::source::Source> sources;
+                void logSourceConfig();
+
+                std::vector<std::unique_ptr<components::source::Source>> sources;
         };
     }
 }

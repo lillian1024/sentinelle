@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <opencv2/videoio.hpp>
 #include <yaml-cpp/yaml.h>
 
 #define SOURCE_TYPE_FIELD "type"
@@ -24,10 +25,24 @@ namespace utils
 
                         static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node);
 
-                        virtual std::string dumpSettings() = 0;
-                        virtual SourceType getType() = 0;
+                        virtual std::string dumpSettings() const = 0;
+                        virtual SourceType getType() const = 0;
 
-                        virtual bool getShowDebugView()
+                        float getActiveFps() const
+                        {
+                            return active_fps;
+                        }
+
+                        float getPassiveFps() const
+                        {
+                            return passive_fps;
+                        }
+
+                        virtual cv::VideoCapture getVideoCapture() const = 0;
+
+                        virtual std::unique_ptr<SourceSettings> clone() const = 0;
+
+                        virtual bool getShowDebugView() const
                         {
                             return show_debug_view;
                         };
@@ -35,6 +50,9 @@ namespace utils
                         SourceSettings(YAML::Node node);
 
                         const std::string parent_field_name = "source settings";
+
+                        float active_fps;
+                        float passive_fps;
 
                         bool show_debug_view;
                 };

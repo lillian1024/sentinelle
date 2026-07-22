@@ -2,15 +2,32 @@
 #include "utils/config/config-manager.hh"
 #include "utils/thread/thread-manager.hh"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <optional>
 #include <ostream>
+#include <sstream>
 #include <string>
 
 namespace utils
 {
     namespace logger
     {
+        void Logger::LogPlain(std::string message)
+        {
+            output_stream << message;
+        }
+
+        void Logger::LogPlain(std::string message, LogLevel level)
+        {
+            if (level > logging_level)
+            {
+                return;
+            }
+
+            output_stream << message;
+        }
+
         bool Logger::Log(std::string category_name, std::string message, LogLevel level)
         {
             if (level > logging_level)
@@ -21,13 +38,13 @@ namespace utils
             time_t timestamp;
             time(&timestamp);
 
-            output_stream << ctime(&timestamp) << ": ";
+            output_stream << std::put_time(std::localtime(&timestamp), "%d-%m-%Y %X") << ": ";
 
             output_stream << "[" << level << "]";
 
             if (!thread::ThreadManager::instance().IsMainThread())
             {
-                output_stream << "[Thread" << thread::ThreadManager::instance().GetCurrentThreadId() << "]";
+                output_stream << "[Thread-" << thread::ThreadManager::instance().GetCurrentThreadId() << "]";
             }
 
             output_stream << "[" << category_name << "]: ";
@@ -39,11 +56,16 @@ namespace utils
 
         void Logger::Init()
         {
-            Log("Logger", "New logging session initialized.", LogLevel::INFO);
+            std::ostringstream sb;
+
+            sb << "New logging session initialized at log_level: ";
+            sb << logging_level;
+
+            Log("Logger", sb.str(), LogLevel::INFO);
         }
 
         Logger::Logger()
-            : logging_level(),
+            : logging_level(config::ConfigManager::instance().getGeneralSettings().getLoggingLevel()),
             output_stream(getLogFileBuffer())
         { }
 

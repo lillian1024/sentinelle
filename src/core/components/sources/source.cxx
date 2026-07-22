@@ -1,9 +1,18 @@
 #include "source.hh"
 #include "utils/config/data/sources/source-settings.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "utils/logger/logger.hh"
+#include <chrono>
+#include <cstddef>
+#include <ctime>
+#include <iostream>
+#include <memory>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/videoio.hpp>
 #include <optional>
 #include <stdexcept>
+
+#define SECS_TO_MILLIS 1000
 
 namespace core
 {
@@ -11,12 +20,12 @@ namespace core
     {
         namespace source
         {
-            Source Source::getSourceFromConfig(utils::config::data::sources::SourceSettings& config)
+            std::unique_ptr<Source> Source::getSourceFromConfig(const utils::config::data::sources::SourceSettings& config)
             {
                 switch (config.getType()) {
                     case utils::config::data::sources::SourceSettings::SourceType::URL:
                     {
-                        auto* url_config = dynamic_cast<utils::config::data::sources::UrlSourceSettings*>(&config);
+                        auto* url_config = dynamic_cast<const utils::config::data::sources::UrlSourceSettings*>(&config);
 
                         if (url_config == nullptr)
                         {
@@ -25,31 +34,41 @@ namespace core
 
                         cv::VideoCapture video_stream(url_config->getUrl());
 
-                        return Source(video_stream, url_config->getActiveFps(), url_config->getPassiveFps());
+                        return std::make_unique<Source>(*url_config);
                     }
                 }
 
                 throw std::runtime_error("[ConfigManager]: Unkown source config type! Please report this error.");
             }
 
-            Source::Source(cv::VideoCapture video, float active_fps, float passive_fps)
-                : video_stream(video),
-                  active_fps(active_fps),
-                  passive_fps(passive_fps),
+            Source::Source(const utils::config::data::sources::SourceSettings& config)
+                : active_fps(config.getActiveFps()),
+                  passive_fps(config.getPassiveFps()),
+                  show_debug_view(config.getShowDebugView()),
                   is_active(false),
                   is_triggered(false),
-                  last_frame(0) { }
+                  last_frame(std::chrono::steady_clock::now())
+            {
+                source_config = config.clone();
+            }
 
             Source::~Source()
             {
-                video_stream.release();
+                releaseSource();
             }
 
             std::optional<cv::Mat> Source::getImage()
             {
+                if (!video_stream.isOpened())
+                {
+                    return std::nullopt;
+                }
+
                 cv::Mat image;
 
-                bool is_success = video_stream.read(image);
+                bool is_success;
+
+                is_success = video_stream.read(image);
 
                 if (!is_success)
                 {
@@ -59,26 +78,39 @@ namespace core
                 return image;
             }
 
+            void Source::startResource()
+            {
+                video_stream = source_config->getVideoCapture();
+            }
+
+            void Source::releaseSource()
+            {
+                if (video_stream.isOpened())
+                {
+                    video_stream.release();
+                }
+            }
+
             float Source::getCurrentFPS()
             {
                 return is_active ? active_fps : passive_fps;
             }
 
-            std::clock_t Source::getLastFrameClocks()
+            time_type Source::getLastFrameTime()
             {
                 return last_frame;
             }
 
             bool Source::isInCooldown()
             {
-                std::clock_t c_stop = getCooldownStopClocks();
+                time_type c_stop = getCooldownStopTime();
 
-                std::clock_t now = clock();
+                time_type now = std::chrono::steady_clock::now();
 
-                return now >= c_stop;
+                return now < c_stop;
             }
 
-            std::clock_t Source::getCooldownStopClocks()
+            time_type Source::getCooldownStopTime()
             {
                 float c_fps = getCurrentFPS();
 
@@ -89,23 +121,30 @@ namespace core
 
                 float f_interval_sec = 1.0/c_fps;
 
-                std::clock_t f_interval_clocks = f_interval_sec * CLOCKS_PER_SEC;
-
-                return last_frame + f_interval_clocks;
+                return last_frame + std::chrono::milliseconds(secsToMillisRound(f_interval_sec));
             }
 
             float Source::getRemainingCoolSecs()
             {
-                std::clock_t c_stop = getCooldownStopClocks();
+                typedef std::chrono::duration<float> fsec;
 
-                std::clock_t now = clock();
+                time_type c_stop = getCooldownStopTime();
 
-                return float(c_stop - now) / CLOCKS_PER_SEC;
+                time_type now = std::chrono::steady_clock::now();
+
+                fsec diffSecs = c_stop - now;
+
+                return diffSecs.count();
             }
 
             void Source::setLastFrameNow()
             {
-                last_frame = clock();
+                last_frame = std::chrono::steady_clock::now();
+            }
+
+            size_t Source::secsToMillisRound(float seconds)
+            {
+                return size_t(seconds * SECS_TO_MILLIS);
             }
         }
     }

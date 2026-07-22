@@ -1,9 +1,12 @@
 #pragma once
 
 #include "utils/config/data/sources/source-settings.hh"
+#include <chrono>
+#include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
 #include <optional>
+#include <ratio>
 
 namespace core
 {
@@ -11,33 +14,49 @@ namespace core
     {
         namespace source
         {
+            typedef std::chrono::time_point<std::chrono::steady_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> time_type;
+
             class Source
             {
             public:
-                static Source getSourceFromConfig(utils::config::data::sources::SourceSettings& config);
+                static std::unique_ptr<Source> getSourceFromConfig(const utils::config::data::sources::SourceSettings& config);
 
-                Source(cv::VideoCapture video, float active_fps, float passive_fps);
+                Source(const utils::config::data::sources::SourceSettings& config);
                 ~Source();
 
                 virtual std::optional<cv::Mat> getImage();
 
+                virtual void startResource();
+                virtual void releaseSource();
+
                 float getCurrentFPS();
 
-                std::clock_t getLastFrameClocks();
+                inline bool getShowDebugView() { return show_debug_view; }
+                inline bool isSourceOpen() { return video_stream.isOpened(); }
+
+                time_type getLastFrameTime();
                 bool isInCooldown();
-                std::clock_t getCooldownStopClocks();
+                time_type getCooldownStopTime();
                 float getRemainingCoolSecs();
 
                 void setLastFrameNow();
+
+                inline const utils::config::data::sources::SourceSettings& getSourceConfig() { return *source_config.get(); }
             protected:
+                static size_t secsToMillisRound(float seconds);
+
                 cv::VideoCapture video_stream;
                 float active_fps;
                 float passive_fps;
 
+                bool show_debug_view;
+
                 bool is_active;
                 bool is_triggered;
 
-                std::clock_t last_frame;
+                time_type last_frame;
+
+                std::unique_ptr<utils::config::data::sources::SourceSettings> source_config;
             };
         }
     }
