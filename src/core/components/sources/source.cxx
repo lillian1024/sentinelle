@@ -35,7 +35,10 @@ namespace core
             Source::Source(cv::VideoCapture video, float active_fps, float passive_fps)
                 : video_stream(video),
                   active_fps(active_fps),
-                  passive_fps(passive_fps) { }
+                  passive_fps(passive_fps),
+                  is_active(false),
+                  is_triggered(false),
+                  last_frame(0) { }
 
             Source::~Source()
             {

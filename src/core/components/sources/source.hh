@@ -13,6 +13,7 @@ namespace core
         {
             class Source
             {
+            public:
                 static Source getSourceFromConfig(utils::config::data::sources::SourceSettings& config);
 
                 Source(cv::VideoCapture video, float active_fps, float passive_fps);
