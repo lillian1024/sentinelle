@@ -19,6 +19,11 @@ namespace utils
             {
                 return generalSettings;
             }
+
+            inline static std::string getManagerMessagePrefix()
+            {
+                return instance().managerMessagePrefix;
+            }
         protected:
             const std::string managerMessagePrefix = "[ConfigManager]: ";
 

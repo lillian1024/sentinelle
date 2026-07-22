@@ -4,6 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 #define SOURCE_TYPE_FIELD "type"
+#define SHOW_DEBUG_VIEW_FIELD "show_debug_view"
 
 namespace utils
 {
@@ -25,8 +26,17 @@ namespace utils
 
                         virtual std::string dumpSettings() = 0;
                         virtual SourceType getType() = 0;
-                    protected:
 
+                        virtual bool getShowDebugView()
+                        {
+                            return show_debug_view;
+                        };
+                    protected:
+                        SourceSettings(YAML::Node node);
+
+                        const std::string parent_field_name = "source settings";
+
+                        bool show_debug_view;
                 };
             }
         }

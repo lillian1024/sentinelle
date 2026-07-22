@@ -42,6 +42,7 @@ namespace utils
                             std::ostringstream string_builder;
 
                             string_builder << "\tType: " << URL_SOURE_TYPE_NAME << '\n';
+                            string_builder << "\tShow Debug View: " << show_debug_view << '\n';
                             string_builder << "\tUrl: " << url << '\n';
                             string_builder << "\tActive fps: " << active_fps << '\n';
                             string_builder << "\tPassive fps: " << passive_fps << '\n';

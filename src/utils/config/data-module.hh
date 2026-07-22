@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <yaml-cpp/yaml.h>
 
@@ -22,6 +23,21 @@ namespace utils
                 if (!node[property_name].IsScalar())
                 {
                     throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not a scalar!");
+                }
+
+                return node[property_name].Scalar();
+            };
+
+            inline static std::optional<std::string> readScalarOptional(YAML::Node node, std::string property_name, std::string parent_name)
+            {
+                if (!node[property_name].IsDefined())
+                {
+                    return std::nullopt;
+                }
+
+                if (!node[property_name].IsScalar())
+                {
+                    return std::nullopt;
                 }
 
                 return node[property_name].Scalar();

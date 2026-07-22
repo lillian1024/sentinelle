@@ -1,4 +1,5 @@
 #include "source-settings.hh"
+#include "utils/config/config-manager.hh"
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include <memory>
@@ -13,6 +14,20 @@ namespace utils
         {
             namespace sources
             {
+                SourceSettings::SourceSettings(YAML::Node node)
+                {
+                    auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD, parent_field_name);
+
+                    if (show_debug_view_opt.has_value() && show_debug_view_opt.value() == "true")
+                    {
+                        show_debug_view = true;
+                    }
+                    else
+                    {
+                        show_debug_view = false;
+                    }
+                }
+
                 std::unique_ptr<SourceSettings> SourceSettings::getSourceSettingsFromNode(YAML::Node node)
                 {
                     std::string type_name = DataModule::readScalarOrError(node, SOURCE_TYPE_FIELD, "source settings");
@@ -23,7 +38,7 @@ namespace utils
                     }
                     else
                     {
-                        throw std::runtime_error("[ConfigManager]: Unrecognized source type: " + type_name);
+                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unrecognized source type: " + type_name);
                     }
                 }
             }
