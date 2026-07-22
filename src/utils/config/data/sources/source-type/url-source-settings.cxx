@@ -62,6 +62,11 @@ namespace utils
                         throw std::runtime_error(msgPrefix + "Unable to parse config: " + PASSIVE_FPS_FIELD + " must be positive!");
                     }
                 }
+
+                 SourceSettings::SourceType UrlSourceSettings::getType()
+                 {
+                     return SourceSettings::SourceType::URL;
+                 }
             }
         }
     }

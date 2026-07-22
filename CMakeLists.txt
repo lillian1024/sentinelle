@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.26)
 cmake_policy(SET CMP0146 OLD)
 project(Sentinelle VERSION 0.0.1)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(FetchContent)
 include(CTest)
 enable_testing()

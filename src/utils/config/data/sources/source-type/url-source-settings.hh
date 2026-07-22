@@ -48,6 +48,8 @@ namespace utils
 
                             return string_builder.str();
                         }
+
+                        virtual SourceSettings::SourceType getType();
                     protected:
                         std::string url;
                         float active_fps;
