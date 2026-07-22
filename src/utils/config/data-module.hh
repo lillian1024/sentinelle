@@ -28,7 +28,7 @@ namespace utils
                 return node[property_name].Scalar();
             };
 
-            inline static std::optional<std::string> readScalarOptional(YAML::Node node, std::string property_name, std::string parent_name)
+            inline static std::optional<std::string> readScalarOptional(YAML::Node node, std::string property_name)
             {
                 if (!node[property_name].IsDefined())
                 {

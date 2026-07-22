@@ -16,7 +16,7 @@ namespace utils
             {
                 SourceSettings::SourceSettings(YAML::Node node)
                 {
-                    auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD, parent_field_name);
+                    auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD);
 
                     if (show_debug_view_opt.has_value() && show_debug_view_opt.value() == "true")
                     {

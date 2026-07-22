@@ -1,5 +1,8 @@
+#pragma once
+
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/sources-settings.hh"
+#include "utils/logger/logger.hh"
 #include <cstddef>
 #include <string>
 
@@ -18,10 +21,14 @@ namespace utils
 
                 inline std::string getServerName() { return server_name; }
                 inline std::size_t getThreadLimit() { return thread_limit; }
+                inline logger::Logger::LogLevel getLoggingLevel() { return logging_level; }
+                inline std::string getLogFile() { return log_file; }
                 inline sources::SourcesSettings& getSourceSettings() { return sources_settings; }
             protected:
                 std::string server_name;
                 std::size_t thread_limit;
+                logger::Logger::LogLevel logging_level;
+                std::string log_file;
                 sources::SourcesSettings sources_settings;
             };
         }

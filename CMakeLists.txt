@@ -20,6 +20,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 #Project's configuration
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 set(PROJECT_SRCS src/main.cxx)
@@ -43,6 +44,16 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/data/sources/sources-settings.cxx
     src/utils/config/data/sources/source-settings.cxx
     src/utils/config/data/sources/source-type/url-source-settings.cxx
+    )
+
+#Utils thread sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/utils/thread/thread-manager.cxx
+    )
+
+#Utils logger sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/utils/logger/logger.cxx
     )
 
 add_executable(Sentinelle ${PROJECT_SRCS})
