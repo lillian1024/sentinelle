@@ -56,6 +56,13 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/logger/logger.cxx
     )
 
+#Utils opencv sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/utils/opencv/video-stream/video-stream.cxx
+    src/utils/opencv/video-stream/live-video-stream.cxx
+    src/utils/opencv/video-stream/sequence-video-stream.cxx
+    )
+
 add_executable(Sentinelle ${PROJECT_SRCS})
 
 target_include_directories(Sentinelle PRIVATE src)

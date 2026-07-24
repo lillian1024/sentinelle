@@ -3,11 +3,15 @@
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 
+#define IS_LIVE_FIELD "is_live"
 #define ACTIVE_FPS_FIELD "active_fps"
 #define PASSIVE_FPS_FIELD "passive_fps"
+
+#define IS_LIVE_DEFAULT_VALUE true
 
 namespace utils
 {
@@ -19,9 +23,19 @@ namespace utils
             {
                 SourceSettings::SourceSettings(YAML::Node node)
                 {
+                    std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
                     std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, parent_field_name);
                     std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, parent_field_name);
                     auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD);
+
+                    if (is_live_str.has_value())
+                    {
+                        is_live = is_live_str == "true";
+                    }
+                    else
+                    {
+                        is_live = IS_LIVE_DEFAULT_VALUE;
+                    }
 
                     try
                     {

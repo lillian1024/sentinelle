@@ -1,11 +1,11 @@
 #include "source.hh"
 #include "utils/config/data/sources/source-settings.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
-#include "utils/logger/logger.hh"
+#include "utils/opencv/video-stream/live-video-stream.hh"
+#include "utils/opencv/video-stream/sequence-video-stream.hh"
 #include <chrono>
 #include <cstddef>
 #include <ctime>
-#include <iostream>
 #include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
@@ -59,35 +59,33 @@ namespace core
 
             std::optional<cv::Mat> Source::getImage()
             {
-                if (!video_stream.isOpened())
+                if (!video_stream->isOpened())
                 {
                     return std::nullopt;
                 }
 
-                cv::Mat image;
-
-                bool is_success;
-
-                is_success = video_stream.read(image);
-
-                if (!is_success)
-                {
-                    return std::nullopt;
-                }
+                std::optional<cv::Mat> image = video_stream->getImage();
 
                 return image;
             }
 
             void Source::startResource()
             {
-                video_stream = source_config->getVideoCapture();
+                if (source_config->getIsLive())
+                {
+                    video_stream = std::make_unique<LiveVideoStream>(source_config->getVideoCapture());
+                }
+                else
+                {
+                    video_stream = std::make_unique<SequenceVideoStream>(source_config->getVideoCapture());
+                }
             }
 
             void Source::releaseSource()
             {
-                if (video_stream.isOpened())
+                if (video_stream->isOpened())
                 {
-                    video_stream.release();
+                    video_stream->release();
                 }
             }
 

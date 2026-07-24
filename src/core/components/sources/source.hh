@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/config/data/sources/source-settings.hh"
+#include "utils/opencv/video-stream/video-stream.hh"
 #include <chrono>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -14,6 +15,8 @@ namespace core
     {
         namespace source
         {
+            using namespace utils::opencv::video_stream;
+
             typedef std::chrono::time_point<std::chrono::steady_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> time_type;
 
             class Source
@@ -32,7 +35,7 @@ namespace core
                 float getCurrentFPS();
 
                 inline bool getShowDebugView() { return show_debug_view; }
-                inline bool isSourceOpen() { return video_stream.isOpened(); }
+                inline bool isSourceOpen() { return video_stream->isOpened(); }
 
                 time_type getLastFrameTime();
                 bool isInCooldown();
@@ -45,7 +48,7 @@ namespace core
             protected:
                 static size_t secsToMillisRound(float seconds);
 
-                cv::VideoCapture video_stream;
+                std::unique_ptr<VideoStream> video_stream;
                 float active_fps;
                 float passive_fps;
 

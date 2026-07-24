@@ -28,6 +28,11 @@ namespace utils
                         virtual std::string dumpSettings() const = 0;
                         virtual SourceType getType() const = 0;
 
+                        bool getIsLive() const
+                        {
+                            return is_live;
+                        }
+
                         float getActiveFps() const
                         {
                             return active_fps;
@@ -50,6 +55,8 @@ namespace utils
                         SourceSettings(YAML::Node node);
 
                         const std::string parent_field_name = "source settings";
+
+                        bool is_live;
 
                         float active_fps;
                         float passive_fps;
