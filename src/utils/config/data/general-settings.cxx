@@ -11,12 +11,14 @@
 #define SERVER_NAME_FIELD "server_name"
 #define THREAD_LIMIT_FIELD "thread_limit"
 #define LOGGING_LEVEL_FIELD "log_level"
+#define CACHE_PATH_FIELD "log_file"
 #define LOG_FILE_FIELD "log_file"
 
 //Volontary underflow of size_t (unsigned) to get size_t's max value
 #define DEFAULT_THREAD_LIMIT "-1"
 
 #define DEFAULT_LOGGING_LEVEL "INFO"
+#define DEFAULT_CACHE_PATH "./cache"
 #define DEFAULT_LOG_FILE ""
 
 namespace utils
@@ -32,7 +34,8 @@ namespace utils
                 sources_settings.readModule(readMapOrError(node, SOURCES_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
 
                 std::string logging_level_str = readScalarOptional(node, LOGGING_LEVEL_FIELD).value_or(DEFAULT_LOGGING_LEVEL);
-                std::string log_file_str = readScalarOptional(node, LOG_FILE_FIELD).value_or(DEFAULT_LOG_FILE);
+                log_file = readScalarOptional(node, LOG_FILE_FIELD).value_or(DEFAULT_LOG_FILE);
+                cache_path = readScalarOptional(node, CACHE_PATH_FIELD).value_or(DEFAULT_CACHE_PATH);
 
                 //Parse thread limit
                 try

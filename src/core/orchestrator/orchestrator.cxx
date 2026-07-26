@@ -1,13 +1,16 @@
 #include "orchestrator.hh"
+#include "core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.hh"
 #include "core/components/sources/source.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 #include "utils/thread/thread-manager.hh"
 #include <chrono>
 #include <cstddef>
 #include <ctime>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -126,6 +129,41 @@ namespace core
                     prev_fps = 1 / (time_interval_sec);
                 }
 
+                // TODO: change this to configured analizer sequence!
+                // Start of DEBUG
+
+                components::analizer::dnn::AnalizerDNNGenericIdent ana;
+
+                std::map<std::string, utils::io_data::IOData*> inputs;
+
+                std::unique_ptr<utils::io_data::IOData> image_input = std::make_unique<utils::io_data::IODataMat>(*image);
+
+                inputs.insert({"image", image_input.get()});
+
+                auto outputs = ana.process(inputs);
+
+                if (outputs.empty())
+                {
+                    utils::logger::Logger::instance().Log("Analizer", "Unable to get outputs: error while processing!", utils::logger::Logger::LogLevel::ERROR);
+
+                    continue;
+                }
+
+                auto* debug_data_ptr = outputs["debug-image"].get();
+
+                auto* debug_data = dynamic_cast<utils::io_data::IODataMat*>(debug_data_ptr);
+
+                if (debug_data == nullptr)
+                {
+                    utils::logger::Logger::instance().Log("Analizer", "Unable to get outputs: missmatched types!", utils::logger::Logger::LogLevel::ERROR);
+
+                    continue;
+                }
+
+                auto debug_image = debug_data->getData();
+
+                // End of DEBUG
+
                 if (source.getShowDebugView())
                 {
                     std::ostringstream box_string_builder;
@@ -133,9 +171,9 @@ namespace core
                     box_string_builder << "FPS: ";
                     box_string_builder << prev_fps;
 
-                    cv::putText(*image, box_string_builder.str(), cv::Point(5, 75), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
+                    cv::putText(debug_image, box_string_builder.str(), cv::Point(5, 75), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
 
-                    cv::imshow("image", *image);
+                    cv::imshow("image", debug_image);
 
                     int k = cv::waitKey(10);
                     if (k == 113){

@@ -20,7 +20,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 #Project's configuration
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++26")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 set(PROJECT_SRCS src/main.cxx)
@@ -35,7 +35,10 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
 
 #Core analizer sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
-    src/core/components/analizers/analizer.cxx)
+    src/core/components/analizers/analizer.cxx
+    src/core/components/analizers/modules/dnn/analizer-dnn.cxx
+    src/core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.cxx
+    )
 
 #Utils config sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
@@ -61,6 +64,11 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/opencv/video-stream/video-stream.cxx
     src/utils/opencv/video-stream/live-video-stream.cxx
     src/utils/opencv/video-stream/sequence-video-stream.cxx
+    )
+
+#Utils cache sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/utils/cache/cache-manager.cxx
     )
 
 add_executable(Sentinelle ${PROJECT_SRCS})
