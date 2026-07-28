@@ -2,7 +2,6 @@
 
 #include "utils/config/data/sources/source-settings.hh"
 #include "yaml-cpp/node/node.h"
-#include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -19,7 +18,8 @@ namespace utils
                 class UrlSourceSettings : public SourceSettings
                 {
                     public:
-                        UrlSourceSettings(YAML::Node node);
+                        UrlSourceSettings(YAML::Node node, std::string source_name);
+                        ~UrlSourceSettings() = default;
 
                         static const std::string URL_SOURE_TYPE_NAME;
 

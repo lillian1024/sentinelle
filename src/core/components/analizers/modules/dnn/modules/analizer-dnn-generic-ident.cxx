@@ -3,6 +3,7 @@
 #include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 #include "utils/cache/cache-manager.hh"
+#include <iostream>
 #include <map>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -35,8 +36,8 @@ namespace core
         {
             namespace dnn
             {
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent()
-                    : AnalizerDNN(NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node config, std::string name)
+                    : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
                 {
                     //Load class names
                     if (!utils::cache::CacheManager::instance().hasFile(DNN_CACHE_NAME, IDENT_CATEGORY_FILE_NAME))
@@ -53,6 +54,8 @@ namespace core
 
                     while (getline(ifs, line))
                     {
+                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+
                         class_names.push_back(line);
                     }
                 }
@@ -75,7 +78,7 @@ namespace core
                     return res;
                 }
 
-                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs)
+                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&)
                 {
                     //Check input types
                     if (!validateInputs(inputs))
@@ -125,7 +128,7 @@ namespace core
 
                             std::ostringstream sb;
 
-                            sb << "Detected";
+                            sb << "Detected ";
                             sb << class_name;
                             sb << ", confidence: ";
                             sb << confidence * 100;

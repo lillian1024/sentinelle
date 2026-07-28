@@ -42,7 +42,8 @@ namespace core
             }
 
             Source::Source(const utils::config::data::sources::SourceSettings& config)
-                : active_fps(config.getActiveFps()),
+                : name(config.getName()),
+                  active_fps(config.getActiveFps()),
                   passive_fps(config.getPassiveFps()),
                   show_debug_view(config.getShowDebugView()),
                   is_active(false),
@@ -89,17 +90,17 @@ namespace core
                 }
             }
 
-            float Source::getCurrentFPS()
+            float Source::getCurrentFPS() const
             {
                 return is_active ? active_fps : passive_fps;
             }
 
-            time_type Source::getLastFrameTime()
+            time_type Source::getLastFrameTime() const
             {
                 return last_frame;
             }
 
-            bool Source::isInCooldown()
+            bool Source::isInCooldown() const
             {
                 time_type c_stop = getCooldownStopTime();
 
@@ -108,7 +109,7 @@ namespace core
                 return now < c_stop;
             }
 
-            time_type Source::getCooldownStopTime()
+            time_type Source::getCooldownStopTime() const
             {
                 float c_fps = getCurrentFPS();
 
@@ -122,7 +123,7 @@ namespace core
                 return last_frame + std::chrono::milliseconds(secsToMillisRound(f_interval_sec));
             }
 
-            float Source::getRemainingCoolSecs()
+            float Source::getRemainingCoolSecs() const
             {
                 typedef std::chrono::duration<float> fsec;
 

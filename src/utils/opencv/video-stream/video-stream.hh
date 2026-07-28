@@ -16,6 +16,7 @@ namespace utils
             {
                 public:
                     VideoStream(cv::VideoCapture video_stream);
+                    virtual ~VideoStream() = default;
 
                     bool isOpened() const;
                     virtual std::optional<cv::Mat> getImage() = 0;

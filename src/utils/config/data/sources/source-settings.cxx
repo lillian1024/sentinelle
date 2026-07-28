@@ -21,7 +21,8 @@ namespace utils
         {
             namespace sources
             {
-                SourceSettings::SourceSettings(YAML::Node node)
+                SourceSettings::SourceSettings(YAML::Node node, std::string source_name)
+                    : source_name(source_name)
                 {
                     std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
                     std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, parent_field_name);
@@ -44,21 +45,21 @@ namespace utils
                     }
                     catch (const std::invalid_argument)
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: expected float for " + ACTIVE_FPS_FIELD + " and " + PASSIVE_FPS_FIELD + " field!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: expected float for " + ACTIVE_FPS_FIELD + " and " + PASSIVE_FPS_FIELD + " field!");
                     }
                     catch (const std::out_of_range)
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " + ACTIVE_FPS_FIELD + " or " + PASSIVE_FPS_FIELD + " exceeds max value!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + ACTIVE_FPS_FIELD + " or " + PASSIVE_FPS_FIELD + " exceeds max value!");
                     }
 
                     if (active_fps < 0.0)
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " + ACTIVE_FPS_FIELD + " must be positive!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + ACTIVE_FPS_FIELD + " must be positive!");
                     }
 
                     if (passive_fps < 0.0)
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " + PASSIVE_FPS_FIELD + " must be positive!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + PASSIVE_FPS_FIELD + " must be positive!");
                     }
 
                     if (show_debug_view_opt.has_value() && show_debug_view_opt.value() == "true")
@@ -71,17 +72,17 @@ namespace utils
                     }
                 }
 
-                std::unique_ptr<SourceSettings> SourceSettings::getSourceSettingsFromNode(YAML::Node node)
+                std::unique_ptr<SourceSettings> SourceSettings::getSourceSettingsFromNode(YAML::Node node, std::string source_name)
                 {
                     std::string type_name = DataModule::readScalarOrError(node, SOURCE_TYPE_FIELD, "source settings");
 
                     if (type_name == UrlSourceSettings::URL_SOURE_TYPE_NAME)
                     {
-                        return std::make_unique<UrlSourceSettings>(node);
+                        return std::make_unique<UrlSourceSettings>(node, source_name);
                     }
                     else
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unrecognized source type: " + type_name);
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unrecognized source type: " + type_name);
                     }
                 }
             }

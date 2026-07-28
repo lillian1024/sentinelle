@@ -11,6 +11,8 @@ namespace utils
 {
     namespace config
     {
+        const std::string ConfigManager::managerMessagePrefix = "[ConfigManager]: ";
+
         ConfigManager::ConfigManager()
             : generalSettings()
         {
@@ -22,8 +24,6 @@ namespace utils
             {
                 settings_file = std::getenv("SENTINELLE_SETTINGS_FILE");
             }
-
-            reloadSettings();
         }
 
         void ConfigManager::reloadSettings()

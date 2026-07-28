@@ -20,7 +20,7 @@ namespace utils
             {
                 public:
                     LiveVideoStream(const cv::VideoCapture& video_stream);
-                    ~LiveVideoStream();
+                    virtual ~LiveVideoStream();
 
                     std::optional<cv::Mat> getLastImage();
                     std::optional<cv::Mat> getImage();

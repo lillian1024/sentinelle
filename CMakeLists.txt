@@ -36,6 +36,7 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
 #Core analizer sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/analizers/analizer.cxx
+    src/core/components/analizers/modules/analizer-show-image.cxx
     src/core/components/analizers/modules/dnn/analizer-dnn.cxx
     src/core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.cxx
     )
@@ -47,6 +48,7 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/data/sources/sources-settings.cxx
     src/utils/config/data/sources/source-settings.cxx
     src/utils/config/data/sources/source-type/url-source-settings.cxx
+    src/utils/config/data/analizers/analizers-settings.cxx
     )
 
 #Utils thread sources

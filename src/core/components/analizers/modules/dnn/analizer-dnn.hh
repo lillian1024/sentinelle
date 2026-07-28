@@ -21,7 +21,8 @@ namespace core
                             TORCH
                         };
 
-                        AnalizerDNN(std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store);
+                        AnalizerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store);
+                        virtual ~AnalizerDNN() = default;
 
                         std::string getNetName();
                     protected:

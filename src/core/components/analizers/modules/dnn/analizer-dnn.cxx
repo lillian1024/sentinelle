@@ -20,8 +20,9 @@ namespace core
             {
                 const std::string AnalizerDNN::DNN_CACHE_NAME = "dnn";
 
-                AnalizerDNN::AnalizerDNN(std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store)
-                    : net_name(net_name),
+                AnalizerDNN::AnalizerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store)
+                    : Analizer(name),
+                    net_name(net_name),
                     net_url(net_url),
                     pull_net(pull_net)
                 {

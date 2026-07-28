@@ -1,9 +1,9 @@
 #include "sources-settings.hh"
 #include "utils/config/config-manager.hh"
 #include "yaml-cpp/node/node.h"
-#include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #define SOURCES_LIST_INDEX "sources"
@@ -20,26 +20,32 @@ namespace utils
                 {
                     if (!node.IsMap())
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " + SOURCES_SETTINGS_FIELD_NAME + " field should be a map!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + SOURCES_SETTINGS_FIELD_NAME + " field should be a map!");
                     }
 
                     YAML::Node source_list = node[SOURCES_LIST_INDEX];
 
                     if (!source_list.IsDefined())
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " SOURCES_LIST_INDEX + " from " + SOURCES_SETTINGS_FIELD_NAME + " is not defined");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " SOURCES_LIST_INDEX + " from " + SOURCES_SETTINGS_FIELD_NAME + " is not defined");
                     }
 
                     if (!source_list.IsMap())
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: " SOURCES_LIST_INDEX + " from " + SOURCES_SETTINGS_FIELD_NAME + " should be a sequence");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " SOURCES_LIST_INDEX + " from " + SOURCES_SETTINGS_FIELD_NAME + " should be a sequence");
                     }
 
-                    for (size_t i = 0; i < source_list.size(); i++)
+                    for (auto it = source_list.begin(); it != source_list.end(); it++)
                     {
-                        YAML::Node c_source = source_list[i];
+                        YAML::Node key = it->first;
+                        YAML::Node c_source = it->second;
 
-                        std::unique_ptr<SourceSettings> sourceData = SourceSettings::getSourceSettingsFromNode(c_source);
+                        if (!key.IsScalar())
+                        {
+                            throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " SOURCES_LIST_INDEX + " from " + SOURCES_SETTINGS_FIELD_NAME + " contained elements with scalar keys!");
+                        }
+
+                        std::unique_ptr<SourceSettings> sourceData = SourceSettings::getSourceSettingsFromNode(c_source, key.Scalar());
 
                         sources.push_back(std::move(sourceData));
                     }

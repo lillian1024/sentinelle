@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <optional>
 #include <ratio>
+#include <string>
 
 namespace core
 {
@@ -25,28 +26,31 @@ namespace core
                 static std::unique_ptr<Source> getSourceFromConfig(const utils::config::data::sources::SourceSettings& config);
 
                 Source(const utils::config::data::sources::SourceSettings& config);
-                ~Source();
+                virtual ~Source();
 
                 virtual std::optional<cv::Mat> getImage();
 
                 virtual void startResource();
                 virtual void releaseSource();
 
-                float getCurrentFPS();
+                float getCurrentFPS() const;
 
-                inline bool getShowDebugView() { return show_debug_view; }
-                inline bool isSourceOpen() { return video_stream->isOpened(); }
+                inline std::string getName() const { return name; }
+                inline bool getShowDebugView() const { return show_debug_view; }
+                inline bool isSourceOpen() const { return video_stream->isOpened(); }
 
-                time_type getLastFrameTime();
-                bool isInCooldown();
-                time_type getCooldownStopTime();
-                float getRemainingCoolSecs();
+                time_type getLastFrameTime() const;
+                bool isInCooldown() const;
+                time_type getCooldownStopTime() const;
+                float getRemainingCoolSecs() const;
 
                 void setLastFrameNow();
 
-                inline const utils::config::data::sources::SourceSettings& getSourceConfig() { return *source_config.get(); }
+                inline const utils::config::data::sources::SourceSettings& getSourceConfig() const { return *source_config.get(); }
             protected:
                 static size_t secsToMillisRound(float seconds);
+
+                std::string name;
 
                 std::unique_ptr<VideoStream> video_stream;
                 float active_fps;

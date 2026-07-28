@@ -19,7 +19,7 @@ namespace utils
             {
                 public:
                     SequenceVideoStream(const cv::VideoCapture& video_stream);
-                    ~SequenceVideoStream();
+                    virtual ~SequenceVideoStream();
 
                     std::optional<cv::Mat> getImage();
 

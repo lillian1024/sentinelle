@@ -56,6 +56,8 @@ namespace utils
 
         void Logger::Init()
         {
+            logging_level = config::ConfigManager::instance().getGeneralSettings().getLoggingLevel();
+
             std::ostringstream sb;
 
             sb << "New logging session initialized at log_level: ";
@@ -65,7 +67,7 @@ namespace utils
         }
 
         Logger::Logger()
-            : logging_level(config::ConfigManager::instance().getGeneralSettings().getLoggingLevel()),
+            : logging_level(LogLevel::INFO),
             output_stream(getLogFileBuffer())
         { }
 

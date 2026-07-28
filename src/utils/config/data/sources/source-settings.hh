@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <opencv2/videoio.hpp>
+#include <string>
 #include <yaml-cpp/yaml.h>
 
 #define SOURCE_TYPE_FIELD "type"
@@ -23,7 +24,9 @@ namespace utils
                             URL,
                         };
 
-                        static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node);
+                        virtual ~SourceSettings() = default;
+
+                        static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node, std::string source_name);
 
                         virtual std::string dumpSettings() const = 0;
                         virtual SourceType getType() const = 0;
@@ -51,10 +54,17 @@ namespace utils
                         {
                             return show_debug_view;
                         };
+
+                        virtual std::string getName() const
+                        {
+                            return source_name;
+                        }
                     protected:
-                        SourceSettings(YAML::Node node);
+                        SourceSettings(YAML::Node node, std::string source_name);
 
                         const std::string parent_field_name = "source settings";
+
+                        std::string source_name;
 
                         bool is_live;
 

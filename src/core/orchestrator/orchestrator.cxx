@@ -1,12 +1,12 @@
 #include "orchestrator.hh"
-#include "core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.hh"
+#include "core/components/analizers/analizer.hh"
 #include "core/components/sources/source.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include "utils/io_data/types/io_data_mat.hh"
+#include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
 #include "utils/thread/thread-manager.hh"
-#include <chrono>
 #include <cstddef>
 #include <ctime>
 #include <iostream>
@@ -30,7 +30,7 @@ namespace core
 
         void Orchestrator::LoadConfiguration()
         {
-            logSourceConfig();
+            logConfig();
 
             auto& sources_config = utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings();
 
@@ -70,7 +70,7 @@ namespace core
             }
 
             utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
-                "All sources started successfully.",
+                "All sources initialized successfully.",
                 utils::logger::Logger::LogLevel::INFO);
         }
 
@@ -87,13 +87,25 @@ namespace core
 
             if (!source.isSourceOpen())
             {
-                utils::logger::Logger::instance().Log("Source", "Unable to start the source!", utils::logger::Logger::LogLevel::ERROR);
+                std::ostringstream sb;
+
+                sb << "Unable to start the source (";
+                sb << source.getName();
+                sb << ")!";
+
+                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
 
                 return;
             }
             else
             {
-                utils::logger::Logger::instance().Log("Source", "Source started successfully.", utils::logger::Logger::LogLevel::INFO);
+                std::ostringstream sb;
+
+                sb << "Source  ";
+                sb << source.getName();
+                sb << " started successfully.";
+
+                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
             }
 
             while (!stop)
@@ -104,8 +116,6 @@ namespace core
                     std::this_thread::sleep_until(source.getCooldownStopTime());
                 }
 
-                auto prev_time = source.getLastFrameTime();
-
                 std::optional<cv::Mat> image = source.getImage();
                 source.setLastFrameNow();
 
@@ -114,25 +124,11 @@ namespace core
                     continue;
                 }
 
-                auto current_time = source.getLastFrameTime();
-
-                float time_interval_sec = std::chrono::duration_cast<std::chrono::duration<float>>(current_time - prev_time).count();
-
-                float prev_fps;
-
-                if (time_interval_sec == 0.0)
-                {
-                    prev_fps = 0;
-                }
-                else
-                {
-                    prev_fps = 1 / (time_interval_sec);
-                }
-
                 // TODO: change this to configured analizer sequence!
                 // Start of DEBUG
 
-                components::analizer::dnn::AnalizerDNNGenericIdent ana;
+                //components::analizer::dnn::AnalizerDNNGenericIdent ana("test");
+                components::analizer::Analizer* ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("general_ident");
 
                 std::map<std::string, utils::io_data::IOData*> inputs;
 
@@ -140,7 +136,7 @@ namespace core
 
                 inputs.insert({"image", image_input.get()});
 
-                auto outputs = ana.process(inputs);
+                auto outputs = ana->process(inputs, source);
 
                 if (outputs.empty())
                 {
@@ -162,24 +158,22 @@ namespace core
 
                 auto debug_image = debug_data->getData();
 
-                // End of DEBUG
-
                 if (source.getShowDebugView())
                 {
-                    std::ostringstream box_string_builder;
+                    components::analizer::Analizer* display_ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("show_debug");
 
-                    box_string_builder << "FPS: ";
-                    box_string_builder << prev_fps;
+                    std::map<std::string, utils::io_data::IOData*> show_inputs;
 
-                    cv::putText(debug_image, box_string_builder.str(), cv::Point(5, 75), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
+                    std::unique_ptr<utils::io_data::IOData> show_image_input = std::move(outputs["debug-image"]);
+                    std::unique_ptr<utils::io_data::IOData> show_name_input = std::make_unique<utils::io_data::IODataString>("test");
 
-                    cv::imshow("image", debug_image);
+                    show_inputs.insert({"image", show_image_input.get()});
+                    show_inputs.insert({"name", show_name_input.get()});
 
-                    int k = cv::waitKey(10);
-                    if (k == 113){
-                        stop = true;
-                    }
+                    display_ana->process(show_inputs, source);
                 }
+
+                // End of DEBUG
             }
 
             source.releaseSource();
@@ -191,15 +185,27 @@ namespace core
             utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
         }
 
+        void Orchestrator::logConfig()
+        {
+            std::ostringstream sb;
+
+            sb << "Server name: " << utils::config::ConfigManager::instance().getGeneralSettings().getServerName() << std::endl;
+            sb << "Nb sources: " << utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings().sources.size() << std::endl;
+            sb << "Logger level: " << utils::config::ConfigManager::instance().getGeneralSettings().getLoggingLevel() << std::endl;
+
+            utils::logger::Logger::instance().LogPlain(sb.str(), utils::logger::Logger::LogLevel::DEBUG);
+            logSourceConfig();
+            logAnalizerConfig();
+        }
+
         void Orchestrator::logSourceConfig()
         {
-            size_t i = 0;
             for (auto& source_setting: utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings().sources)
             {
                 std::ostringstream sb;
 
                 sb << "Source ";
-                sb << i;
+                sb << source_setting->getName();
                 sb << ":\n";
 
                 utils::logger::Logger::instance().LogPlain(sb.str(), utils::logger::Logger::LogLevel::DEBUG);
@@ -213,9 +219,12 @@ namespace core
                 }
 
                 utils::logger::Logger::instance().LogPlain(source_setting->dumpSettings(), utils::logger::Logger::LogLevel::DEBUG);
-
-                i++;
             }
+        }
+
+        void Orchestrator::logAnalizerConfig()
+        {
+            utils::logger::Logger::instance().LogPlain(utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().dumpInfo(), utils::logger::Logger::LogLevel::DEBUG);
         }
     }
 }

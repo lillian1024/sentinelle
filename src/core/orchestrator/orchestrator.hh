@@ -22,7 +22,9 @@ namespace core
             protected:
                 static void startSourceOrchestration(components::source::Source& source);
 
+                void logConfig();
                 void logSourceConfig();
+                void logAnalizerConfig();
 
                 std::vector<std::unique_ptr<components::source::Source>> sources;
         };

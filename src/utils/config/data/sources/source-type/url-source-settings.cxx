@@ -18,17 +18,17 @@ namespace utils
             {
                 const std::string UrlSourceSettings::URL_SOURE_TYPE_NAME = "url";
 
-                UrlSourceSettings::UrlSourceSettings(YAML::Node node)
-                    : SourceSettings(node)
+                UrlSourceSettings::UrlSourceSettings(YAML::Node node, std::string source_name)
+                    : SourceSettings(node, source_name)
                 {
                     if (!node.IsDefined())
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: error while parsing source!");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: error while parsing source!");
                     }
 
                     if (DataModule::readScalarOrError(node, SOURCE_TYPE_FIELD, parent_field_name) != URL_SOURE_TYPE_NAME)
                     {
-                        throw std::runtime_error(ConfigManager::getManagerMessagePrefix() + "Unable to parse config: mismatched source type! please report this error to the maintainers.");
+                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: mismatched source type! please report this error to the maintainers.");
                     }
 
                     url = DataModule::readScalarOrError(node, URL_FIELD, parent_field_name);

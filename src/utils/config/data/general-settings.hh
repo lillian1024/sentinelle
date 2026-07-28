@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/config/data-module.hh"
+#include "utils/config/data/analizers/analizers-settings.hh"
 #include "utils/config/data/sources/sources-settings.hh"
 #include "utils/logger/logger.hh"
 #include <cstddef>
@@ -25,6 +26,7 @@ namespace utils
                 inline std::string getCachePath() { return cache_path; }
                 inline std::string getLogFile() { return log_file; }
                 inline sources::SourcesSettings& getSourceSettings() { return sources_settings; }
+                inline analizers::AnalizersSettings& getAnalizersSettings() { return analizers_settings; }
             protected:
                 std::string server_name;
                 std::size_t thread_limit;
@@ -32,6 +34,7 @@ namespace utils
                 std::string cache_path;
                 std::string log_file;
                 sources::SourcesSettings sources_settings;
+                analizers::AnalizersSettings analizers_settings;
             };
         }
     }
