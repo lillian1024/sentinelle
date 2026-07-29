@@ -36,28 +36,103 @@ namespace core
         {
             namespace dnn
             {
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node config, std::string name)
+                const std::vector<std::string> AnalizerDNNGenericIdent::class_names = {
+                    "person",
+                    "bicycle",
+                    "car",
+                    "motorcycle",
+                    "airplane",
+                    "bus",
+                    "train",
+                    "truck",
+                    "boat",
+                    "traffic light",
+                    "fire hydrant",
+                    "street sign",
+                    "stop sign",
+                    "parking meter",
+                    "bench",
+                    "bird",
+                    "cat",
+                    "dog",
+                    "horse",
+                    "sheep",
+                    "cow",
+                    "elephant",
+                    "bear",
+                    "zebra",
+                    "giraffe",
+                    "hat",
+                    "backpack",
+                    "umbrella",
+                    "shoe",
+                    "eye glasses",
+                    "handbag",
+                    "tie",
+                    "suitcase",
+                    "frisbee",
+                    "skis",
+                    "snowboard",
+                    "sports ball",
+                    "kite",
+                    "baseball bat",
+                    "baseball glove",
+                    "skateboard",
+                    "surfboard",
+                    "tennis racket",
+                    "bottle",
+                    "plate",
+                    "wine glass",
+                    "cup",
+                    "fork",
+                    "knife",
+                    "spoon",
+                    "bowl",
+                    "banana",
+                    "apple",
+                    "sandwich",
+                    "orange",
+                    "broccoli",
+                    "carrot",
+                    "hot dog",
+                    "pizza",
+                    "donut",
+                    "cake",
+                    "chair",
+                    "couch",
+                    "potted plant",
+                    "bed",
+                    "mirror",
+                    "dining table",
+                    "window",
+                    "desk",
+                    "toilet",
+                    "door",
+                    "tv",
+                    "laptop",
+                    "mouse",
+                    "remote",
+                    "keyboard",
+                    "cell phone",
+                    "microwave",
+                    "oven",
+                    "toaster",
+                    "sink",
+                    "refrigerator",
+                    "blender",
+                    "book",
+                    "clock",
+                    "vase",
+                    "scissors",
+                    "teddy bear",
+                    "hair drier",
+                    "toothbrush"
+                };
+
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node _, std::string name)
                     : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
                 {
-                    //Load class names
-                    if (!utils::cache::CacheManager::instance().hasFile(DNN_CACHE_NAME, IDENT_CATEGORY_FILE_NAME))
-                    {
-                        utils::logger::Logger::instance().Log(ANALIZE_CATEGORY_NAME, MISSING_CLASS_FILE_ERROR_MSG, utils::logger::Logger::LogLevel::CRITICAL);
 
-                        throw std::runtime_error(ANALIZE_CATEGORY_NAME + ": " + MISSING_CLASS_FILE_ERROR_MSG);
-                    }
-
-                    std::string file_path = utils::cache::CacheManager::instance().getPath(DNN_CACHE_NAME, IDENT_CATEGORY_FILE_NAME);
-
-                    std::ifstream ifs(file_path.c_str());
-                    std::string line;
-
-                    while (getline(ifs, line))
-                    {
-                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
-
-                        class_names.push_back(line);
-                    }
                 }
 
                 std::map<std::string, utils::io_data::IODataType> AnalizerDNNGenericIdent::getInputs()

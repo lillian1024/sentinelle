@@ -23,7 +23,7 @@ namespace core
 
                         std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&);
                     private:
-                        std::vector<std::string> class_names;
+                        static const std::vector<std::string> class_names;
                 };
             }
         }

@@ -25,8 +25,8 @@ namespace utils
                     : source_name(source_name)
                 {
                     std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
-                    std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, parent_field_name);
-                    std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, parent_field_name);
+                    std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, source_name + " source");
+                    std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, source_name + " source");
                     auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD);
 
                     if (is_live_str.has_value())
