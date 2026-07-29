@@ -10,7 +10,6 @@
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 #define NN_NAME "ssd_mobilenet_v2_coco_2018_03_29"

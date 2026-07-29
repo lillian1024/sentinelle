@@ -41,6 +41,12 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.cxx
     )
 
+#Core chain sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/core/components/chains/chain.cxx
+    src/core/components/chains/context/context.cxx
+    )
+
 #Utils config sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/config-manager.cxx
