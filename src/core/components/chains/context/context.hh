@@ -19,7 +19,7 @@ namespace core
                     ~Context() = default;
 
                     static const std::string INPUT_STAGE_NAME;
-                    static const int INPUT_STAGE_INDEX = -1;
+                    static const int INPUT_STAGE_INDEX;
 
                     bool hasVariable(int stage, std::string analizer_name, std::string output_name) const;
 

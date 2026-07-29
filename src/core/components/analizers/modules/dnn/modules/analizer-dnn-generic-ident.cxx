@@ -176,7 +176,7 @@ namespace core
 
                     cv::Mat image = image_mat_data->getData();
 
-                    cv::Mat blob = cv::dnn::dnn4_v20260709::blobFromImage(image, 1.0, cv::Size(300, 300), cv::Scalar(127.5, 127.5, 127.5),
+                    cv::Mat blob = cv::dnn::dnn4_v20260709::blobFromImage(image, 1.0, cv::Size(600, 600), cv::Scalar(127.5, 127.5, 127.5),
                                             true, false);
 
                     cv::dnn::dnn4_v20260709::Net& net = getNet();

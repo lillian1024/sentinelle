@@ -7,7 +7,7 @@ namespace core
     {
         namespace chains
         {
-            AnalizerUsage::AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, Chain::PathData> inputPath)
+            AnalizerUsage::AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, PathData> inputPath)
                 : analizer(analizer),
                 inputPath(inputPath)
             {

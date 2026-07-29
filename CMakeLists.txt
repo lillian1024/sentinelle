@@ -45,6 +45,8 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/chains/chain.cxx
     src/core/components/chains/context/context.cxx
+    src/core/components/chains/analizer-usage.cxx
+    src/core/components/chains/path-data.cxx
     )
 
 #Utils config sources

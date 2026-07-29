@@ -14,6 +14,7 @@ namespace core
         namespace chains
         {
             const std::string Context::INPUT_STAGE_NAME = "input";
+            const int Context::INPUT_STAGE_INDEX = -1;
 
             Context::Context(cv::Mat input_image, std::string source_name)
                 : data()
