@@ -17,7 +17,7 @@
 
 #define INPUT_IMAGE_NAME "image"
 
-#define OUTPUT_DEBUG_IMAGE_NAME "debug-image"
+#define OUTPUT_DEBUG_IMAGE_NAME "debug_image"
 
 #define IDENT_CATEGORY_FILE_NAME "ssd_mobilenet_v2_coc_categories.txt"
 #define DNN_CATEGORY_NAME "DDNManager"
