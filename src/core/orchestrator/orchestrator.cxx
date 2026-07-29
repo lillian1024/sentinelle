@@ -1,5 +1,6 @@
 #include "orchestrator.hh"
 #include "core/components/analizers/analizer.hh"
+#include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
@@ -128,7 +129,7 @@ namespace core
                 // Start of DEBUG
 
                 //components::analizer::dnn::AnalizerDNNGenericIdent ana("test");
-                components::analizer::Analizer* ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("general_ident");
+                /*components::analizer::Analizer* ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("general_ident");
 
                 std::map<std::string, utils::io_data::IOData*> inputs;
 
@@ -171,7 +172,20 @@ namespace core
                     show_inputs.insert({"name", show_name_input.get()});
 
                     display_ana->process(show_inputs, source);
+                    }*/
+
+                components::chains::Chain* chain;
+
+                if (source.getShowDebugView())
+                {
+                    chain = &utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain("general_scan_debug");
                 }
+                else
+                {
+                    chain = &utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain("general_scan");
+                }
+
+                chain->process(image.value(), source);
 
                 // End of DEBUG
             }
@@ -225,6 +239,7 @@ namespace core
         void Orchestrator::logAnalizerConfig()
         {
             utils::logger::Logger::instance().LogPlain(utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().dumpInfo(), utils::logger::Logger::LogLevel::DEBUG);
+            utils::logger::Logger::instance().LogPlain(utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().dumpInfo(), utils::logger::Logger::LogLevel::DEBUG);
         }
     }
 }

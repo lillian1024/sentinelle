@@ -21,6 +21,11 @@ namespace utils
                 {
                     return IODataType::LONG;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataLong>(data);
+                }
             protected:
                 long data;
         };

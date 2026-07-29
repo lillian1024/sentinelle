@@ -21,6 +21,11 @@ namespace utils
                 {
                     return IODataType::FLOAT;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataFloat>(data);
+                }
             protected:
                 float data;
         };

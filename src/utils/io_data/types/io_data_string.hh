@@ -22,6 +22,11 @@ namespace utils
                 {
                     return IODataType::STRING;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataString>(data);
+                }
             protected:
                 std::string data;
         };

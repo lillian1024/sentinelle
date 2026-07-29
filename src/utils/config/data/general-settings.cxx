@@ -3,6 +3,7 @@
 #include "sources/sources-settings.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/analizers/analizers-settings.hh"
+#include "utils/config/data/chains/chains-settings.hh"
 #include "utils/logger/logger.hh"
 #include <optional>
 #include <stdexcept>
@@ -64,6 +65,7 @@ namespace utils
 
                 sources_settings.readModule(readMapOrError(node, SOURCES_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 analizers_settings.readModule(readMapOrError(node, ANALIZERS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
+                chains_settings.readModule(readMapOrError(node, CHAINS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
             }
         }
     }

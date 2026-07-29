@@ -22,6 +22,11 @@ namespace utils
                 {
                     return IODataType::MAT;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataMat>(data);
+                }
             protected:
                 cv::Mat data;
         };

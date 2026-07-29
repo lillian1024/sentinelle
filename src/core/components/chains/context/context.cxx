@@ -3,6 +3,7 @@
 #include "utils/io_data/types/io_data_string.hh"
 #include <map>
 #include <memory>
+#include <utility>
 
 #define INPUT_IMAGE_NAME "image"
 #define INPUT_SOURCE_NAME "source_name"
@@ -16,7 +17,7 @@ namespace core
             const std::string Context::INPUT_STAGE_NAME = "input";
             const int Context::INPUT_STAGE_INDEX = -1;
 
-            Context::Context(cv::Mat input_image, std::string source_name)
+            Context::Context(cv::Mat& input_image, std::string source_name)
                 : data()
             {
                 data.insert({INPUT_STAGE_INDEX, std::map<std::string, std::map<std::string, std::unique_ptr<utils::io_data::IOData>>>()});
@@ -99,6 +100,11 @@ namespace core
                 }
 
                 analizer_data->second.insert_or_assign(output_name, std::move(value));
+            }
+
+            void Context::storeTemporaryValue(std::unique_ptr<utils::io_data::IOData> value)
+            {
+                temporary_values.push_back(std::move(value));
             }
         }
     }

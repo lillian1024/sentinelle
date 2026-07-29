@@ -5,6 +5,7 @@
 #include <memory>
 #include <opencv2/core/mat.hpp>
 #include <string>
+#include <vector>
 
 namespace core
 {
@@ -15,7 +16,7 @@ namespace core
             class Context
             {
                 public:
-                    Context(cv::Mat input_image, std::string source_name);
+                    Context(cv::Mat& input_image, std::string source_name);
                     ~Context() = default;
 
                     static const std::string INPUT_STAGE_NAME;
@@ -26,8 +27,12 @@ namespace core
                     utils::io_data::IOData* getVariable(int stage, std::string analizer_name, std::string output_name) const;
 
                     void setVariable(int stage, std::string analizer_name, std::string output_name, std::unique_ptr<utils::io_data::IOData> value);
+
+                    void storeTemporaryValue(std::unique_ptr<utils::io_data::IOData> value);
                 private:
                     std::map<int, std::map<std::string, std::map<std::string, std::unique_ptr<utils::io_data::IOData>>>> data;
+
+                    std::vector<std::unique_ptr<utils::io_data::IOData>> temporary_values;
             };
         }
     }

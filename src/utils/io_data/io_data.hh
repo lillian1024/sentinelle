@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 namespace utils
 {
     namespace io_data
@@ -21,6 +22,8 @@ namespace utils
                 virtual ~IOData() = default;
 
                 virtual IODataType getType() const = 0;
+
+                virtual std::unique_ptr<IOData> clone() = 0;
         };
     }
 }

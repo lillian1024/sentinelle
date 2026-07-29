@@ -21,6 +21,11 @@ namespace utils
                 {
                     return IODataType::DOUBLE;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataDouble>(data);
+                }
             protected:
                 double data;
         };

@@ -57,6 +57,7 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/data/sources/source-settings.cxx
     src/utils/config/data/sources/source-type/url-source-settings.cxx
     src/utils/config/data/analizers/analizers-settings.cxx
+    src/utils/config/data/chains/chains-settings.cxx
     )
 
 #Utils thread sources

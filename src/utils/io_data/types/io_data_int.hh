@@ -21,6 +21,11 @@ namespace utils
                 {
                     return IODataType::INT;
                 }
+
+                std::unique_ptr<IOData> clone()
+                {
+                    return std::make_unique<IODataInt>(data);
+                }
             protected:
                 int data;
         };

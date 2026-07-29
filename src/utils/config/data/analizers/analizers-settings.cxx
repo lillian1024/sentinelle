@@ -38,6 +38,18 @@ namespace utils
                     return analizers.find(name)->second.get();
                 }
 
+                std::map<std::string, core::components::analizer::Analizer&> AnalizersSettings::getAnalizersRefMap()
+                {
+                    std::map<std::string, core::components::analizer::Analizer&> res;
+
+                    for (auto& analizer: analizers)
+                    {
+                        res.insert({analizer.first, *analizer.second.get()});
+                    }
+
+                    return res;
+                }
+
                 std::string AnalizersSettings::dumpInfo()
                 {
                     std::ostringstream sb;
