@@ -3,10 +3,22 @@
 #include <memory>
 #include <opencv2/videoio.hpp>
 #include <string>
+#include <vector>
 #include <yaml-cpp/yaml.h>
 
 #define SOURCE_TYPE_FIELD "type"
-#define SHOW_DEBUG_VIEW_FIELD "show_debug_view"
+
+namespace core
+{
+    namespace components
+    {
+        namespace chains
+        {
+            class Chain;
+        }
+    }
+}
+
 
 namespace utils
 {
@@ -24,7 +36,7 @@ namespace utils
                             URL,
                         };
 
-                        virtual ~SourceSettings() = default;
+                        virtual ~SourceSettings();
 
                         static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node, std::string source_name);
 
@@ -50,9 +62,9 @@ namespace utils
 
                         virtual std::unique_ptr<SourceSettings> clone() const = 0;
 
-                        virtual bool getShowDebugView() const
+                        virtual const std::vector<core::components::chains::Chain>& getProcess() const
                         {
-                            return show_debug_view;
+                            return process;
                         };
 
                         virtual std::string getName() const
@@ -71,7 +83,7 @@ namespace utils
                         float active_fps;
                         float passive_fps;
 
-                        bool show_debug_view;
+                        std::vector<core::components::chains::Chain> process;
                 };
             }
         }

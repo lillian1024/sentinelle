@@ -19,7 +19,7 @@ namespace core
                 public:
                     Chain(YAML::Node node, std::map<std::string, analizer::Analizer&> analizers);
 
-                    void process(cv::Mat& input_image, source::Source& source);
+                    void process(cv::Mat& input_image, source::Source& source, bool& trigger);
 
                     std::string dumpConfig();
                 private:

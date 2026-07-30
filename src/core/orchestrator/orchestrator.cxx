@@ -1,17 +1,13 @@
 #include "orchestrator.hh"
-#include "core/components/analizers/analizer.hh"
 #include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
-#include "utils/io_data/types/io_data_mat.hh"
-#include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
 #include "utils/thread/thread-manager.hh"
 #include <cstddef>
 #include <ctime>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -82,8 +78,6 @@ namespace core
 
         void Orchestrator::OrchestrateSource(components::source::Source& source)
         {
-            bool stop = false;
-
             source.startResource();
 
             if (!source.isSourceOpen())
@@ -109,7 +103,7 @@ namespace core
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
             }
 
-            while (!stop)
+            while (!source.isStopping())
             {
                 if (source.isInCooldown())
                 {
@@ -125,78 +119,52 @@ namespace core
                     continue;
                 }
 
-                // TODO: change this to configured analizer sequence!
-                // Start of DEBUG
+                bool trigger;
 
-                //components::analizer::dnn::AnalizerDNNGenericIdent ana("test");
-                /*components::analizer::Analizer* ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("general_ident");
-
-                std::map<std::string, utils::io_data::IOData*> inputs;
-
-                std::unique_ptr<utils::io_data::IOData> image_input = std::make_unique<utils::io_data::IODataMat>(*image);
-
-                inputs.insert({"image", image_input.get()});
-
-                auto outputs = ana->process(inputs, source);
-
-                if (outputs.empty())
+                for (auto chain: source.getSourceConfig().getProcess())
                 {
-                    utils::logger::Logger::instance().Log("Analizer", "Unable to get outputs: error while processing!", utils::logger::Logger::LogLevel::ERROR);
-
-                    continue;
+                    chain.process(image.value(), source, trigger);
                 }
 
-                auto* debug_data_ptr = outputs["debug-image"].get();
-
-                auto* debug_data = dynamic_cast<utils::io_data::IODataMat*>(debug_data_ptr);
-
-                if (debug_data == nullptr)
+                if (trigger != source.isTriggered())
                 {
-                    utils::logger::Logger::instance().Log("Analizer", "Unable to get outputs: missmatched types!", utils::logger::Logger::LogLevel::ERROR);
+                    source.setTriggered(trigger);
 
-                    continue;
+                    if (trigger)
+                    {
+                        std::ostringstream sb;
+
+                        sb << "Source ";
+                        sb << source.getName();
+                        sb << " has been triggered!";
+
+                        utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
+                    }
+                    else
+                    {
+                        std::ostringstream sb;
+
+                        sb << "Source ";
+                        sb << source.getName();
+                        sb << " has been untriggered!";
+
+                        utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::TRACE);
+                    }
+
+                    UpdateGroupActivation(source);
                 }
-
-                auto debug_image = debug_data->getData();
-
-                if (source.getShowDebugView())
-                {
-                    components::analizer::Analizer* display_ana = utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizer("show_debug");
-
-                    std::map<std::string, utils::io_data::IOData*> show_inputs;
-
-                    std::unique_ptr<utils::io_data::IOData> show_image_input = std::move(outputs["debug-image"]);
-                    std::unique_ptr<utils::io_data::IOData> show_name_input = std::make_unique<utils::io_data::IODataString>("test");
-
-                    show_inputs.insert({"image", show_image_input.get()});
-                    show_inputs.insert({"name", show_name_input.get()});
-
-                    display_ana->process(show_inputs, source);
-                    }*/
-
-                components::chains::Chain* chain;
-
-                if (source.getShowDebugView())
-                {
-                    chain = &utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain("general_scan_debug");
-                }
-                else
-                {
-                    chain = &utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain("general_scan");
-                }
-
-                chain->process(image.value(), source);
-
-                // End of DEBUG
             }
 
             source.releaseSource();
-            if (source.getShowDebugView())
-            {
-                cv::destroyAllWindows();
-            }
+            cv::destroyAllWindows();
 
             utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
+        }
+
+        void Orchestrator::UpdateGroupActivation(components::source::Source& source)
+        {
+            // TODO: Manage groups
+            source.setActive(source.isTriggered());
         }
 
         void Orchestrator::logConfig()

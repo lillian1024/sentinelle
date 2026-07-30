@@ -1,5 +1,6 @@
 #include "analizer-dnn-generic-ident.hh"
 #include "core/components/analizers/modules/dnn/analizer-dnn.hh"
+#include "utils/config/data-module.hh"
 #include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 #include "utils/cache/cache-manager.hh"
@@ -9,8 +10,14 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/dnn/dnn.hpp>
 #include <opencv2/imgproc.hpp>
+#include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+
+#define CATEGORY_NAME "AnalizerDNNGenericIdent"
+
+#define CATEGORY_PROPERTY_NAME "classes"
 
 #define NN_NAME "ssd_mobilenet_v2_coco_2018_03_29"
 #define NN_URL ""
@@ -128,10 +135,22 @@ namespace core
                     "toothbrush"
                 };
 
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node _, std::string name)
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node node, std::string name)
                     : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
                 {
+                    auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
 
+                    for (size_t i = 0; i < cat_map.size(); i++)
+                    {
+                        if (!cat_map[i].IsScalar())
+                        {
+                            std::string prefix = "[";
+
+                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CATEGORY_PROPERTY_NAME + " must only contain strings!");
+                        }
+
+                        searching_category.push_back(cat_map[i].Scalar());
+                    }
                 }
 
                 std::map<std::string, utils::io_data::IODataType> AnalizerDNNGenericIdent::getInputs()
@@ -152,7 +171,7 @@ namespace core
                     return res;
                 }
 
-                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&)
+                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&, bool& trigger)
                 {
                     //Check input types
                     if (!validateInputs(inputs))
@@ -189,16 +208,27 @@ namespace core
 
                     for (int i = 0; i < results.rows; i++){
                         int class_id = int(results.at<float>(i, 1));
+
+                        if (class_id-1 < 0 || size_t(class_id-1) >= class_names.size())
+                        {
+                            utils::logger::Logger::instance().Log(CATEGORY_NAME, "detected unkown class!", utils::logger::Logger::LogLevel::WARNING);
+
+                            continue;
+                        }
+
+                        std::string class_name = class_names[class_id-1];
                         float confidence = results.at<float>(i, 2);
 
+                        bool is_searched_class = std::ranges::contains(searching_category, class_name);
+
                         // Check if the detection is over the min threshold and then draw bbox
-                        if (confidence > MINIMUM_CONFIDENCE_SCORE){
+                        if (confidence > MINIMUM_CONFIDENCE_SCORE && is_searched_class){
                             int bboxX = int(results.at<float>(i, 3) * image.cols);
                             int bboxY = int(results.at<float>(i, 4) * image.rows);
                             int bboxWidth = int(results.at<float>(i, 5) * image.cols - bboxX);
                             int bboxHeight = int(results.at<float>(i, 6) * image.rows - bboxY);
 
-                            std::string class_name = class_names[class_id-1];
+                            trigger = true;
 
                             std::ostringstream sb;
 

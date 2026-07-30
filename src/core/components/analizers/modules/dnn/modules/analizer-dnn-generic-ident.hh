@@ -21,9 +21,10 @@ namespace core
                         std::map<std::string, utils::io_data::IODataType> getInputs();
                         std::map<std::string, utils::io_data::IODataType> getOutputs();
 
-                        std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&);
+                        std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&, bool& trigger);
                     private:
                         static const std::vector<std::string> class_names;
+                        std::vector<std::string> searching_category;
                 };
             }
         }

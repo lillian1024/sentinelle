@@ -38,7 +38,7 @@ namespace core
                     template<class T>
                     T* getInputTypeFromInputs(std::map<std::string, utils::io_data::IOData*> inputs, std::string name);
 
-                    virtual std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&) = 0;
+                    virtual std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&, bool& trigger) = 0;
 
                     virtual inline std::string getName() { return name; }
                 protected:

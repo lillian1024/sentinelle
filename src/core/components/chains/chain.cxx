@@ -142,7 +142,7 @@ namespace core
                 return res;
             }
 
-            void Chain::process(cv::Mat& input_image, source::Source& source)
+            void Chain::process(cv::Mat& input_image, source::Source& source, bool& trigger)
             {
                 Context context(input_image, source.getName());
 
@@ -152,7 +152,7 @@ namespace core
 
                     for (auto& analizer : stage)
                     {
-                        auto outputs = analizer.second.process(context, source);
+                        auto outputs = analizer.second.process(context, source, trigger);
 
                         for (auto& output: outputs)
                         {

@@ -18,6 +18,8 @@ namespace core
 
                 void OrchestrateSource(components::source::Source& source);
 
+                void UpdateGroupActivation(components::source::Source& source);
+
                 static const std::string ORCHESTRATOR_CATEGORY_NAME;
             protected:
                 static void startSourceOrchestration(components::source::Source& source);

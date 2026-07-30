@@ -1,5 +1,4 @@
 #include "path-data.hh"
-#include <string>
 
 namespace core
 {
@@ -7,10 +6,6 @@ namespace core
     {
         namespace chains
         {
-            PathData::PathData(std::string path)
-            {
-
-            }
         }
     }
 }

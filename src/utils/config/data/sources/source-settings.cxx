@@ -2,6 +2,8 @@
 #include "utils/config/config-manager.hh"
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "core/components/chains/chain.hh"
+#include "yaml-cpp/node/node.h"
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -10,6 +12,7 @@
 #define IS_LIVE_FIELD "is_live"
 #define ACTIVE_FPS_FIELD "active_fps"
 #define PASSIVE_FPS_FIELD "passive_fps"
+#define PROCESS_FIELD "process"
 
 #define IS_LIVE_DEFAULT_VALUE true
 
@@ -27,7 +30,7 @@ namespace utils
                     std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
                     std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, source_name + " source");
                     std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, source_name + " source");
-                    auto show_debug_view_opt = DataModule::readScalarOptional(node, SHOW_DEBUG_VIEW_FIELD);
+                    YAML::Node process_seq = DataModule::readSequenceOrError(node, PROCESS_FIELD, source_name + " source");
 
                     if (is_live_str.has_value())
                     {
@@ -43,11 +46,11 @@ namespace utils
                         active_fps = std::stof(active_fps_str);
                         passive_fps = std::stof(passive_fps_str);
                     }
-                    catch (const std::invalid_argument)
+                    catch (const std::invalid_argument&)
                     {
                         throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: expected float for " + ACTIVE_FPS_FIELD + " and " + PASSIVE_FPS_FIELD + " field!");
                     }
-                    catch (const std::out_of_range)
+                    catch (const std::out_of_range&)
                     {
                         throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + ACTIVE_FPS_FIELD + " or " + PASSIVE_FPS_FIELD + " exceeds max value!");
                     }
@@ -62,19 +65,31 @@ namespace utils
                         throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + PASSIVE_FPS_FIELD + " must be positive!");
                     }
 
-                    if (show_debug_view_opt.has_value() && show_debug_view_opt.value() == "true")
+                    for (size_t i = 0; i < process_seq.size(); i++)
                     {
-                        show_debug_view = true;
-                    }
-                    else
-                    {
-                        show_debug_view = false;
+                        if (!process_seq[i].IsScalar())
+                        {
+                            throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: All entries in " + PROCESS_FIELD + " must be a string!");
+                        }
+
+                        std::string chain_name = process_seq[i].Scalar();
+
+                        if (!ConfigManager::instance().getGeneralSettings().getChainsSettings().hasChain(chain_name))
+                        {
+                            throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: Unkown chain in " + PROCESS_FIELD + ": " + chain_name + " !");
+                        }
+
+                        auto& chain = ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain(chain_name);
+
+                        process.push_back(chain);
                     }
                 }
 
+                SourceSettings::~SourceSettings() { }
+
                 std::unique_ptr<SourceSettings> SourceSettings::getSourceSettingsFromNode(YAML::Node node, std::string source_name)
                 {
-                    std::string type_name = DataModule::readScalarOrError(node, SOURCE_TYPE_FIELD, "source settings");
+                    std::string type_name = DataModule::readScalarOrError(node, SOURCE_TYPE_FIELD, source_name + " source");
 
                     if (type_name == UrlSourceSettings::URL_SOURE_TYPE_NAME)
                     {

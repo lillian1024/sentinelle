@@ -45,7 +45,6 @@ namespace core
                 : name(config.getName()),
                   active_fps(config.getActiveFps()),
                   passive_fps(config.getPassiveFps()),
-                  show_debug_view(config.getShowDebugView()),
                   is_active(false),
                   is_triggered(false),
                   last_frame(std::chrono::steady_clock::now())
@@ -144,6 +143,39 @@ namespace core
             size_t Source::secsToMillisRound(float seconds)
             {
                 return size_t(seconds * SECS_TO_MILLIS);
+            }
+
+            bool Source::isActive() const
+            {
+                return is_active;
+            }
+            bool Source::isTriggered() const
+            {
+                return is_triggered;
+            }
+
+            void Source::setActive(bool value)
+            {
+                is_active = value;
+            }
+            void Source::setTriggered(bool value)
+            {
+                is_triggered = value;
+            }
+
+            bool Source::isStopping() const
+            {
+                return stop;
+            }
+
+            void Source::Stop()
+            {
+                stop.store(true);
+            }
+
+            void Source::Resume()
+            {
+                stop.store(false);
             }
         }
     }

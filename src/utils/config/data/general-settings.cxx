@@ -44,11 +44,11 @@ namespace utils
                     //Volontary possible size_t (unsigned) underflow to get size_t's max value
                     thread_limit = std::stol(thread_limit_str);
                 }
-                catch (std::invalid_argument)
+                catch (const std::invalid_argument&)
                 {
                     throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse configuration: " + THREAD_LIMIT_FIELD + " should be an integer!");
                 }
-                catch (std::out_of_range)
+                catch (const std::out_of_range&)
                 {
                     throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse configuration: " + THREAD_LIMIT_FIELD + " is out of range of integers!");
                 }
@@ -63,9 +63,9 @@ namespace utils
 
                 logging_level = log_level.value();
 
-                sources_settings.readModule(readMapOrError(node, SOURCES_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 analizers_settings.readModule(readMapOrError(node, ANALIZERS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 chains_settings.readModule(readMapOrError(node, CHAINS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
+                sources_settings.readModule(readMapOrError(node, SOURCES_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
             }
         }
     }

@@ -18,7 +18,7 @@ namespace core
                 public:
                     AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, std::string> inputPath);
 
-                    std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(Context& context, source::Source& source);
+                    std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(Context& context, source::Source& source, bool& trigger);
                 private:
                     static utils::io_data::IOData* getValueFromPath(Context& context, std::string path);
 

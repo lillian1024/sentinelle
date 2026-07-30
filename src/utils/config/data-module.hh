@@ -57,6 +57,21 @@ namespace utils
 
                 return node[property_name];
             };
+
+            inline static YAML::Node readSequenceOrError(YAML::Node node, std::string property_name, std::string parent_name)
+            {
+                if (!node[property_name].IsDefined())
+                {
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not defined!");
+                }
+
+                if (!node[property_name].IsSequence())
+                {
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not a sequence!");
+                }
+
+                return node[property_name];
+            };
         protected:
 
         };

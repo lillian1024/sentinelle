@@ -48,6 +48,19 @@ namespace utils
                  {
                      return std::make_unique<UrlSourceSettings>(*this);
                  }
+
+                 std::string UrlSourceSettings::dumpSettings() const
+                 {
+                     std::ostringstream string_builder;
+
+                     string_builder << "\tType: " << URL_SOURE_TYPE_NAME << '\n';
+                     string_builder << "\tUrl: " << url << '\n';
+                     string_builder << "\tActive fps: " << active_fps << '\n';
+                     string_builder << "\tPassive fps: " << passive_fps << '\n';
+                     string_builder << "\tProcess #: " << process.size() << '\n';
+
+                     return string_builder.str();
+                 }
             }
         }
     }

@@ -33,7 +33,7 @@ namespace core
 
             }
 
-            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerUsage::process(Context& context, source::Source& source)
+            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerUsage::process(Context& context, source::Source& source, bool& trigger)
             {
                 std::map<std::string, utils::io_data::IOData *> inputs;
 
@@ -52,7 +52,7 @@ namespace core
                     inputs.insert({input_name, value});
                 }
 
-                return analizer.process(inputs, source);
+                return analizer.process(inputs, source, trigger);
             }
 
             utils::io_data::IOData* AnalizerUsage::getValueFromPath(Context& context, std::string path)
@@ -166,11 +166,11 @@ namespace core
                 {
                     return std::stoi(value);
                 }
-                catch (std::invalid_argument)
+                catch (const std::invalid_argument&)
                 {
                     return std::nullopt;
                 }
-                catch (std::out_of_range)
+                catch (const std::out_of_range&)
                 {
                     return std::nullopt;
                 }
@@ -182,11 +182,11 @@ namespace core
                 {
                     return std::stof(value);
                 }
-                catch (std::invalid_argument)
+                catch (const std::invalid_argument&)
                 {
                     return std::nullopt;
                 }
-                catch (std::out_of_range)
+                catch (const std::out_of_range&)
                 {
                     return std::nullopt;
                 }
@@ -261,11 +261,11 @@ namespace core
                     {
                         stage_nb = std::stoi(parts[0]);
                     }
-                    catch (std::invalid_argument)
+                    catch (const std::invalid_argument&)
                     {
                         return std::nullopt;
                     }
-                    catch (std::out_of_range)
+                    catch (const std::out_of_range&)
                     {
                         return std::nullopt;
                     }

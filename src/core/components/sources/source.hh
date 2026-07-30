@@ -2,6 +2,7 @@
 
 #include "utils/config/data/sources/source-settings.hh"
 #include "utils/opencv/video-stream/video-stream.hh"
+#include <atomic>
 #include <chrono>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -36,13 +37,23 @@ namespace core
                 float getCurrentFPS() const;
 
                 inline std::string getName() const { return name; }
-                inline bool getShowDebugView() const { return show_debug_view; }
                 inline bool isSourceOpen() const { return video_stream->isOpened(); }
 
                 time_type getLastFrameTime() const;
                 bool isInCooldown() const;
                 time_type getCooldownStopTime() const;
                 float getRemainingCoolSecs() const;
+
+                bool isActive() const;
+                bool isTriggered() const;
+
+                void setActive(bool value);
+                void setTriggered(bool value);
+
+                bool isStopping() const;
+
+                void Stop();
+                void Resume();
 
                 void setLastFrameNow();
 
@@ -56,10 +67,10 @@ namespace core
                 float active_fps;
                 float passive_fps;
 
-                bool show_debug_view;
+                std::atomic<bool> is_active;
+                std::atomic<bool> is_triggered;
 
-                bool is_active;
-                bool is_triggered;
+                std::atomic<bool> stop;
 
                 time_type last_frame;
 
