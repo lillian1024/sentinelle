@@ -17,12 +17,12 @@ namespace utils
             {
                 if (!node[property_name].IsDefined())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not defined!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not defined!");
                 }
 
                 if (!node[property_name].IsScalar())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not a scalar!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not a string!");
                 }
 
                 return node[property_name].Scalar();
@@ -47,12 +47,12 @@ namespace utils
             {
                 if (!node[property_name].IsDefined())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not defined!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not defined!");
                 }
 
                 if (!node[property_name].IsMap())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not a map!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not a map!");
                 }
 
                 return node[property_name];
@@ -62,12 +62,12 @@ namespace utils
             {
                 if (!node[property_name].IsDefined())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not defined!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not defined!");
                 }
 
                 if (!node[property_name].IsSequence())
                 {
-                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field " + property_name + " of " + parent_name + " is not a sequence!");
+                    throw std::runtime_error("[ConfigManager]: Unable to parse config: the field '" + property_name + "' of " + parent_name + " is not a sequence!");
                 }
 
                 return node[property_name];

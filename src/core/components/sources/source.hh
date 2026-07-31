@@ -35,6 +35,7 @@ namespace core
                 virtual void releaseSource();
 
                 float getCurrentFPS() const;
+                float getFPS(bool is_active) const;
 
                 inline std::string getName() const { return name; }
                 inline bool isSourceOpen() const { return video_stream->isOpened(); }

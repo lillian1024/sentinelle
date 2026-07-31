@@ -94,6 +94,11 @@ namespace core
                 return is_active ? active_fps : passive_fps;
             }
 
+            float Source::getFPS(bool is_active) const
+            {
+                return is_active ? active_fps : passive_fps;
+            }
+
             time_type Source::getLastFrameTime() const
             {
                 return last_frame;

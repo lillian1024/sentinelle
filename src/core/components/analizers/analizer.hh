@@ -16,7 +16,8 @@ namespace core
             enum class Type
             {
                 DDN_GENERAL_IDENT,
-                SHOW_IMAGE
+                SHOW_IMAGE,
+                SAVE_VIDEO,
             };
 
             class Analizer

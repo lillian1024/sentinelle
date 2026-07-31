@@ -36,7 +36,8 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
 #Core analizer sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/analizers/analizer.cxx
-    src/core/components/analizers/modules/analizer-show-image.cxx
+    src/core/components/analizers/modules/utils/analizer-show-image.cxx
+    src/core/components/analizers/modules/utils/analizer-save-video.cxx
     src/core/components/analizers/modules/dnn/analizer-dnn.cxx
     src/core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.cxx
     )

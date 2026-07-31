@@ -1,6 +1,7 @@
 #include "analizer-dnn-generic-ident.hh"
 #include "core/components/analizers/modules/dnn/analizer-dnn.hh"
 #include "utils/config/data-module.hh"
+#include "utils/io_data/types/io_data_bool.hh"
 #include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 #include "utils/cache/cache-manager.hh"
@@ -25,6 +26,7 @@
 #define INPUT_IMAGE_NAME "image"
 
 #define OUTPUT_DEBUG_IMAGE_NAME "debug_image"
+#define OUTPUT_DETECTED_NAME "detected"
 
 #define IDENT_CATEGORY_FILE_NAME "ssd_mobilenet_v2_coc_categories.txt"
 #define DNN_CATEGORY_NAME "DDNManager"
@@ -167,6 +169,7 @@ namespace core
                     std::map<std::string, utils::io_data::IODataType> res;
 
                     res.insert({OUTPUT_DEBUG_IMAGE_NAME, utils::io_data::IODataType::MAT});
+                    res.insert({OUTPUT_DETECTED_NAME, utils::io_data::IODataType::BOOL});
 
                     return res;
                 }
@@ -206,6 +209,8 @@ namespace core
 
                     cv::Mat results(output.size[2], output.size[3], CV_32F, output.ptr<float>());
 
+                    bool detected = false;
+
                     for (int i = 0; i < results.rows; i++){
                         int class_id = int(results.at<float>(i, 1));
 
@@ -229,6 +234,7 @@ namespace core
                             int bboxHeight = int(results.at<float>(i, 6) * image.rows - bboxY);
 
                             trigger = true;
+                            detected = true;
 
                             std::ostringstream sb;
 
@@ -254,11 +260,20 @@ namespace core
                         }
                     }
 
+                    std::ostringstream sb;
+
+                    sb << "Detected: ";
+                    sb << (detected ? "true" : "false");
+
+                    cv::putText(image, sb.str(), cv::Point(5, 90), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
+
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> res;
 
                     auto debug_image_data = std::make_unique<utils::io_data::IODataMat>(image);
+                    auto debug_detected_data = std::make_unique<utils::io_data::IODataBool>(detected);
 
                     res.insert({OUTPUT_DEBUG_IMAGE_NAME, std::move(debug_image_data)});
+                    res.insert({OUTPUT_DETECTED_NAME, std::move(debug_detected_data)});
 
                     return res;
                 }
