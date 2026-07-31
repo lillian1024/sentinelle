@@ -148,7 +148,7 @@ namespace core
 
                 for (size_t i = 0; i < stages.size(); i++)
                 {
-                    auto stage = stages[i];
+                    auto& stage = stages[i];
 
                     for (auto& analizer : stage)
                     {

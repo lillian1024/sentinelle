@@ -121,9 +121,16 @@ namespace core
 
                 bool trigger;
 
-                for (auto chain: source.getSourceConfig().getProcess())
+                for (size_t i = 0; i < source.getSourceConfig().getProcess().size(); i++)
                 {
-                    chain.process(image.value(), source, trigger);
+                    auto chain = source.getSourceConfig().getProcess()[i];
+
+                    if (chain == nullptr)
+                    {
+                        continue;
+                    }
+
+                    chain->process(image.value(), source, trigger);
                 }
 
                 if (trigger != source.isTriggered())

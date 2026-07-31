@@ -262,6 +262,13 @@ namespace core
 
                     return res;
                 }
+
+
+
+                std::unique_ptr<Analizer> AnalizerDNNGenericIdent::clone()
+                {
+                    return std::make_unique<AnalizerDNNGenericIdent>(*this);
+                }
             }
         }
     }

@@ -8,6 +8,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #define IS_LIVE_FIELD "is_live"
 #define ACTIVE_FPS_FIELD "active_fps"
@@ -79,9 +80,25 @@ namespace utils
                             throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: Unkown chain in " + PROCESS_FIELD + ": " + chain_name + " !");
                         }
 
-                        auto& chain = ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain(chain_name);
+                        auto chain = std::make_unique<core::components::chains::Chain>(ConfigManager::instance().getGeneralSettings().getChainsSettings().getChain(chain_name));
 
-                        process.push_back(chain);
+                        process.push_back(std::move(chain));
+                    }
+                }
+
+                SourceSettings::SourceSettings(const SourceSettings& copy_from)
+                    : source_name(copy_from.source_name),
+                    is_live(copy_from.is_live),
+                    active_fps(copy_from.active_fps),
+                    passive_fps(copy_from.passive_fps)
+                {
+                    process = std::vector<std::unique_ptr<core::components::chains::Chain>>();
+
+                    for (size_t i = 0; i < copy_from.process.size(); i++)
+                    {
+                        auto proc = copy_from.process[i].get();
+
+                        process.push_back(std::make_unique<core::components::chains::Chain>(*proc));
                     }
                 }
 
@@ -100,6 +117,20 @@ namespace utils
                         throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unrecognized source type: " + type_name);
                     }
                 }
+
+                std::vector<core::components::chains::Chain*> SourceSettings::getProcess() const
+                {
+                    std::vector<core::components::chains::Chain*> res;
+
+                    for (size_t i = 0; i < process.size(); i++)
+                    {
+                        auto proc = process.at(i).get();
+
+                        res.push_back(proc);
+                    }
+
+                    return res;
+                };
             }
         }
     }

@@ -1,4 +1,5 @@
 #include "analizer-dnn.hh"
+#include <memory>
 #include <opencv2/dnn/dnn.hpp>
 #include <stdexcept>
 #include <string>

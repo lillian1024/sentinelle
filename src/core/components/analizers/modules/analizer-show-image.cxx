@@ -4,6 +4,7 @@
 #include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
 #include <iostream>
+#include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -98,6 +99,11 @@ namespace core
                 int _ = cv::waitKey(10);
 
                 return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+            }
+
+            std::unique_ptr<Analizer> AnalizerShowImage::clone()
+            {
+                return std::make_unique<AnalizerShowImage>(*this);
             }
         }
     }

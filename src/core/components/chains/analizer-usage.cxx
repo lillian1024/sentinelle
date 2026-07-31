@@ -6,6 +6,7 @@
 #include "utils/io_data/types/io_data_float.hh"
 #include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -27,10 +28,17 @@ namespace core
         namespace chains
         {
             AnalizerUsage::AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, std::string> inputPath)
-                : analizer(analizer),
-                inputPath(inputPath)
+                : inputPath(inputPath)
             {
+                this->analizer = analizer.clone();
+            }
 
+            AnalizerUsage::AnalizerUsage(const AnalizerUsage &old_usage)
+                : inputPath(old_usage.inputPath)
+            {
+                this->analizer = old_usage.analizer->clone();
+
+                std::cout << "Copyied" << std::endl;
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerUsage::process(Context& context, source::Source& source, bool& trigger)
@@ -52,7 +60,7 @@ namespace core
                     inputs.insert({input_name, value});
                 }
 
-                return analizer.process(inputs, source, trigger);
+                return analizer->process(inputs, source, trigger);
             }
 
             utils::io_data::IOData* AnalizerUsage::getValueFromPath(Context& context, std::string path)

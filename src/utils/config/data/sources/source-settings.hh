@@ -39,6 +39,7 @@ namespace utils
                         virtual ~SourceSettings();
 
                         static std::unique_ptr<SourceSettings> getSourceSettingsFromNode(YAML::Node node, std::string source_name);
+                        SourceSettings(const SourceSettings& copy_from);
 
                         virtual std::string dumpSettings() const = 0;
                         virtual SourceType getType() const = 0;
@@ -62,10 +63,7 @@ namespace utils
 
                         virtual std::unique_ptr<SourceSettings> clone() const = 0;
 
-                        virtual const std::vector<core::components::chains::Chain>& getProcess() const
-                        {
-                            return process;
-                        };
+                        virtual std::vector<core::components::chains::Chain*> getProcess() const;
 
                         virtual std::string getName() const
                         {
@@ -83,7 +81,7 @@ namespace utils
                         float active_fps;
                         float passive_fps;
 
-                        std::vector<core::components::chains::Chain> process;
+                        std::vector<std::unique_ptr<core::components::chains::Chain>> process;
                 };
             }
         }

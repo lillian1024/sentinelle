@@ -41,6 +41,8 @@ namespace core
                     virtual std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&, bool& trigger) = 0;
 
                     virtual inline std::string getName() { return name; }
+
+                    virtual std::unique_ptr<Analizer> clone() = 0;
                 protected:
                     std::string name;
             };

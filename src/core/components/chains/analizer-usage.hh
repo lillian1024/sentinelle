@@ -17,6 +17,7 @@ namespace core
             {
                 public:
                     AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, std::string> inputPath);
+                    AnalizerUsage(const AnalizerUsage &old_usage);
 
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(Context& context, source::Source& source, bool& trigger);
                 private:
@@ -33,7 +34,7 @@ namespace core
 
                     static std::vector<std::string> split(const std::string& input, char delimiter);
 
-                    analizer::Analizer& analizer;
+                    std::unique_ptr<analizer::Analizer> analizer;
                     std::map<std::string, std::string> inputPath;
             };
         }
