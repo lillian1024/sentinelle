@@ -1,6 +1,9 @@
 #include "orchestrator.hh"
 #include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
+#include "core/event/events/modules/trigger/triggered-event.hh"
+#include "core/event/events/modules/trigger/untriggered-event.hh"
+#include "core/event/event-manager.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include "utils/logger/logger.hh"
@@ -107,7 +110,6 @@ namespace core
             {
                 if (source.isInCooldown())
                 {
-                    // TODO: correctly retrieve the last frame from the stream
                     std::this_thread::sleep_until(source.getCooldownStopTime());
                 }
 
@@ -146,6 +148,8 @@ namespace core
                         sb << " has been triggered!";
 
                         utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
+
+                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::TriggeredEvent>(source));
                     }
                     else
                     {
@@ -156,6 +160,8 @@ namespace core
                         sb << " has been untriggered!";
 
                         utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::TRACE);
+
+                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::UnTriggeredEvent>(source));
                     }
 
                     UpdateGroupActivation(source);

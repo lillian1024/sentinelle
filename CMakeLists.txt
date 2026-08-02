@@ -50,6 +50,14 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/chains/path-data.cxx
     )
 
+#Core event sources
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/core/event/event-manager.cxx
+    src/core/event/events/event.cxx
+    src/core/event/events/modules/trigger/triggered-event.cxx
+    src/core/event/events/modules/trigger/untriggered-event.cxx
+    )
+
 #Utils config sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/config-manager.cxx

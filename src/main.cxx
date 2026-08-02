@@ -1,7 +1,7 @@
+#include "core/event/event-manager.hh"
 #include "core/orchestrator/orchestrator.hh"
 #include "utils/config/config-manager.hh"
 #include <chrono>
-#include <iostream>
 #include <thread>
 
 int main()
@@ -9,6 +9,7 @@ int main()
     utils::config::ConfigManager::instance().reloadSettings();
 
     utils::logger::Logger::instance().Init();
+    core::event::EventManager::instance().startEventManager();
 
     core::orchestrator::Orchestrator::instance().LoadConfiguration();
     core::orchestrator::Orchestrator::instance().StartOrchestrator();

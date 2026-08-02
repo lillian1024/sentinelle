@@ -37,8 +37,6 @@ namespace core
                 : inputPath(old_usage.inputPath)
             {
                 this->analizer = old_usage.analizer->clone();
-
-                std::cout << "Copyied" << std::endl;
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerUsage::process(Context& context, source::Source& source, bool& trigger)
