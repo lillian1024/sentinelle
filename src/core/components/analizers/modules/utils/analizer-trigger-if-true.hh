@@ -1,6 +1,10 @@
 #pragma once
 
 #include "core/components/analizers/analizer.hh"
+#include "utils/io_data/io_data.hh"
+
+#include <map>
+#include <string>
 
 namespace core
 {
@@ -8,11 +12,11 @@ namespace core
     {
         namespace analizer
         {
-            class AnalizerShowImage : public Analizer
+            class AnalizerTriggerIfTrue : public Analizer
             {
                 public:
-                    AnalizerShowImage(std::string name);
-                    ~AnalizerShowImage() = default;
+                    AnalizerTriggerIfTrue(std::string name);
+                    ~AnalizerTriggerIfTrue() = default;
 
                     std::map<std::string, utils::io_data::IODataType> getInputs();
                     std::map<std::string, utils::io_data::IODataType> getOutputs();
@@ -20,10 +24,6 @@ namespace core
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger);
 
                     std::unique_ptr<Analizer> clone();
-                private:
-                    typedef std::chrono::time_point<std::chrono::steady_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> time_type;
-
-                    time_type prev_frame;
             };
         }
     }

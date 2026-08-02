@@ -233,7 +233,6 @@ namespace core
                             int bboxWidth = int(results.at<float>(i, 5) * image.cols - bboxX);
                             int bboxHeight = int(results.at<float>(i, 6) * image.rows - bboxY);
 
-                            trigger = true;
                             detected = true;
 
                             std::ostringstream sb;

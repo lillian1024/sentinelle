@@ -2,6 +2,7 @@
 
 #include "core/components/analizers/modules/utils/analizer-show-image.hh"
 #include "core/components/analizers/modules/utils/analizer-save-video.hh"
+#include "core/components/analizers/modules/utils/analizer-trigger-if-true.hh"
 #include "modules/dnn/modules/analizer-dnn-generic-ident.hh"
 #include "utils/config/data-module.hh"
 #include "utils/io_data/io_data.hh"
@@ -32,6 +33,7 @@ namespace core
                     {"dnn_general_ident", Type::DDN_GENERAL_IDENT},
                     {"show_image", Type::SHOW_IMAGE},
                     {"save_video", Type::SAVE_VIDEO},
+                    {"trigger_if_true", Type::TRIGGER_IF_TRUE},
                 };
 
                 if (type_map.find(type) == type_map.end())
@@ -49,6 +51,8 @@ namespace core
                         return std::make_unique<AnalizerShowImage>(name);
                     case Type::SAVE_VIDEO:
                         return std::make_unique<AnalizerSaveVideo>(node, name);
+                    case Type::TRIGGER_IF_TRUE:
+                        return std::make_unique<AnalizerTriggerIfTrue>(name);
                 }
 
                 throw std::runtime_error(ANALIZE_CATEGORY_NAME + ": Unable to load analizer: unknown type!");

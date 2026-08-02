@@ -18,6 +18,7 @@ namespace core
                 DDN_GENERAL_IDENT,
                 SHOW_IMAGE,
                 SAVE_VIDEO,
+                TRIGGER_IF_TRUE,
             };
 
             class Analizer
