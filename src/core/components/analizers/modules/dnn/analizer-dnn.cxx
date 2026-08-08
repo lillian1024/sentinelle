@@ -1,5 +1,4 @@
 #include "analizer-dnn.hh"
-#include <memory>
 #include <opencv2/dnn/dnn.hpp>
 #include <stdexcept>
 #include <string>
@@ -19,6 +18,89 @@ namespace core
         {
             namespace dnn
             {
+                const std::vector<std::string> AnalizerDNN::coco_class_names = {
+                      "person",
+                      "bicycle",
+                      "car",
+                      "motorcycle",
+                      "airplane",
+                      "bus",
+                      "train",
+                      "truck",
+                      "boat",
+                      "traffic light",
+                      "fire hydrant",
+                      "stop sign",
+                      "parking meter",
+                      "bench",
+                      "bird",
+                      "cat",
+                      "dog",
+                      "horse",
+                      "sheep",
+                      "cow",
+                      "elephant",
+                      "bear",
+                      "zebra",
+                      "giraffe",
+                      "backpack",
+                      "umbrella",
+                      "handbag",
+                      "tie",
+                      "suitcase",
+                      "frisbee",
+                      "skis",
+                      "snowboard",
+                      "sports ball",
+                      "kite",
+                      "baseball bat",
+                      "baseball glove",
+                      "skateboard",
+                      "surfboard",
+                      "tennis racket",
+                      "bottle",
+                      "wine glass",
+                      "cup",
+                      "fork",
+                      "knife",
+                      "spoon",
+                      "bowl",
+                      "banana",
+                      "apple",
+                      "sandwich",
+                      "orange",
+                      "broccoli",
+                      "carrot",
+                      "hot dog",
+                      "pizza",
+                      "donut",
+                      "cake",
+                      "chair",
+                      "couch",
+                      "potted plant",
+                      "bed",
+                      "dining table",
+                      "toilet",
+                      "tv",
+                      "laptop",
+                      "mouse",
+                      "remote",
+                      "keyboard",
+                      "cell phone",
+                      "microwave",
+                      "oven",
+                      "toaster",
+                      "sink",
+                      "refrigerator",
+                      "book",
+                      "clock",
+                      "vase",
+                      "scissors",
+                      "teddy bear",
+                      "hair drier",
+                      "toothbrush"
+                };
+
                 const std::string AnalizerDNN::DNN_CACHE_NAME = "dnn";
 
                 AnalizerDNN::AnalizerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store)
@@ -38,6 +120,12 @@ namespace core
                         case NetStoreType::TORCH:
                         {
                             net = loadFromTorch(net_name, net_url, pull_net);
+
+                            break;
+                        }
+                        case NetStoreType::ONNX:
+                        {
+                            net = loadFromONNX(net_name, net_url, pull_net);
 
                             break;
                         }
@@ -89,6 +177,28 @@ namespace core
                     }
 
                     return cv::dnn::dnn4_v20260709::readNetFromTorch(pb_path, true, false);
+                }
+
+                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromONNX(std::string net_name, std::string net_url, bool pull_net)
+                {
+                    std::string file_name = net_name + ".onnx";
+
+                    std::string file_path = utils::cache::CacheManager::instance().getPath(DNN_CACHE_NAME, file_name);
+
+                    if (!utils::cache::CacheManager::instance().hasFile(DNN_CACHE_NAME, file_name))
+                    {
+                        std::string cat_name = DNN_CATEGORY_NAME;
+
+                        if (!pull_net)
+                        {
+                            utils::logger::Logger::instance().Log(DNN_CATEGORY_NAME, DNN_NOT_FOUND_ERROR_MSG, utils::logger::Logger::LogLevel::CRITICAL);
+                            throw std::runtime_error(cat_name + ": " + DNN_NOT_FOUND_ERROR_MSG);
+                        }
+
+                        throw std::runtime_error(cat_name + ": Auto pull is not implemented yet!");
+                    }
+
+                    return cv::dnn::dnn4_v20260709::readNetFromONNX(file_path);
                 }
 
                 cv::dnn::dnn4_v20260709::Net& AnalizerDNN::getNet()

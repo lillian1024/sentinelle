@@ -44,99 +44,6 @@ namespace core
         {
             namespace dnn
             {
-                const std::vector<std::string> AnalizerDNNGenericIdent::class_names = {
-                    "person",
-                    "bicycle",
-                    "car",
-                    "motorcycle",
-                    "airplane",
-                    "bus",
-                    "train",
-                    "truck",
-                    "boat",
-                    "traffic light",
-                    "fire hydrant",
-                    "street sign",
-                    "stop sign",
-                    "parking meter",
-                    "bench",
-                    "bird",
-                    "cat",
-                    "dog",
-                    "horse",
-                    "sheep",
-                    "cow",
-                    "elephant",
-                    "bear",
-                    "zebra",
-                    "giraffe",
-                    "hat",
-                    "backpack",
-                    "umbrella",
-                    "shoe",
-                    "eye glasses",
-                    "handbag",
-                    "tie",
-                    "suitcase",
-                    "frisbee",
-                    "skis",
-                    "snowboard",
-                    "sports ball",
-                    "kite",
-                    "baseball bat",
-                    "baseball glove",
-                    "skateboard",
-                    "surfboard",
-                    "tennis racket",
-                    "bottle",
-                    "plate",
-                    "wine glass",
-                    "cup",
-                    "fork",
-                    "knife",
-                    "spoon",
-                    "bowl",
-                    "banana",
-                    "apple",
-                    "sandwich",
-                    "orange",
-                    "broccoli",
-                    "carrot",
-                    "hot dog",
-                    "pizza",
-                    "donut",
-                    "cake",
-                    "chair",
-                    "couch",
-                    "potted plant",
-                    "bed",
-                    "mirror",
-                    "dining table",
-                    "window",
-                    "desk",
-                    "toilet",
-                    "door",
-                    "tv",
-                    "laptop",
-                    "mouse",
-                    "remote",
-                    "keyboard",
-                    "cell phone",
-                    "microwave",
-                    "oven",
-                    "toaster",
-                    "sink",
-                    "refrigerator",
-                    "blender",
-                    "book",
-                    "clock",
-                    "vase",
-                    "scissors",
-                    "teddy bear",
-                    "hair drier",
-                    "toothbrush"
-                };
-
                 AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node node, std::string name)
                     : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
                 {
@@ -174,7 +81,7 @@ namespace core
                     return res;
                 }
 
-                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&, bool& trigger)
+                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&, bool&)
                 {
                     //Check input types
                     if (!validateInputs(inputs))
@@ -214,14 +121,22 @@ namespace core
                     for (int i = 0; i < results.rows; i++){
                         int class_id = int(results.at<float>(i, 1));
 
-                        if (class_id-1 < 0 || size_t(class_id-1) >= class_names.size())
+                        if (class_id-1 < 0 || size_t(class_id-1) >= coco_class_names.size())
                         {
-                            utils::logger::Logger::instance().Log(CATEGORY_NAME, "detected unkown class!", utils::logger::Logger::LogLevel::WARNING);
+                            std::ostringstream sb;
+
+                            sb << "detected unkown class: ";
+                            sb << class_id;
+                            sb << "/";
+                            sb << coco_class_names.size();
+                            sb << " !";
+
+                            utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::WARNING);
 
                             continue;
                         }
 
-                        std::string class_name = class_names[class_id-1];
+                        std::string class_name = coco_class_names[class_id-1];
                         float confidence = results.at<float>(i, 2);
 
                         bool is_searched_class = std::ranges::contains(searching_category, class_name);

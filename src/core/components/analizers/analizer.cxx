@@ -1,5 +1,6 @@
 #include "analizer.hh"
 
+#include "core/components/analizers/modules/dnn/modules/analizer-dnn-yolov9.hh"
 #include "core/components/analizers/modules/utils/analizer-show-image.hh"
 #include "core/components/analizers/modules/utils/analizer-save-video.hh"
 #include "core/components/analizers/modules/utils/analizer-trigger-if-true.hh"
@@ -31,6 +32,8 @@ namespace core
 
                 static const std::map<std::string, Type> type_map = {
                     {"dnn_general_ident", Type::DDN_GENERAL_IDENT},
+                    {"yolov9-m", Type::YOLOV9M},
+                    {"yolov9-p", Type::YOLOV9P},
                     {"show_image", Type::SHOW_IMAGE},
                     {"save_video", Type::SAVE_VIDEO},
                     {"trigger_if_true", Type::TRIGGER_IF_TRUE},
@@ -47,6 +50,10 @@ namespace core
                 {
                     case Type::DDN_GENERAL_IDENT:
                         return std::make_unique<dnn::AnalizerDNNGenericIdent>(node, name);
+                    case Type::YOLOV9M:
+                        return std::make_unique<dnn::AnalizerDNNYoloV9>(node, name);
+                    case Type::YOLOV9P:
+                        return std::make_unique<dnn::AnalizerDNNYoloV9>(node, name);
                     case Type::SHOW_IMAGE:
                         return std::make_unique<AnalizerShowImage>(name);
                     case Type::SAVE_VIDEO:

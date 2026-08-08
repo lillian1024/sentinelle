@@ -16,6 +16,8 @@ namespace core
             enum class Type
             {
                 DDN_GENERAL_IDENT,
+                YOLOV9M,
+                YOLOV9P,
                 SHOW_IMAGE,
                 SAVE_VIDEO,
                 TRIGGER_IF_TRUE,
