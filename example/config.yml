@@ -1,0 +1,70 @@
+server_name: test server
+log_level: TRACE
+
+analizers:
+  detection:
+    type: yolov9-m
+    classes:
+      - person
+      - car
+      - motorcycle
+      - bus
+      - truck
+      - cat
+      - dog
+  trigger:
+    type: trigger_if_true
+  save_video:
+    type: save_video
+    format: h265
+    stop_release: true
+  show_debug:
+    type: show_image
+
+chains:
+  process_debug:
+    0:
+      detection:
+        image: $input.image
+    1:
+      trigger:
+        input: $0.detection.detected
+    2:
+      save_video:
+        image: $0.detection.debug_image
+        file: output01.mkv
+        enable: $0.detection.detected
+      show_debug:
+        image: $0.detection.debug_image
+        name: $input.source_name
+  process:
+    0:
+      detection:
+        image: $input.image
+    1:
+      trigger:
+        input: $0.detection.detected
+    2:
+      save_video:
+        image: $0.detection.debug_image
+        file: output02.mkv
+        enable: $0.detection.detected
+
+sources_settings:
+  sources:
+    cam01:
+      type: url
+      url: rtsp://192.168.1.20:554/stream1
+      is_live: true
+      active_fps: 15
+      passive_fps: 1
+      process:
+        - process_debug
+    cam02:
+      type: url
+      url: rtsp://192.168.1.21:554/stream1
+      is_live: true
+      active_fps: 15
+      passive_fps: 1
+      process:
+        - process
