@@ -77,7 +77,7 @@ namespace core
                 return res;
             }
 
-            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerSaveVideo::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& _)
+            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerSaveVideo::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger)
             {
                 auto image_data_field = inputs.find(IMAGE_INPUT_NAME);
                 auto file_data_field = inputs.find(FILE_NAME_INPUT_NAME);
@@ -153,7 +153,7 @@ namespace core
                 if (input_file != previous_file || !writer.has_value())
                 {
                     // TODO: change fps to current fps with futur is_active value
-                    openNewFile(input_file, source.getFPS(true), frame_width, frame_height);
+                    openNewFile(input_file, source.getFPS(trigger || source.isActive()), frame_width, frame_height);
                 }
 
                 // Check that writer has been initialized correctly

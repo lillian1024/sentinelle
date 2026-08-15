@@ -16,6 +16,7 @@ namespace core
                 {
                     public:
                         AnalizerDNNGenericIdent(YAML::Node config, std::string name);
+                        AnalizerDNNGenericIdent(const AnalizerDNNGenericIdent& from);
                         ~AnalizerDNNGenericIdent() = default;
 
                         std::map<std::string, utils::io_data::IODataType> getInputs();

@@ -18,6 +18,7 @@ namespace core
                 {
                     public:
                         AnalizerDNNYoloV9(YAML::Node config, std::string name);
+                        AnalizerDNNYoloV9(const AnalizerDNNYoloV9& from);
                         ~AnalizerDNNYoloV9() = default;
 
                         std::map<std::string, utils::io_data::IODataType> getInputs();

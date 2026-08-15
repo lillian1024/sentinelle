@@ -62,6 +62,12 @@ namespace core
                     }
                 }
 
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(const AnalizerDNNGenericIdent& from)
+                    : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW),
+                    searching_category(from.searching_category)
+                {
+                }
+
                 std::map<std::string, utils::io_data::IODataType> AnalizerDNNGenericIdent::getInputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;

@@ -105,9 +105,15 @@ namespace core
 
                 AnalizerDNN::AnalizerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store)
                     : Analizer(name),
+                    loaded(false),
                     net_name(net_name),
                     net_url(net_url),
+                    net_store(net_store),
                     pull_net(pull_net)
+                {
+                }
+
+                void AnalizerDNN::loadNet()
                 {
                     switch (net_store)
                     {
@@ -130,9 +136,11 @@ namespace core
                             break;
                         }
                     }
+
+                    loaded = true;
                 }
 
-                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromTensor(std::string net_name, std::string net_url, bool pull_net)
+                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromTensor(std::string net_name, std::string, bool pull_net)
                 {
                     std::string pb_name = net_name + ".pb";
                     std::string pbtxt_name = net_name + ".pbtxt";
@@ -157,7 +165,7 @@ namespace core
                     return cv::dnn::dnn4_v20260709::readNetFromTensorflow(pb_path, pbtxt_path);
                 }
 
-                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromTorch(std::string net_name, std::string net_url, bool pull_net)
+                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromTorch(std::string net_name, std::string, bool pull_net)
                 {
                     std::string file_name = net_name + ".dump";
 
@@ -179,7 +187,7 @@ namespace core
                     return cv::dnn::dnn4_v20260709::readNetFromTorch(pb_path, true, false);
                 }
 
-                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromONNX(std::string net_name, std::string net_url, bool pull_net)
+                cv::dnn::dnn4_v20260709::Net AnalizerDNN::loadFromONNX(std::string net_name, std::string, bool pull_net)
                 {
                     std::string file_name = net_name + ".onnx";
 
@@ -203,6 +211,11 @@ namespace core
 
                 cv::dnn::dnn4_v20260709::Net& AnalizerDNN::getNet()
                 {
+                    if (!isLoaded())
+                    {
+                        loadNet();
+                    }
+
                     return net;
                 }
 
@@ -217,6 +230,11 @@ namespace core
                 std::string AnalizerDNN::getNetName()
                 {
                     return net_name;
+                }
+
+                bool AnalizerDNN::isLoaded()
+                {
+                    return loaded;
                 }
             }
         }

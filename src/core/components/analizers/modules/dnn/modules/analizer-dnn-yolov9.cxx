@@ -35,7 +35,7 @@
 #define MISSING_CLASS_FILE_ERROR_MSG "Unable to start analizer: unable to locate class data file in cache!"
 
 // TODO: Change to config from yaml
-#define MINIMUM_CONFIDENCE_SCORE 0.25
+#define MINIMUM_CONFIDENCE_SCORE 0.4
 #define NMS_THRESHOLD 0.45
 
 namespace core
@@ -61,6 +61,15 @@ namespace core
                         }
 
                         searching_category.push_back(cat_map[i].Scalar());
+                    }
+                }
+
+                AnalizerDNNYoloV9::AnalizerDNNYoloV9(const AnalizerDNNYoloV9& from)
+                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::ONNX)
+                {
+                    for (auto s : from.searching_category)
+                    {
+                        searching_category.push_back(s);
                     }
                 }
 

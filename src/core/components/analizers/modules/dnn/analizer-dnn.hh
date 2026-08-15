@@ -31,6 +31,9 @@ namespace core
 
                         cv::dnn::dnn4_v20260709::Net& getNet();
 
+                        void loadNet();
+                        bool isLoaded();
+
                         bool setCUDA();
 
                         static const std::vector<std::string> coco_class_names;
@@ -40,6 +43,8 @@ namespace core
                         cv::dnn::dnn4_v20260709::Net loadFromONNX(std::string net_name, std::string net_url, bool pull_net);
 
                         cv::dnn::dnn4_v20260709::Net net;
+
+                        bool loaded;
 
                         std::string net_name;
                         std::string net_url;

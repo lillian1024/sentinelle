@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/core/ovx.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/core/utils/logger.defines.hpp>
 #include <opencv2/highgui.hpp>
