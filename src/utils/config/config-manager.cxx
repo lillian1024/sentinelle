@@ -6,6 +6,7 @@
 #include <yaml-cpp/yaml.h>
 
 #define DEFAULT_CONFIG_FILE "./config.yml"
+#define CONFIG_FILE_ENV_VAR "SENTINELLE_SETTINGS_FILE"
 
 namespace utils
 {
@@ -16,13 +17,13 @@ namespace utils
         ConfigManager::ConfigManager()
             : generalSettings()
         {
-            if (std::getenv("SENTINELLE_SETTINGS_FILE") == NULL)
+            if (std::getenv(CONFIG_FILE_ENV_VAR) == NULL)
             {
                 settings_file = DEFAULT_CONFIG_FILE;
             }
             else
             {
-                settings_file = std::getenv("SENTINELLE_SETTINGS_FILE");
+                settings_file = std::getenv(CONFIG_FILE_ENV_VAR);
             }
         }
 
