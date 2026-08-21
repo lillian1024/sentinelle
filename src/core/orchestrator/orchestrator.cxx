@@ -31,6 +31,8 @@ namespace core
 
         void Orchestrator::LoadConfiguration()
         {
+            printf("OpenCV: %s", cv::getBuildInformation().c_str());
+
             logConfig();
 
             auto& sources_config = utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings();

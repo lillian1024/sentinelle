@@ -28,7 +28,7 @@ namespace utils
 
                         core::components::analizer::Analizer* getAnalizer(std::string name);
 
-                        std::map<std::string, core::components::analizer::Analizer&> getAnalizersRefMap();
+                        std::map<std::string, std::reference_wrapper<core::components::analizer::Analizer>> getAnalizersRefMap();
 
                         std::string dumpInfo();
                     protected:

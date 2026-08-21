@@ -49,7 +49,7 @@ namespace utils
 
             output_stream << "[" << category_name << "]: ";
 
-            output_stream << message << "\n";
+            output_stream << message << std::endl;
 
             return true;
         }

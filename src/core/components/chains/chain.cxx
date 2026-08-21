@@ -19,7 +19,7 @@ namespace core
     {
         namespace chains
         {
-            Chain::Chain(YAML::Node node, std::map<std::string, analizer::Analizer&> analizers)
+            Chain::Chain(YAML::Node node, std::map<std::string, std::reference_wrapper<analizer::Analizer>> analizers)
             {
                 for (size_t i = 0; i < node.size(); i++)
                 {
@@ -61,7 +61,7 @@ namespace core
                 }
             }
 
-            std::map<std::string, AnalizerUsage> Chain::parseStage(YAML::Node node, std::map<std::string, analizer::Analizer&> analizers)
+            std::map<std::string, AnalizerUsage> Chain::parseStage(YAML::Node node, std::map<std::string, std::reference_wrapper<analizer::Analizer>> analizers)
             {
                 std::map<std::string, AnalizerUsage> res;
 
@@ -104,6 +104,11 @@ namespace core
                     }
 
                     AnalizerUsage usage(ana->second, parseAnalizerinputs(analizer.second));
+
+                    if (res.contains(analizer_name))
+                    {
+                        throw std::runtime_error("[Chain]: Duplicated analizer name detected!");
+                    }
 
                     res.insert({analizer_name, usage});
                 }

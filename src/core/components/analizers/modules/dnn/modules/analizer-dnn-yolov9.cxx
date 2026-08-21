@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#define CATEGORY_NAME "AnalizerDNNGenericIdent"
+#define CATEGORY_NAME "AnalizerDNNYoloV9"
 
 #define CATEGORY_PROPERTY_NAME "classes"
 

@@ -38,9 +38,9 @@ namespace utils
                     return analizers.find(name)->second.get();
                 }
 
-                std::map<std::string, core::components::analizer::Analizer&> AnalizersSettings::getAnalizersRefMap()
+                std::map<std::string, std::reference_wrapper<core::components::analizer::Analizer>> AnalizersSettings::getAnalizersRefMap()
                 {
-                    std::map<std::string, core::components::analizer::Analizer&> res;
+                    std::map<std::string, std::reference_wrapper<core::components::analizer::Analizer>> res;
 
                     for (auto& analizer: analizers)
                     {
