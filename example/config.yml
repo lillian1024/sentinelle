@@ -1,5 +1,7 @@
 server_name: test server
 log_level: TRACE
+thread_limit: -1
+cache_path: /data/cache
 
 analizers:
   detection:
