@@ -31,7 +31,7 @@ namespace core
 
         void Orchestrator::LoadConfiguration()
         {
-            printf("OpenCV: %s", cv::getBuildInformation().c_str());
+            utils::logger::Logger::instance().LogPlain(cv::getBuildInformation(), utils::logger::Logger::LogLevel::DEBUG);
 
             logConfig();
 

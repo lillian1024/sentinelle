@@ -37,7 +37,7 @@ namespace core
 
             handler_list.push_back(handler);
         }
-        void EventManager::removeEventHandler(EventHandler* handler)
+        void EventManager::removeEventHandler(EventHandler*)
         {
             std::lock_guard<std::mutex> lock(handler_list_lock);
 

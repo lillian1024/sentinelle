@@ -4,7 +4,6 @@ project(Sentinelle VERSION 0.0.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(FetchContent)
 include(CTest)
 enable_testing()
 
@@ -12,12 +11,21 @@ enable_testing()
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG master # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
+find_package(yaml-cpp REQUIRED)
+
+# Eclipse Mosquitto (MQTT client library)
+find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h)
+find_library(MOSQUITTO_LIBRARY NAMES mosquitto)
+
+if(NOT MOSQUITTO_INCLUDE_DIR OR NOT MOSQUITTO_LIBRARY)
+  message(FATAL_ERROR "libmosquitto not found. On Debian/Ubuntu run: please install mosquitto")
+endif()
+
+add_library(Mosquitto::Mosquitto UNKNOWN IMPORTED)
+set_target_properties(Mosquitto::Mosquitto PROPERTIES
+  IMPORTED_LOCATION "${MOSQUITTO_LIBRARY}"
+  INTERFACE_INCLUDE_DIRECTORIES "${MOSQUITTO_INCLUDE_DIR}"
 )
-FetchContent_MakeAvailable(yaml-cpp)
 
 #Project's configuration
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++26")
