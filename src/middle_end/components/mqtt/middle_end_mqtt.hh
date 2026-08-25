@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/components/sources/source.hh"
 #include "core/event/event-handler.hh"
 #include "core/event/events/event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
