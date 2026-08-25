@@ -36,6 +36,9 @@ namespace middle_end
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
 
+                void sendTriggerState(MQTTSourceDevice device) const;
+                void sendTriggerState(MQTTSourceDevice device, bool state) const;
+
                 bool enabled;
 
                 mosquitto *client_instance;

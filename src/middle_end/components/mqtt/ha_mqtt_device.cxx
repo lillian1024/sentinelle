@@ -86,7 +86,7 @@ namespace middle_end
         {
             Json::Value payload_root;
 
-            payload_root[TRIGGER_SENSOR_ID] = trigger;
+            payload_root[TRIGGER_SENSOR_ID] = trigger ? "ON" : "OFF";
 
             std::ostringstream sb;
             sb << payload_root;

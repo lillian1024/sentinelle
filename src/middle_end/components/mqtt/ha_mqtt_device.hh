@@ -15,10 +15,10 @@ namespace middle_end
                 core::components::source::Source& getBaseSource() const;
 
                 std::string getDiscoveryConfig() const;
-            protected:
-                Json::Value getDeviceComponents() const;
 
                 std::string getSerializedTriggerState(bool trigger) const;
+            protected:
+                Json::Value getDeviceComponents() const;
 
                 std::string getStateTopic(std::string component_name) const;
 

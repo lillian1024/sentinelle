@@ -161,10 +161,38 @@ namespace middle_end
                 {
                     utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish discovery message!", utils::logger::Logger::LogLevel::WARNING);
                 }
+
+                sendTriggerState(id_source.second);
             }
+
+            // TODO: remove this for custom server loop
+            mosquitto_loop_start(client_instance);
 
             //Register to receive events
             core::event::EventManager::instance().registerEventHandler(this);
+        }
+
+        void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device) const
+        {
+            sendTriggerState(device, device.getBaseSource().isTriggered());
+        }
+
+        void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, bool state) const
+        {
+            std::string state_payload = device.getSerializedTriggerState(state);
+
+            std::ostringstream topic_builder;
+
+            topic_builder << "homeassistant/sentinelle/";
+            topic_builder << device.getBaseSource().getName();
+            topic_builder << "/trigger/state";
+
+            int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
+
+            if (error_code != MOSQ_ERR_SUCCESS)
+            {
+                utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish trigger state message!", utils::logger::Logger::LogLevel::WARNING);
+            }
         }
 
         void MiddleEndMQTT::Stop()
@@ -174,11 +202,17 @@ namespace middle_end
 
         void MiddleEndMQTT::handleTriggerEvent(core::event::modules::TriggeredEvent& event)
         {
+            utils::logger::Logger::instance().Log("Test", "Received trigger event", utils::logger::Logger::LogLevel::ERROR);
 
+            MQTTSourceDevice dev(event.getSource());
+
+            sendTriggerState(dev, true);
         }
         void MiddleEndMQTT::handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event)
         {
+            MQTTSourceDevice dev(event.getSource());
 
+            sendTriggerState(dev, false);
         }
 
         void MiddleEndMQTT::handleEvent(core::event::Event& event)
