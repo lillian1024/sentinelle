@@ -183,6 +183,26 @@ namespace core
             source.setActive(source.isTriggered());
         }
 
+        components::source::Source* Orchestrator::GetSourceByName(std::string name)
+        {
+            for (size_t i = 0; i < sources.size(); i++)
+            {
+                auto source = sources[i].get();
+
+                if (source == nullptr)
+                {
+                    continue;
+                }
+
+                if (source->getName() == name)
+                {
+                    return source;
+                }
+            }
+
+            return nullptr;
+        }
+
         void Orchestrator::logConfig()
         {
             std::ostringstream sb;

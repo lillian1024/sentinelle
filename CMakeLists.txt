@@ -12,6 +12,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 find_package(yaml-cpp REQUIRED)
+find_package(jsoncpp REQUIRED)
 
 # Eclipse Mosquitto (MQTT client library)
 find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h)
@@ -68,6 +69,13 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/event/events/modules/trigger/untriggered-event.cxx
     )
 
+#Middle end
+set(PROJECT_SRCS ${PROJECT_SRCS}
+    src/middle_end/middle_end.cxx
+    src/middle_end/components/mqtt/middle_end_mqtt.cxx
+    src/middle_end/components/mqtt/ha_mqtt_device.cxx
+    )
+
 #Utils config sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/config-manager.cxx
@@ -108,6 +116,8 @@ target_include_directories(Sentinelle PRIVATE src)
 #Add libraries to the binary
 target_link_libraries(Sentinelle ${OpenCV_LIBS})
 target_link_libraries(Sentinelle yaml-cpp::yaml-cpp)
+target_link_libraries(Sentinelle JsonCpp::JsonCpp)
+target_link_libraries(Sentinelle Mosquitto::Mosquitto)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

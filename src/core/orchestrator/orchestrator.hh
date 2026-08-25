@@ -3,6 +3,7 @@
 #include "core/components/sources/source.hh"
 #include "utils/singleton/singleton.hh"
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace core
@@ -19,6 +20,8 @@ namespace core
                 void OrchestrateSource(components::source::Source& source);
 
                 void UpdateGroupActivation(components::source::Source& source);
+
+                components::source::Source* GetSourceByName(std::string name);
 
                 static const std::string ORCHESTRATOR_CATEGORY_NAME;
             protected:
