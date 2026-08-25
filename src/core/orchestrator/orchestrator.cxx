@@ -45,6 +45,13 @@ namespace core
 
                 sources.push_back(std::move(source));
             }
+
+            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+
+            for (auto mid : middle_ends)
+            {
+                mid.get().Init();
+            }
         }
 
         void Orchestrator::StartOrchestrator()
@@ -74,6 +81,17 @@ namespace core
 
             utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
                 "All sources initialized successfully.",
+                utils::logger::Logger::LogLevel::INFO);
+
+            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+
+            for (auto mid : middle_ends)
+            {
+                mid.get().Start();
+            }
+
+            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+                "All middle ends started successfully.",
                 utils::logger::Logger::LogLevel::INFO);
         }
 

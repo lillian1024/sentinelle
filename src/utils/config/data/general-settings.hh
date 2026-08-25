@@ -3,6 +3,7 @@
 #include "utils/config/data-module.hh"
 #include "utils/config/data/analizers/analizers-settings.hh"
 #include "utils/config/data/chains/chains-settings.hh"
+#include "utils/config/data/middle-end/middle-end-settings.hh"
 #include "utils/config/data/sources/sources-settings.hh"
 #include "utils/logger/logger.hh"
 #include <cstddef>
@@ -29,6 +30,7 @@ namespace utils
                 inline sources::SourcesSettings& getSourceSettings() { return sources_settings; }
                 inline analizers::AnalizersSettings& getAnalizersSettings() { return analizers_settings; }
                 inline chains::ChainsSettings& getChainsSettings() { return chains_settings; }
+                inline middle_end::MiddleEndSettings& getMiddleEndSettings() { return middle_end_settings; }
             protected:
                 std::string server_name;
                 std::size_t thread_limit;
@@ -38,6 +40,7 @@ namespace utils
                 sources::SourcesSettings sources_settings;
                 analizers::AnalizersSettings analizers_settings;
                 chains::ChainsSettings chains_settings;
+                middle_end::MiddleEndSettings middle_end_settings;
             };
         }
     }

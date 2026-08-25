@@ -4,6 +4,7 @@
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/analizers/analizers-settings.hh"
 #include "utils/config/data/chains/chains-settings.hh"
+#include "utils/config/data/middle-end/middle-end-settings.hh"
 #include "utils/logger/logger.hh"
 #include <optional>
 #include <stdexcept>
@@ -66,6 +67,11 @@ namespace utils
                 analizers_settings.readModule(readMapOrError(node, ANALIZERS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 chains_settings.readModule(readMapOrError(node, CHAINS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 sources_settings.readModule(readMapOrError(node, SOURCES_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
+
+                if (node[MIDDLE_END_SETTINGS_FIELD_NAME].IsDefined())
+                {
+                    middle_end_settings.readModule(readMapOrError(node, MIDDLE_END_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <yaml-cpp/node/node.h>
 namespace middle_end
 {
@@ -8,6 +9,8 @@ namespace middle_end
         public:
             MiddleEnd() = default;
             virtual ~MiddleEnd() = default;
+
+            static std::unique_ptr<MiddleEnd> createNewMiddleEnd(std::string name, YAML::Node node);
 
             virtual void Init() = 0;
             virtual void Start() = 0;

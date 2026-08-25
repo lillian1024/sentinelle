@@ -5,11 +5,14 @@
 #include "core/event/events/event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
+#include "middle_end/components/mqtt/ha_mqtt_device.hh"
 #include "middle_end/middle_end.hh"
 #include <cstddef>
 #include <map>
 #include <mosquitto/defs.h>
+#include <optional>
 #include <string>
+#include <vector>
 #include <yaml-cpp/node/node.h>
 
 namespace middle_end
@@ -25,19 +28,27 @@ namespace middle_end
                 virtual void Init();
                 virtual void Start();
                 virtual void Stop();
+
+                static const std::string middle_end_mqtt_name;
             protected:
                 void handleEvent(core::event::Event& event);
 
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
 
-                static std::size_t hashName(std::string name);
-
                 bool enabled;
 
                 mosquitto *client_instance;
 
-                std::map<std::size_t, core::components::source::Source*> id_source_map;
+                std::string broker_address;
+                std::size_t broker_port;
+                std::size_t broker_keepalive;
+
+                std::optional<std::string> username;
+                std::optional<std::string> password;
+
+                std::map<std::string, MQTTSourceDevice> id_source_map;
+                std::vector<std::string> sources_name;
         };
     }
 }
