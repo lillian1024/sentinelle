@@ -11,8 +11,10 @@ enable_testing()
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP REQUIRED IMPORTED_TARGET jsoncpp)
+
 find_package(yaml-cpp REQUIRED)
-find_package(jsoncpp REQUIRED)
 
 # Eclipse Mosquitto (MQTT client library)
 find_path(MOSQUITTO_INCLUDE_DIR mosquitto.h)
@@ -117,7 +119,7 @@ target_include_directories(Sentinelle PRIVATE src)
 #Add libraries to the binary
 target_link_libraries(Sentinelle ${OpenCV_LIBS})
 target_link_libraries(Sentinelle yaml-cpp::yaml-cpp)
-target_link_libraries(Sentinelle JsonCpp::JsonCpp)
+target_link_libraries(Sentinelle PkgConfig::JSONCPP)
 target_link_libraries(Sentinelle Mosquitto::Mosquitto)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
