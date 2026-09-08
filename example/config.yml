@@ -3,6 +3,18 @@ log_level: TRACE
 thread_limit: -1
 cache_path: /data/cache
 
+middle_end:
+  ha_mqtt:
+    enable: true
+    broker_address: 100.113.142.37
+    broker_port: 1883
+    username: username
+    password: password
+    broker_keepalive: 60
+    sources:
+      - cam01
+      - cam02
+
 analizers:
   detection:
     type: yolov9-m
