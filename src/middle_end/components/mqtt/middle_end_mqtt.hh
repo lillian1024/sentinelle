@@ -8,8 +8,8 @@
 #include "middle_end/middle_end.hh"
 #include <cstddef>
 #include <map>
-#include <mosquitto/defs.h>
-#include <mosquitto/libmosquitto.h>
+#include <mosquitto.h>
+#include <mosquitto.h>
 #include <optional>
 #include <string>
 #include <vector>

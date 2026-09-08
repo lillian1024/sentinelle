@@ -12,7 +12,7 @@
 #include <json/json.h>
 #include <cstddef>
 #include <mosquitto.h>
-#include <mosquitto/defs.h>
+#include <mosquitto.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>

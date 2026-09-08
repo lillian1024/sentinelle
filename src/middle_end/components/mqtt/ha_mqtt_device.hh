@@ -2,7 +2,7 @@
 
 #include "core/components/sources/source.hh"
 #include <json/value.h>
-#include <mosquitto/broker_plugin.h>
+#include <mosquitto.h>
 #include <string>
 
 namespace middle_end

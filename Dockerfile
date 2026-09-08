@@ -3,7 +3,7 @@ FROM lilian1024/opencv:4.14.0
 #Prepare and build sentinelle
 WORKDIR /app/sentinelle-src
 
-RUN ["apt", "install", "-y", "gdb"]
+RUN ["apt", "install", "-y", "gdb", "libjsoncpp-dev", "libyaml-cpp-dev", "libmosquitto-dev"]
 
 COPY ./src ./src
 COPY ./CMakeLists.txt ./CMakeLists.txt
@@ -13,7 +13,7 @@ RUN ["mkdir", "build"]
 WORKDIR /app/sentinelle-src
 
 RUN ["cmake", "-D", "CMAKE_BUILD_TYPE=DEBUG", "-B", "build"]
-RUN ["cmake", "--build", "build"]
+RUN ["cmake", "--build", "build", "-j", "18"]
 
 WORKDIR /app/sentinelle
 
