@@ -45,6 +45,7 @@ namespace core
                 : name(config.getName()),
                   active_fps(config.getActiveFps()),
                   passive_fps(config.getPassiveFps()),
+                  enabled(config.getEnabled()),
                   is_active(false),
                   is_triggered(false),
                   last_frame(std::chrono::steady_clock::now())
@@ -150,6 +151,11 @@ namespace core
                 return size_t(seconds * SECS_TO_MILLIS);
             }
 
+            bool Source::isEnabled() const
+            {
+                return enabled;
+            }
+
             bool Source::isActive() const
             {
                 return is_active;
@@ -157,6 +163,11 @@ namespace core
             bool Source::isTriggered() const
             {
                 return is_triggered;
+            }
+
+            void Source::setEnabled(bool status)
+            {
+                enabled = status;
             }
 
             void Source::setActive(bool value)

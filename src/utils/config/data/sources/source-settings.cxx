@@ -10,11 +10,15 @@
 #include <string>
 #include <utility>
 
+#define TRUE_STR "true"
+
 #define IS_LIVE_FIELD "is_live"
+#define ENABLED_FIELD "enabled"
 #define ACTIVE_FPS_FIELD "active_fps"
 #define PASSIVE_FPS_FIELD "passive_fps"
 #define PROCESS_FIELD "process"
 
+#define ENABLED_DEFAULT_VALUE TRUE_STR
 #define IS_LIVE_DEFAULT_VALUE true
 
 namespace utils
@@ -29,6 +33,7 @@ namespace utils
                     : source_name(source_name)
                 {
                     std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
+                    enabled = DataModule::readScalarOptional(node, ENABLED_FIELD).value_or(ENABLED_DEFAULT_VALUE) == TRUE_STR;
                     std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, source_name + " source");
                     std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, source_name + " source");
                     YAML::Node process_seq = DataModule::readSequenceOrError(node, PROCESS_FIELD, source_name + " source");

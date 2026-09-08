@@ -8,6 +8,7 @@
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include "utils/logger/logger.hh"
 #include "utils/thread/thread-manager.hh"
+#include <chrono>
 #include <cstddef>
 #include <ctime>
 #include <iostream>
@@ -22,6 +23,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+
+#define SOURCE_DISABLE_CHECK_INTERVAL_MILLIS 20
 
 namespace core
 {
@@ -129,6 +132,13 @@ namespace core
 
             while (!source.isStopping())
             {
+                if (!source.isEnabled())
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(SOURCE_DISABLE_CHECK_INTERVAL_MILLIS));
+
+                    continue;
+                }
+
                 if (source.isInCooldown())
                 {
                     std::this_thread::sleep_until(source.getCooldownStopTime());

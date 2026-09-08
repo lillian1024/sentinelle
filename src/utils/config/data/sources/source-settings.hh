@@ -69,6 +69,11 @@ namespace utils
                         {
                             return source_name;
                         }
+
+                        virtual bool getEnabled() const
+                        {
+                            return enabled;
+                        }
                     protected:
                         SourceSettings(YAML::Node node, std::string source_name);
 
@@ -77,6 +82,8 @@ namespace utils
                         std::string source_name;
 
                         bool is_live;
+
+                        bool enabled;
 
                         float active_fps;
                         float passive_fps;

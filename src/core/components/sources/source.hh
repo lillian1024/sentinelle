@@ -45,8 +45,11 @@ namespace core
                 time_type getCooldownStopTime() const;
                 float getRemainingCoolSecs() const;
 
+                bool isEnabled() const;
                 bool isActive() const;
                 bool isTriggered() const;
+
+                void setEnabled(bool status);
 
                 void setActive(bool value);
                 void setTriggered(bool value);
@@ -67,6 +70,8 @@ namespace core
                 std::unique_ptr<VideoStream> video_stream;
                 float active_fps;
                 float passive_fps;
+
+                std::atomic<bool> enabled;
 
                 std::atomic<bool> is_active;
                 std::atomic<bool> is_triggered;

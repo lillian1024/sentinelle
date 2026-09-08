@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <map>
 #include <mosquitto/defs.h>
+#include <mosquitto/libmosquitto.h>
 #include <optional>
 #include <string>
 #include <vector>
@@ -28,15 +29,20 @@ namespace middle_end
                 virtual void Start();
                 virtual void Stop();
 
+                virtual void HandleDeviceCommand(std::string device_name, std::string component, std::string command, std::string payload);
+
                 static const std::string middle_end_mqtt_name;
+
+                static std::vector<std::string> split(const std::string& input, char delimiter);
             protected:
                 void handleEvent(core::event::Event& event);
 
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
 
-                void sendTriggerState(MQTTSourceDevice device) const;
+                void sendDeviceState(MQTTSourceDevice device) const;
                 void sendTriggerState(MQTTSourceDevice device, bool state) const;
+                void sendEnabledState(MQTTSourceDevice device, bool state) const;
 
                 bool enabled;
 
@@ -52,5 +58,7 @@ namespace middle_end
                 std::map<std::string, MQTTSourceDevice> id_source_map;
                 std::vector<std::string> sources_name;
         };
+
+        void mqttMessageCallBack(struct mosquitto *mosq, void *obj, const mosquitto_message *message);
     }
 }

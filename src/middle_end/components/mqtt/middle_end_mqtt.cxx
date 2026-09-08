@@ -17,6 +17,12 @@
 #include <stdexcept>
 #include <string>
 
+#define TOPIC_PATH_DELIMITER '/'
+
+#define DEVICE_NAME_PATH_POSITION 2
+#define COMPONENT_PATH_POSITION 3
+#define COMMAND_PATH_POSITION 4
+
 #define ENABLED_NAME "enable"
 #define BROKER_ADDRESS_NAME "broker_address"
 #define BROKER_PORT_NAME "broker_port"
@@ -108,7 +114,7 @@ namespace middle_end
         {
             client_instance = mosquitto_new(utils::config::ConfigManager::instance().getGeneralSettings().getServerName().c_str(),
                 true,
-                nullptr);
+                this);
 
             if (client_instance == nullptr)
             {
@@ -162,8 +168,12 @@ namespace middle_end
                     utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish discovery message!", utils::logger::Logger::LogLevel::WARNING);
                 }
 
-                sendTriggerState(id_source.second);
+                id_source.second.subscribeToDeviceTopic(client_instance);
+
+                sendDeviceState(id_source.second);
             }
+
+            mosquitto_message_callback_set(client_instance, &mqttMessageCallBack);
 
             // TODO: remove this for custom server loop
             mosquitto_loop_start(client_instance);
@@ -172,20 +182,43 @@ namespace middle_end
             core::event::EventManager::instance().registerEventHandler(this);
         }
 
-        void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device) const
+        void MiddleEndMQTT::sendDeviceState(MQTTSourceDevice device) const
         {
             sendTriggerState(device, device.getBaseSource().isTriggered());
+            sendEnabledState(device, device.getBaseSource().isEnabled());
         }
 
         void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, bool state) const
         {
-            std::string state_payload = device.getSerializedTriggerState(state);
+            std::string state_payload = device.getSerializedBoolState(TRIGGER_SENSOR_ID, state);
 
             std::ostringstream topic_builder;
 
             topic_builder << "homeassistant/sentinelle/";
             topic_builder << device.getBaseSource().getName();
-            topic_builder << "/trigger/state";
+            topic_builder << "/";
+            topic_builder << TRIGGER_SENSOR_ID;
+            topic_builder << "/state";
+
+            int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
+
+            if (error_code != MOSQ_ERR_SUCCESS)
+            {
+                utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish trigger state message!", utils::logger::Logger::LogLevel::WARNING);
+            }
+        }
+
+        void MiddleEndMQTT::sendEnabledState(MQTTSourceDevice device, bool state) const
+        {
+            std::string state_payload = device.getSerializedBoolState(ENABLED_SWITCH_ID, state);
+
+            std::ostringstream topic_builder;
+
+            topic_builder << "homeassistant/sentinelle/";
+            topic_builder << device.getBaseSource().getName();
+            topic_builder << "/";
+            topic_builder << ENABLED_SWITCH_ID;
+            topic_builder << "/state";
 
             int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
 
@@ -234,6 +267,87 @@ namespace middle_end
 
                 return;
             }
+        }
+
+        void MiddleEndMQTT::HandleDeviceCommand(std::string device_name, std::string component, std::string command, std::string payload)
+        {
+            auto* source = core::orchestrator::Orchestrator::instance().GetSourceByName(device_name);
+
+            if (source == nullptr)
+            {
+                utils::logger::Logger::instance().Log(CATEGORY_NAME, "Source not found from device name received by mqtt message!", utils::logger::Logger::LogLevel::WARNING);
+
+                return;
+            }
+
+            if (component == TRIGGER_SENSOR_ID)
+            {
+                return;
+            }
+            else if (component == ENABLED_SWITCH_ID)
+            {
+                if (command != SWITCH_COMMAND_NAME)
+                {
+                    return;
+                }
+
+                bool value = payload == SWITCH_ON_VALUE;
+
+                source->setEnabled(value);
+
+                sendEnabledState(MQTTSourceDevice(*source), value);
+
+                return;
+            }
+        }
+
+        void mqttMessageCallBack(struct mosquitto *, void *data, const mosquitto_message *message)
+        {
+            MiddleEndMQTT* context = (MiddleEndMQTT*)data;
+
+            std::string topic(message->topic);
+
+            if (!topic.starts_with(MQTTSourceDevice::topic_prefix))
+            {
+                return;
+            }
+
+            std::vector<std::string> parts = MiddleEndMQTT::split(topic, TOPIC_PATH_DELIMITER);
+
+            if (parts.size() < 3)
+            {
+                return;
+            }
+
+            std::string device = parts[DEVICE_NAME_PATH_POSITION];
+            std::string component = parts[COMPONENT_PATH_POSITION];
+            std::string command = parts[COMMAND_PATH_POSITION];
+
+            std::size_t payload_char_length = message->payloadlen / sizeof(char);
+            std::string payload((char*)message->payload, payload_char_length);
+
+            context->HandleDeviceCommand(device, component, command, payload);
+        }
+
+        std::vector<std::string> MiddleEndMQTT::split(const std::string& input, char delimiter)
+        {
+            std::vector<std::string> res;
+            size_t last_pos = 0;
+
+            while (input.find(delimiter, last_pos) < input.length())
+            {
+                size_t temp = input.find(delimiter, last_pos);
+                res.push_back(input.substr(last_pos, temp - last_pos));
+
+                last_pos = temp + 1;
+            }
+
+            if (last_pos < input.length())
+            {
+                res.push_back(input.substr(last_pos));
+            }
+
+            return res;
         }
     }
 }
