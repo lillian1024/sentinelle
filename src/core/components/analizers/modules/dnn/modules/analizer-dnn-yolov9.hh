@@ -39,6 +39,9 @@ namespace core
                         static cv::Mat letterbox(const cv::Mat& src, int targetW, int targetH, float& scale);
 
                         std::vector<std::string> searching_category;
+
+                        float min_confidence;
+                        float nms_threshold;
                 };
             }
         }

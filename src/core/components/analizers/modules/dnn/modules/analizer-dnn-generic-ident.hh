@@ -27,6 +27,8 @@ namespace core
                         std::unique_ptr<Analizer> clone();
                     private:
                         std::vector<std::string> searching_category;
+
+                        float min_confidence;
                 };
             }
         }

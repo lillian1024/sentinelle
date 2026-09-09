@@ -19,6 +19,12 @@
 #define CATEGORY_NAME "AnalizerDNNGenericIdent"
 
 #define CATEGORY_PROPERTY_NAME "classes"
+#define CONFIDENCE_PROPERTY_NAME "min_confidence"
+
+#define CONFIDENCE_PROPERTY_DEFAULT "60"
+
+#define CONFIDENCE_PROPERTY_MIN_VAL 0
+#define CONFIDENCE_PROPERTY_MAX_VAL 100
 
 #define NN_NAME "ssd_mobilenet_v2_coco_2018_03_29"
 #define NN_URL ""
@@ -33,9 +39,6 @@
 
 #define MISSING_CLASS_FILE_ERROR_MSG "Unable to start analizer: unable to locate class data file in cache!"
 
-// TODO: Change to config from yaml
-#define MINIMUM_CONFIDENCE_SCORE 0.6
-
 namespace core
 {
     namespace components
@@ -48,22 +51,44 @@ namespace core
                     : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
                 {
                     auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
+                    auto min_confidence_str = utils::config::DataModule::readScalarOptional(node, CONFIDENCE_PROPERTY_NAME).value_or(CONFIDENCE_PROPERTY_DEFAULT);
+
+                    std::string prefix = "[";
 
                     for (size_t i = 0; i < cat_map.size(); i++)
                     {
                         if (!cat_map[i].IsScalar())
                         {
-                            std::string prefix = "[";
-
                             throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CATEGORY_PROPERTY_NAME + " must only contain strings!");
                         }
 
                         searching_category.push_back(cat_map[i].Scalar());
                     }
+
+                    try
+                    {
+                        unsigned int percent_min_confidence = std::stoi(min_confidence_str);
+
+                        if (percent_min_confidence < CONFIDENCE_PROPERTY_MIN_VAL || percent_min_confidence > CONFIDENCE_PROPERTY_MAX_VAL)
+                        {
+                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                        }
+
+                        min_confidence = ((float)percent_min_confidence) / 100.0;
+                    }
+                    catch (const std::invalid_argument&)
+                    {
+                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                    }
+                    catch (const std::out_of_range&)
+                    {
+                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                    }
                 }
 
                 AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(const AnalizerDNNGenericIdent& from)
-                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
+                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW),
+                    min_confidence(from.min_confidence)
                 {
                     for (auto s : from.searching_category)
                     {
@@ -151,7 +176,7 @@ namespace core
                         bool is_searched_class = std::ranges::contains(searching_category, class_name);
 
                         // Check if the detection is over the min threshold and then draw bbox
-                        if (confidence > MINIMUM_CONFIDENCE_SCORE && is_searched_class){
+                        if (confidence > min_confidence && is_searched_class){
                             int bboxX = int(results.at<float>(i, 3) * image.cols);
                             int bboxY = int(results.at<float>(i, 4) * image.rows);
                             int bboxWidth = int(results.at<float>(i, 5) * image.cols - bboxX);

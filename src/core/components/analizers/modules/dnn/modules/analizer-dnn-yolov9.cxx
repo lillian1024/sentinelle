@@ -21,6 +21,14 @@
 #define CATEGORY_NAME "AnalizerDNNYoloV9"
 
 #define CATEGORY_PROPERTY_NAME "classes"
+#define CONFIDENCE_PROPERTY_NAME "min_confidence"
+#define NMS_PROPERTY_NAME "nms"
+
+#define CONFIDENCE_PROPERTY_DEFAULT2 "60"
+#define NMS_PROPERTY_DEFAULT "45"
+
+#define PERCENT_MIN_VAL 0
+#define PERCENT_MAX_VAL 100
 
 #define NN_NAME "yolov9-m"
 #define NN_URL ""
@@ -34,10 +42,6 @@
 
 #define MISSING_CLASS_FILE_ERROR_MSG "Unable to start analizer: unable to locate class data file in cache!"
 
-// TODO: Change to config from yaml
-#define MINIMUM_CONFIDENCE_SCORE 0.4
-#define NMS_THRESHOLD 0.45
-
 namespace core
 {
     namespace components
@@ -50,22 +54,62 @@ namespace core
                     : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::ONNX)
                 {
                     auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
+                    auto min_confidence_str = utils::config::DataModule::readScalarOptional(node, CONFIDENCE_PROPERTY_NAME).value_or(CONFIDENCE_PROPERTY_DEFAULT2);
+                    auto nms_str = utils::config::DataModule::readScalarOptional(node, NMS_PROPERTY_NAME).value_or(NMS_PROPERTY_DEFAULT);
+
+                    std::string prefix = "[";
 
                     for (size_t i = 0; i < cat_map.size(); i++)
                     {
                         if (!cat_map[i].IsScalar())
                         {
-                            std::string prefix = "[";
-
                             throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CATEGORY_PROPERTY_NAME + " must only contain strings!");
                         }
 
                         searching_category.push_back(cat_map[i].Scalar());
                     }
+
+                    try
+                    {
+                        unsigned int percent_min_confidence = std::stoi(min_confidence_str);
+                        unsigned int percent_nms = std::stoi(nms_str);
+
+                        if (percent_min_confidence < PERCENT_MIN_VAL || percent_min_confidence > PERCENT_MAX_VAL)
+                        {
+                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                        }
+
+                        if (percent_nms < PERCENT_MIN_VAL || percent_nms > PERCENT_MAX_VAL)
+                        {
+                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + NMS_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                        }
+
+                        min_confidence = ((float)percent_min_confidence) / 100.0;
+                        nms_threshold = ((float)percent_nms) / 100.0;
+
+                        std::ostringstream sb;
+
+                        sb << "confid: ";
+                        sb << min_confidence;
+                        sb << ", nms: ";
+                        sb << nms_threshold;
+
+                        utils::logger::Logger::instance().Log("Test----------", sb.str(), utils::logger::Logger::LogLevel::DEBUG);
+                    }
+                    catch (const std::invalid_argument&)
+                    {
+                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " (optional) and " + NMS_PROPERTY_NAME + " (optional) must be an integers between 1 and 100 included!");
+                    }
+                    catch (const std::out_of_range&)
+                    {
+                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " (optional) and " + NMS_PROPERTY_NAME + " (optional) must be an integers between 1 and 100 included!");
+                    }
                 }
 
                 AnalizerDNNYoloV9::AnalizerDNNYoloV9(const AnalizerDNNYoloV9& from)
-                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::ONNX)
+                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::ONNX),
+                    min_confidence(from.min_confidence),
+                    nms_threshold(from.nms_threshold)
                 {
                     for (auto s : from.searching_category)
                     {
@@ -157,7 +201,7 @@ namespace core
                         double maxScore;
                         minMaxLoc(classScores, nullptr, &maxScore, nullptr, &classIdPoint);
 
-                        if (maxScore < MINIMUM_CONFIDENCE_SCORE) continue;
+                        if (maxScore < min_confidence) continue;
 
                         float cx = detOutput.at<float>(i, 0);
                         float cy = detOutput.at<float>(i, 1);
@@ -176,7 +220,7 @@ namespace core
                     }
 
                     std::vector<int> keep;
-                    cv::dnn::dnn4_v20260709::NMSBoxes(boxes, confidences, MINIMUM_CONFIDENCE_SCORE, NMS_THRESHOLD, keep);
+                    cv::dnn::dnn4_v20260709::NMSBoxes(boxes, confidences, min_confidence, nms_threshold, keep);
 
                     std::vector<Detection> detections;
 

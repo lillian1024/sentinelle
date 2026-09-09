@@ -26,6 +26,8 @@ analizers:
       - truck
       - cat
       - dog
+    min_confidence: 60
+    nms: 45
   trigger:
     type: trigger_if_true
   save_video:
