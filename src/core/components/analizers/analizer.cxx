@@ -1,6 +1,7 @@
 #include "analizer.hh"
 
 #include "core/components/analizers/modules/dnn/modules/analizer-dnn-yolov9.hh"
+#include "core/components/analizers/modules/utils/analizer-bool-delay.hh"
 #include "core/components/analizers/modules/utils/analizer-show-image.hh"
 #include "core/components/analizers/modules/utils/analizer-save-video.hh"
 #include "core/components/analizers/modules/utils/analizer-trigger-if-true.hh"
@@ -37,6 +38,7 @@ namespace core
                     {"show_image", Type::SHOW_IMAGE},
                     {"save_video", Type::SAVE_VIDEO},
                     {"trigger_if_true", Type::TRIGGER_IF_TRUE},
+                    {"bool_delay", Type::BOOL_DELAY},
                 };
 
                 if (type_map.find(type) == type_map.end())
@@ -60,6 +62,8 @@ namespace core
                         return std::make_unique<AnalizerSaveVideo>(node, name);
                     case Type::TRIGGER_IF_TRUE:
                         return std::make_unique<AnalizerTriggerIfTrue>(name);
+                    case Type::BOOL_DELAY:
+                        return std::make_unique<AnalizerBoolDelay>(node, name);
                 }
 
                 throw std::runtime_error(ANALIZE_CATEGORY_NAME + ": Unable to load analizer: unknown type!");

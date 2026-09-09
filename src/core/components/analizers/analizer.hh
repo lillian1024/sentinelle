@@ -21,6 +21,7 @@ namespace core
                 SHOW_IMAGE,
                 SAVE_VIDEO,
                 TRIGGER_IF_TRUE,
+                BOOL_DELAY,
             };
 
             class Analizer
