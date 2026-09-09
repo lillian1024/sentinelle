@@ -1,6 +1,10 @@
 #include "source.hh"
+#include "core/event/event-manager.hh"
+#include "core/event/events/modules/trigger/triggered-event.hh"
+#include "core/event/events/modules/trigger/untriggered-event.hh"
 #include "utils/config/data/sources/source-settings.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "utils/logger/logger.hh"
 #include "utils/opencv/video-stream/live-video-stream.hh"
 #include "utils/opencv/video-stream/sequence-video-stream.hh"
 #include <chrono>
@@ -11,6 +15,8 @@
 #include <opencv2/videoio.hpp>
 #include <optional>
 #include <stdexcept>
+
+#define CATEGORY_NAME "Source"
 
 #define SECS_TO_MILLIS 1000
 
@@ -32,7 +38,7 @@ namespace core
                             throw std::runtime_error("[ConfigManager]: Unable to cast source config to the correct type! Please report this error.");
                         }
 
-                        cv::VideoCapture video_stream(url_config->getUrl());
+                        cv::VideoCapture video_stream(url_config->getUrl(), cv::CAP_FFMPEG);
 
                         return std::make_unique<Source>(*url_config);
                     }
@@ -176,7 +182,43 @@ namespace core
             }
             void Source::setTriggered(bool value)
             {
-                is_triggered = value;
+                if (value != is_triggered)
+                {
+                    is_triggered = value;
+
+                    if (value)
+                    {
+                        std::ostringstream sb;
+
+                        sb << "Source ";
+                        sb << getName();
+                        sb << " has been triggered!";
+
+                        utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
+
+                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::TriggeredEvent>(*this));
+                    }
+                    else
+                    {
+                        std::ostringstream sb;
+
+                        sb << "Source ";
+                        sb << getName();
+                        sb << " has been untriggered!";
+
+                        utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::TRACE);
+
+                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::UnTriggeredEvent>(*this));
+                    }
+
+                    UpdateGroupActivation(*this);
+                }
+            }
+
+            void Source::UpdateGroupActivation(components::source::Source& source)
+            {
+                // TODO: Manage groups
+                source.setActive(source.isTriggered());
             }
 
             bool Source::isStopping() const

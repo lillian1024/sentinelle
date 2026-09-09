@@ -123,7 +123,7 @@ namespace core
             {
                 std::ostringstream sb;
 
-                sb << "Source  ";
+                sb << "Source ";
                 sb << source.getName();
                 sb << " started successfully.";
 
@@ -135,6 +135,8 @@ namespace core
                 if (!source.isEnabled())
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(SOURCE_DISABLE_CHECK_INTERVAL_MILLIS));
+
+                    source.setTriggered(false);
 
                     continue;
                 }
@@ -149,6 +151,8 @@ namespace core
 
                 if (!image.has_value())
                 {
+                    utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, "Image not available! Frame processing skipped!", utils::logger::Logger::LogLevel::WARNING);
+
                     continue;
                 }
 
@@ -166,49 +170,13 @@ namespace core
                     chain->process(image.value(), source, trigger);
                 }
 
-                if (trigger != source.isTriggered())
-                {
-                    source.setTriggered(trigger);
-
-                    if (trigger)
-                    {
-                        std::ostringstream sb;
-
-                        sb << "Source ";
-                        sb << source.getName();
-                        sb << " has been triggered!";
-
-                        utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
-
-                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::TriggeredEvent>(source));
-                    }
-                    else
-                    {
-                        std::ostringstream sb;
-
-                        sb << "Source ";
-                        sb << source.getName();
-                        sb << " has been untriggered!";
-
-                        utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::TRACE);
-
-                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::UnTriggeredEvent>(source));
-                    }
-
-                    UpdateGroupActivation(source);
-                }
+                source.setTriggered(trigger);
             }
 
             source.releaseSource();
             cv::destroyAllWindows();
 
             utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
-        }
-
-        void Orchestrator::UpdateGroupActivation(components::source::Source& source)
-        {
-            // TODO: Manage groups
-            source.setActive(source.isTriggered());
         }
 
         components::source::Source* Orchestrator::GetSourceByName(std::string name)

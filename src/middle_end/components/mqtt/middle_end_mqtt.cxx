@@ -235,8 +235,6 @@ namespace middle_end
 
         void MiddleEndMQTT::handleTriggerEvent(core::event::modules::TriggeredEvent& event)
         {
-            utils::logger::Logger::instance().Log("Test", "Received trigger event", utils::logger::Logger::LogLevel::ERROR);
-
             MQTTSourceDevice dev(event.getSource());
 
             sendTriggerState(dev, true);

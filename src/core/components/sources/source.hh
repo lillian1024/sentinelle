@@ -64,6 +64,7 @@ namespace core
                 inline const utils::config::data::sources::SourceSettings& getSourceConfig() const { return *source_config.get(); }
             protected:
                 static size_t secsToMillisRound(float seconds);
+                void UpdateGroupActivation(components::source::Source& source);
 
                 std::string name;
 

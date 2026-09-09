@@ -3,6 +3,7 @@
 #include "utils/config/data-module.hh"
 #include "utils/config/data/sources/source-settings.hh"
 #include <memory>
+#include <opencv2/videoio.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -41,7 +42,7 @@ namespace utils
 
                  cv::VideoCapture UrlSourceSettings::getVideoCapture() const
                  {
-                     return cv::VideoCapture(url);
+                     return cv::VideoCapture(url, cv::CAP_FFMPEG);
                  }
 
                  std::unique_ptr<SourceSettings> UrlSourceSettings::clone() const
