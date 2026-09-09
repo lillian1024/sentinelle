@@ -22,6 +22,8 @@ namespace utils
 
             thread_count++;
 
+            thread_count_mutex.unlock();
+
             std::thread nt(startNewThread<std::decay_t<F>, std::decay_t<Args>...>, f, args...);
 
             if (nt.joinable())
@@ -35,8 +37,6 @@ namespace utils
                     nt.detach();
                 }
             }
-
-            thread_count_mutex.unlock();
 
             return nt;
         }
