@@ -100,8 +100,12 @@ namespace middle_end
 
                 if (source == nullptr)
                 {
+                    std::ostringstream sb;
+                    sb << "[MiddleEndMQTT]: source from mqtt config not found: ";
+                    sb << source_name;
+                    sb << "!";
 
-                    throw std::runtime_error("[MiddleEndMQTT]: source from mqtt config not found!");
+                    throw std::runtime_error(sb.str());
                 }
 
                 MQTTSourceDevice dev(*source);
