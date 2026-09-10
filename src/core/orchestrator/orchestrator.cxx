@@ -156,7 +156,7 @@ namespace core
                     continue;
                 }
 
-                bool trigger;
+                bool trigger = false;
 
                 for (size_t i = 0; i < source.getSourceConfig().getProcess().size(); i++)
                 {
