@@ -28,9 +28,12 @@ namespace core
 
                     std::unique_ptr<Analizer> clone();
                 protected:
-
-
                     int getFourcc(std::string format);
+
+                    std::string encoder;
+                    int bitrate;
+                    bool low_lat;
+                    std::string additional_args;
 
                     bool stop_release;
 

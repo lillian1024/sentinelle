@@ -17,6 +17,16 @@
 
 #define CATEGORY_NAME "AnalizerStreamVideo"
 
+#define ENCODER_FIELD_NAME "encoder"
+#define BITRATE_FIELD_NAME "bitrate"
+#define LOW_LAT_FIELD_NAME "low_latency"
+#define ADDITIONAL_ARGS_FIELD_NAME "speed_preset"
+
+#define ENCODER_DEFAULT_VALUE "x264enc"
+#define BITRATE_DEFAULT_VALUE "2000"
+#define LOW_LAT_DEFAULT_VALUE "false"
+#define ADDITIONAL_ARGS_DEFAULT_VALUE ""
+
 #define EXTENSION_FIELD_NAME "name"
 #define RELEASE_FIELD_NAME "stop_release"
 
@@ -33,17 +43,26 @@ namespace core
             AnalizerStreamVideo::AnalizerStreamVideo(YAML::Node node, std::string name)
                 : Analizer(name)
             {
+                encoder = utils::config::DataModule::readScalarOptional(node, ENCODER_FIELD_NAME).value_or(ENCODER_DEFAULT_VALUE);
+                bitrate = utils::config::DataModule::readInt(node, BITRATE_FIELD_NAME, name, true, BITRATE_DEFAULT_VALUE);
+                low_lat = utils::config::DataModule::readBool(node, LOW_LAT_FIELD_NAME, name, true, LOW_LAT_DEFAULT_VALUE);
+                additional_args = utils::config::DataModule::readScalarOptional(node, ADDITIONAL_ARGS_FIELD_NAME).value_or(ADDITIONAL_ARGS_DEFAULT_VALUE);
+
                 stream_name = utils::config::DataModule::readScalarOrError(node, EXTENSION_FIELD_NAME, CATEGORY_NAME);
-                stop_release = utils::config::DataModule::readScalarOrError(node, RELEASE_FIELD_NAME, CATEGORY_NAME) == "true";
+                stop_release = utils::config::DataModule::readBool(node, RELEASE_FIELD_NAME, name, false, "true");
 
                 writer = std::nullopt;
             }
 
             AnalizerStreamVideo::AnalizerStreamVideo(const AnalizerStreamVideo& copy_from)
-                : Analizer(copy_from.name)
+                : Analizer(copy_from.name),
+                encoder(copy_from.encoder),
+                bitrate(copy_from.bitrate),
+                low_lat(copy_from.low_lat),
+                additional_args(copy_from.additional_args),
+                stop_release(copy_from.stop_release),
+                stream_name(copy_from.stream_name)
             {
-                stream_name = copy_from.stream_name;
-                stop_release = copy_from.stop_release;
                 writer = std::nullopt;
             }
 
@@ -159,14 +178,15 @@ namespace core
                     writer = std::nullopt;
                 }
 
-                std::string pipeline =
-                        "appsrc ! videoconvert ! video/x-raw,format=I420 ! "
-                        "x264enc tune=zerolatency bitrate=2000 speed-preset=ultrafast key-int-max=30 ! "
-                        "rtspclientsink location=rtsp://localhost:8554/" + stream_name;
+                std::ostringstream pipeline_builder;
+
+                pipeline_builder << "appsrc ! videoconvert ! video/x-raw,format=I420 ! ";
+                pipeline_builder << encoder << " " << (low_lat ? "tune=zerolatency" : "") << " bitrate=" << bitrate << " " << additional_args << " ! ";
+                pipeline_builder << "rtspclientsink location=rtsp://localhost:8554/" << stream_name;
 
                 cv::Size frame_size(frame_width, frame_height);
 
-                writer = cv::VideoWriter(pipeline, cv::CAP_GSTREAMER, 0, fps, frame_size, true);
+                writer = cv::VideoWriter(pipeline_builder.str(), cv::CAP_GSTREAMER, 0, fps, frame_size, true);
             }
 
             std::unique_ptr<Analizer> AnalizerStreamVideo::clone()
