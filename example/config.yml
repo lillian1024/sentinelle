@@ -30,9 +30,16 @@ analizers:
     nms: 45
   trigger:
     type: trigger_if_true
-  save_video:
-    type: save_video
-    format: h265
+  trigger_delay:
+    type: bool_delay
+    charge_delay: 1
+    discharge_delay: 60
+  video_recorder:
+    type: video_recorder
+    format: H264
+    extension: mkv
+    fps: 1
+    storage_path: records
     stop_release: true
   show_debug:
     type: show_image
@@ -43,13 +50,15 @@ chains:
       detection:
         image: $input.image
     1:
-      trigger:
+      trigger_delay:
         input: $0.detection.detected
     2:
-      save_video:
+      trigger:
+        input: $1.trigger_delay.output
+      video_recorder:
         image: $0.detection.debug_image
-        file: output01.mkv
-        enable: $0.detection.detected
+        prefix: $input.source_name
+        enable: $1.trigger_delay.output
       show_debug:
         image: $0.detection.debug_image
         name: $input.source_name
@@ -58,13 +67,15 @@ chains:
       detection:
         image: $input.image
     1:
-      trigger:
+      trigger_delay:
         input: $0.detection.detected
     2:
-      save_video:
+      trigger:
+        input: $1.trigger_delay.output
+      video_recorder:
         image: $0.detection.debug_image
-        file: output02.mkv
-        enable: $0.detection.detected
+        prefix: $input.source_name
+        enable: $1.trigger_delay.output
 
 sources_settings:
   sources:

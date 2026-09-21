@@ -20,6 +20,7 @@ namespace core
                 YOLOV9P,
                 SHOW_IMAGE,
                 SAVE_VIDEO,
+                VIDEO_RECORDER,
                 STREAM_VIDEO,
                 TRIGGER_IF_TRUE,
                 BOOL_DELAY,

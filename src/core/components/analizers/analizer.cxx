@@ -2,6 +2,7 @@
 
 #include "core/components/analizers/modules/dnn/modules/analizer-dnn-yolov9.hh"
 #include "core/components/analizers/modules/utils/analizer-bool-delay.hh"
+#include "core/components/analizers/modules/utils/analizer-recorder.hh"
 #include "core/components/analizers/modules/utils/analizer-show-image.hh"
 #include "core/components/analizers/modules/utils/analizer-save-video.hh"
 #include "core/components/analizers/modules/utils/analizer-stream-video.hh"
@@ -38,6 +39,7 @@ namespace core
                     {"yolov9-p", Type::YOLOV9P},
                     {"show_image", Type::SHOW_IMAGE},
                     {"save_video", Type::SAVE_VIDEO},
+                    {"video_recorder", Type::VIDEO_RECORDER},
                     {"stream_video", Type::STREAM_VIDEO},
                     {"trigger_if_true", Type::TRIGGER_IF_TRUE},
                     {"bool_delay", Type::BOOL_DELAY},
@@ -62,6 +64,8 @@ namespace core
                         return std::make_unique<AnalizerShowImage>(name);
                     case Type::SAVE_VIDEO:
                         return std::make_unique<AnalizerSaveVideo>(node, name);
+                    case Type::VIDEO_RECORDER:
+                        return std::make_unique<AnalizerRecorder>(node, name);
                     case Type::STREAM_VIDEO:
                         return std::make_unique<AnalizerStreamVideo>(node, name);
                     case Type::TRIGGER_IF_TRUE:
