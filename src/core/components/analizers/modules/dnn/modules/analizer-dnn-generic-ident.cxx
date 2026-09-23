@@ -20,8 +20,10 @@
 
 #define CATEGORY_PROPERTY_NAME "classes"
 #define CONFIDENCE_PROPERTY_NAME "min_confidence"
+#define USE_CUDA_PROPERTY_NAME "use_cuda"
 
 #define CONFIDENCE_PROPERTY_DEFAULT "60"
+#define USE_CUDA_PROPERTY_DEFAULT "false"
 
 #define CONFIDENCE_PROPERTY_MIN_VAL 0
 #define CONFIDENCE_PROPERTY_MAX_VAL 100
@@ -52,6 +54,9 @@ namespace core
                 {
                     auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
                     auto min_confidence_str = utils::config::DataModule::readScalarOptional(node, CONFIDENCE_PROPERTY_NAME).value_or(CONFIDENCE_PROPERTY_DEFAULT);
+
+                    auto use_cuda = utils::config::DataModule::readBool(node, USE_CUDA_PROPERTY_NAME, name + " analizer", true, USE_CUDA_PROPERTY_DEFAULT);
+                    setUseCUDA(use_cuda);
 
                     std::string prefix = "[";
 
@@ -90,6 +95,8 @@ namespace core
                     : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW),
                     min_confidence(from.min_confidence)
                 {
+                    setUseCUDA(from.getUseCUDA());
+
                     for (auto s : from.searching_category)
                     {
                         searching_category.push_back(s);

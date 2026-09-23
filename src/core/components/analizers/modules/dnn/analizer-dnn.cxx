@@ -109,7 +109,8 @@ namespace core
                     net_name(net_name),
                     net_url(net_url),
                     net_store(net_store),
-                    pull_net(pull_net)
+                    pull_net(pull_net),
+                    useCUDA(false)
                 {
                 }
 
@@ -135,6 +136,11 @@ namespace core
 
                             break;
                         }
+                    }
+
+                    if (useCUDA)
+                    {
+                        setNetToCUDA();
                     }
 
                     loaded = true;
@@ -219,7 +225,7 @@ namespace core
                     return net;
                 }
 
-                bool AnalizerDNN::setCUDA()
+                bool AnalizerDNN::setNetToCUDA()
                 {
                     net.setPreferableBackend(cv::dnn::dnn4_v20260709::DNN_BACKEND_CUDA);
                     net.setPreferableTarget(cv::dnn::dnn4_v20260709::DNN_TARGET_CUDA);
@@ -230,6 +236,16 @@ namespace core
                 std::string AnalizerDNN::getNetName()
                 {
                     return net_name;
+                }
+
+                void AnalizerDNN::setUseCUDA(bool useCUDA)
+                {
+                    this->useCUDA = useCUDA;
+                }
+
+                bool AnalizerDNN::getUseCUDA() const
+                {
+                    return useCUDA;
                 }
 
                 bool AnalizerDNN::isLoaded()

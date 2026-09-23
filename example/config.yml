@@ -28,6 +28,7 @@ analizers:
       - dog
     min_confidence: 60
     nms: 45
+    use_cuda: false
   trigger:
     type: trigger_if_true
   trigger_delay:

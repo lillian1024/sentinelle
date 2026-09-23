@@ -34,7 +34,10 @@ namespace core
                         void loadNet();
                         bool isLoaded();
 
-                        bool setCUDA();
+                        bool setNetToCUDA();
+
+                        void setUseCUDA(bool useCUDA);
+                        bool getUseCUDA() const;
 
                         static const std::vector<std::string> coco_class_names;
                     private:
@@ -52,6 +55,8 @@ namespace core
                         NetStoreType net_store;
 
                         bool pull_net;
+
+                        bool useCUDA;
                 };
             }
         }

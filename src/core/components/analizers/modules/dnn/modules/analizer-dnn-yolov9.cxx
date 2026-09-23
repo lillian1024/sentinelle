@@ -23,9 +23,11 @@
 #define CATEGORY_PROPERTY_NAME "classes"
 #define CONFIDENCE_PROPERTY_NAME "min_confidence"
 #define NMS_PROPERTY_NAME "nms"
+#define USE_CUDA_PROPERTY_NAME "use_cuda"
 
 #define CONFIDENCE_PROPERTY_DEFAULT2 "60"
 #define NMS_PROPERTY_DEFAULT "45"
+#define USE_CUDA_PROPERTY_DEFAULT "false"
 
 #define PERCENT_MIN_VAL 0
 #define PERCENT_MAX_VAL 100
@@ -56,6 +58,9 @@ namespace core
                     auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
                     auto min_confidence_str = utils::config::DataModule::readScalarOptional(node, CONFIDENCE_PROPERTY_NAME).value_or(CONFIDENCE_PROPERTY_DEFAULT2);
                     auto nms_str = utils::config::DataModule::readScalarOptional(node, NMS_PROPERTY_NAME).value_or(NMS_PROPERTY_DEFAULT);
+
+                    auto use_cuda = utils::config::DataModule::readBool(node, USE_CUDA_PROPERTY_NAME, name + " analizer", true, USE_CUDA_PROPERTY_DEFAULT);
+                    setUseCUDA(use_cuda);
 
                     std::string prefix = "[";
 
@@ -111,6 +116,8 @@ namespace core
                     min_confidence(from.min_confidence),
                     nms_threshold(from.nms_threshold)
                 {
+                    setUseCUDA(from.getUseCUDA());
+
                     for (auto s : from.searching_category)
                     {
                         searching_category.push_back(s);
