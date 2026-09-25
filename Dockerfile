@@ -1,9 +1,15 @@
-FROM lilian1024/opencv:4.14.0
+FROM lilian1024/opencv:4.x
 
 #Prepare and build sentinelle
 WORKDIR /app/sentinelle-src
 
 RUN ["apt", "install", "-y", "gdb", "libjsoncpp-dev", "libyaml-cpp-dev", "libmosquitto-dev"]
+
+#Install correct version of g++ for ubuntu 24.x
+#RUN ["apt", "install", "-y", "software-properties-common", "gcc-14", "g++-14"]
+#RUN ["add-apt-repository", "-y", "ppa:ubuntu-toolchain-r/test"]
+#RUN ["update-alternatives", "--install", "/usr/bin/g++", "g++", "/usr/bin/g++-14", "100"]
+#RUN ["update-alternatives", "--install", "/usr/bin/gcc", "gcc", "/usr/bin/gcc-14", "100"]
 
 COPY ./src ./src
 COPY ./CMakeLists.txt ./CMakeLists.txt
