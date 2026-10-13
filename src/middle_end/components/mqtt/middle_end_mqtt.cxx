@@ -254,6 +254,11 @@ namespace middle_end
 
         void MiddleEndMQTT::Stop()
         {
+            for (auto id_source : id_source_map)
+            {
+                sendDeviceUnkownState(id_source.second);
+            }
+
             core::event::EventManager::instance().removeEventHandler(this);
 
             mosquitto_disconnect(client_instance);

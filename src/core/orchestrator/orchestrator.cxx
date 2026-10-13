@@ -206,7 +206,6 @@ namespace core
             event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStopEvent>(source));
 
             source.releaseSource();
-            cv::destroyAllWindows();
 
             utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
         }

@@ -29,5 +29,7 @@ int main()
 
     core::event::EventManager::instance().AttachToRunning();
 
+    //cv::destroyAllWindows();
+
     return 0;
 }
