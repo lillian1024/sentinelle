@@ -51,7 +51,10 @@ namespace utils
 
                 if (join_release)
                 {
-                    handle_thread.join();
+                    if (handle_thread.joinable())
+                    {
+                        handle_thread.join();
+                    }
                 }
                 else
                 {
