@@ -11,7 +11,8 @@ namespace core
         {
             DETECTED,
             TRIGGERED,
-            UNTRIGGERED
+            UNTRIGGERED,
+            SOURCE_STOP
         };
 
         class Event
@@ -39,6 +40,9 @@ namespace core
                     break;
                 case EventType::UNTRIGGERED:
                     os << "UNTRIGGERED";
+                    break;
+                case EventType::SOURCE_STOP:
+                    os << "SOURCE_STOP";
                     break;
             }
 

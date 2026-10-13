@@ -12,6 +12,8 @@ namespace middle_end
 
             static std::unique_ptr<MiddleEnd> createNewMiddleEnd(std::string name, YAML::Node node);
 
+            virtual void AttachToRunning() = 0;
+
             virtual void Init() = 0;
             virtual void Start() = 0;
             virtual void Stop() = 0;

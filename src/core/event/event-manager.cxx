@@ -23,11 +23,20 @@ namespace core
                 throw std::runtime_error("[EventManager]: thread limit too low to start the event manager!");
             }
 
-            utils::thread::ThreadManager::instance().CreateThread(false, startEventLoop, std::ref(*this));
+            std::optional<std::thread> t = utils::thread::ThreadManager::instance().CreateThread(false, false, startEventLoop, std::ref(*this));
+
+            if (!t.has_value())
+            {
+                throw std::runtime_error("[EventManager]: Unable to start the EventManager thread!");
+            }
+
+            event_manager_thread = std::move(t.value());
         }
 
         void EventManager::stopEventManager()
         {
+            utils::logger::Logger::instance().Log("EventManager", "Stopping EventManager...", utils::logger::Logger::LogLevel::INFO);
+
             stop = true;
         }
 
@@ -96,6 +105,11 @@ namespace core
                     std::this_thread::sleep_for(std::chrono::milliseconds(ON_EMPTY_SLEEP_FOR_MILLIS));
                 }
             }
+        }
+
+        void EventManager::AttachToRunning()
+        {
+            event_manager_thread.join();
         }
 
         std::optional<std::unique_ptr<Event>> EventManager::popNextEvent()

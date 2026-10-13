@@ -41,6 +41,7 @@ namespace core
                 inline bool isSourceOpen() const { return video_stream->isOpened(); }
 
                 int getMaxFailRetries() const;
+                bool getRestart() const;
                 time_type getLastFrameTime() const;
                 bool isInCooldown() const;
                 time_type getCooldownStopTime() const;
@@ -74,6 +75,7 @@ namespace core
                 float passive_fps;
 
                 int max_fail_retries;
+                bool restart;
 
                 std::atomic<bool> enabled;
 

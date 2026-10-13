@@ -29,6 +29,8 @@ namespace middle_end
                 virtual void Start();
                 virtual void Stop();
 
+                virtual void AttachToRunning();
+
                 virtual void HandleDeviceCommand(std::string device_name, std::string component, std::string command, std::string payload);
 
                 static const std::string middle_end_mqtt_name;
@@ -39,10 +41,14 @@ namespace middle_end
 
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
+                virtual void handleSourceStopEvent(core::event::modules::UnTriggeredEvent& event);
 
                 void sendDeviceState(MQTTSourceDevice device) const;
+                void sendDeviceUnkownState(MQTTSourceDevice device) const;
                 void sendTriggerState(MQTTSourceDevice device, bool state) const;
+                void sendTriggerState(MQTTSourceDevice device, std::string state_payload) const;
                 void sendEnabledState(MQTTSourceDevice device, bool state) const;
+                void sendEnabledState(MQTTSourceDevice device, std::string state_payload) const;
 
                 bool enabled;
 

@@ -9,7 +9,7 @@ namespace utils
     {
         template< class F, class... Args >
         requires utils::thread::ParamFunctor<F, Args...>
-        std::optional<std::thread> ThreadManager::CreateThread(bool join, F&& f, Args&&... args)
+        std::optional<std::thread> ThreadManager::CreateThread(bool join, bool detach, F&& f, Args&&... args)
         {
             thread_count_mutex.lock();
 
@@ -34,7 +34,10 @@ namespace utils
                 }
                 else
                 {
-                    nt.detach();
+                    if (detach)
+                    {
+                        nt.detach();
+                    }
                 }
             }
 
@@ -43,9 +46,9 @@ namespace utils
 
         template< class F, class... Args >
         requires utils::thread::ParamFunctor<F, Args...>
-        std::optional<std::thread> ThreadManager::CreateThreadOrExec(bool join, F&& f, Args&&... args)
+        std::optional<std::thread> ThreadManager::CreateThreadOrExec(bool join, bool detach, F&& f, Args&&... args)
         {
-            std::optional<std::thread> t = CreateThread(join, f, args...);
+            std::optional<std::thread> t = CreateThread(join, detach, f, args...);
 
             if (!t.has_value())
             {

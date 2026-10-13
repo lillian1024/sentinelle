@@ -31,6 +31,7 @@ namespace middle_end
                 void subscribeToDeviceTopic(mosquitto *mosq) const;
 
                 std::string getSerializedBoolState(std::string value_name, bool trigger) const;
+                std::string getSerializedState(std::string value_name, std::string value) const;
             protected:
                 Json::Value getDeviceTriggerComponent() const;
                 Json::Value getDeviceEnabledComponent() const;

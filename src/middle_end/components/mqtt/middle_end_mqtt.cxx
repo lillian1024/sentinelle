@@ -1,6 +1,7 @@
 #include "middle_end_mqtt.hh"
 #include "core/event/event-manager.hh"
 #include "core/event/events/event.hh"
+#include "core/event/events/modules/source-stop-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
 #include "core/orchestrator/orchestrator.hh"
@@ -192,10 +193,24 @@ namespace middle_end
             sendEnabledState(device, device.getBaseSource().isEnabled());
         }
 
+        void MiddleEndMQTT::sendDeviceUnkownState(MQTTSourceDevice device) const
+        {
+            std::string trigger_payload = device.getSerializedState(TRIGGER_SENSOR_ID, "UNKOWN");
+            std::string enable_payload = device.getSerializedState(ENABLED_SWITCH_ID, "UNKOWN");
+
+            sendTriggerState(device, trigger_payload);
+            sendEnabledState(device, enable_payload);
+        }
+
         void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, bool state) const
         {
             std::string state_payload = device.getSerializedBoolState(TRIGGER_SENSOR_ID, state);
 
+            sendTriggerState(device, state_payload);
+        }
+
+        void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, std::string state_payload) const
+        {
             std::ostringstream topic_builder;
 
             topic_builder << "homeassistant/sentinelle/";
@@ -216,6 +231,11 @@ namespace middle_end
         {
             std::string state_payload = device.getSerializedBoolState(ENABLED_SWITCH_ID, state);
 
+            sendEnabledState(device, state_payload);
+        }
+
+        void MiddleEndMQTT::sendEnabledState(MQTTSourceDevice device, std::string state_payload) const
+        {
             std::ostringstream topic_builder;
 
             topic_builder << "homeassistant/sentinelle/";
@@ -235,6 +255,10 @@ namespace middle_end
         void MiddleEndMQTT::Stop()
         {
             core::event::EventManager::instance().removeEventHandler(this);
+
+            mosquitto_disconnect(client_instance);
+
+            mosquitto_loop_stop(client_instance, false);
         }
 
         void MiddleEndMQTT::handleTriggerEvent(core::event::modules::TriggeredEvent& event)
@@ -248,6 +272,12 @@ namespace middle_end
             MQTTSourceDevice dev(event.getSource());
 
             sendTriggerState(dev, false);
+        }
+        void MiddleEndMQTT::handleSourceStopEvent(core::event::modules::UnTriggeredEvent& event)
+        {
+            MQTTSourceDevice dev(event.getSource());
+
+            sendDeviceUnkownState(dev);
         }
 
         void MiddleEndMQTT::handleEvent(core::event::Event& event)
@@ -268,6 +298,13 @@ namespace middle_end
                 handleUnTriggerEvent(*untrigger_event);
 
                 return;
+            }
+
+            auto* source_stop_event = dynamic_cast<core::event::modules::SourceStopEvent*>(&event);
+
+            if (source_stop_event != nullptr)
+            {
+
             }
         }
 
@@ -350,6 +387,13 @@ namespace middle_end
             }
 
             return res;
+        }
+
+        void MiddleEndMQTT::AttachToRunning()
+        {
+            //No threads are managed by the mqtt middle, so nothing here
+
+            return;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace utils
                 : VideoStream(video_stream),
                   stop(false)
             {
-                auto t = thread::ThreadManager::instance().CreateThread(false, handleVideoStream, std::ref(*this));
+                auto t = thread::ThreadManager::instance().CreateThread(false, false, handleVideoStream, std::ref(*this));
 
                 if (!t.has_value())
                 {
@@ -52,6 +52,10 @@ namespace utils
                 if (join_release)
                 {
                     handle_thread.join();
+                }
+                else
+                {
+                    handle_thread.detach();
                 }
             }
 

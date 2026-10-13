@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <thread>
 #include <vector>
 
 namespace core
@@ -25,6 +26,8 @@ namespace core
                 void removeEventHandler(EventHandler* handler);
 
                 void registerEvent(std::unique_ptr<Event> event);
+
+                void AttachToRunning();
             private:
                 static void startEventLoop(EventManager& eventManager);
 
@@ -39,6 +42,8 @@ namespace core
 
                 std::vector<EventHandler*> handler_list;
                 std::mutex handler_list_lock;
+
+                std::thread event_manager_thread;
         };
     }
 }

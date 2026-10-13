@@ -122,6 +122,18 @@ namespace middle_end
             return sb.str();
         }
 
+        std::string MQTTSourceDevice::getSerializedState(std::string value_name, std::string value) const
+        {
+            Json::Value payload_root;
+
+            payload_root[value_name] = value;
+
+            std::ostringstream sb;
+            sb << payload_root;
+
+            return sb.str();
+        }
+
         std::string MQTTSourceDevice::getStateTopic(std::string component_name) const
         {
             return getCommandTopic(component_name, "state");

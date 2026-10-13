@@ -15,10 +15,18 @@ int main()
     core::orchestrator::Orchestrator::instance().StartOrchestrator();
 
     // TODO: to change
-    while (true)
+    /*while (true)
     {
         std::this_thread::sleep_for(std::chrono::microseconds(500));
-    }
+    }*/
+
+    core::orchestrator::Orchestrator::instance().AttachToRunning();
+
+    core::orchestrator::Orchestrator::instance().StopOrchestrator();
+
+    core::event::EventManager::instance().stopEventManager();
+
+    core::event::EventManager::instance().AttachToRunning();
 
     return 0;
 }
