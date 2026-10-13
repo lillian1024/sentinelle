@@ -117,6 +117,8 @@ namespace core
 
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
 
+                source.Stop();
+
                 return;
             }
             else
@@ -129,6 +131,32 @@ namespace core
 
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
             }
+
+            try {
+                RunSourceLoop(source);
+            }
+            catch (...)
+            {
+                std::ostringstream sb;
+
+                sb << "Source ";
+                sb << source.getName();
+                sb << " raised an error and stopped!";
+
+                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
+            }
+
+            source.Stop();
+
+            source.releaseSource();
+            cv::destroyAllWindows();
+
+            utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
+        }
+
+        void Orchestrator::RunSourceLoop(components::source::Source& source)
+        {
+            int nbFail = 0;
 
             while (!source.isStopping())
             {
@@ -153,8 +181,25 @@ namespace core
                 {
                     utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, "Image not available! Frame processing skipped!", utils::logger::Logger::LogLevel::WARNING);
 
+                    nbFail++;
+
+                    if (nbFail > source.getMaxFailRetries())
+                    {
+                        source.Stop();
+
+                        std::ostringstream sb;
+
+                        sb << "Max retry reached for source: ";
+                        sb << source.getName();
+                        sb << ", stopping!";
+
+                        utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                    }
+
                     continue;
                 }
+
+                nbFail = 0;
 
                 bool trigger = false;
 
@@ -172,11 +217,6 @@ namespace core
 
                 source.setTriggered(trigger);
             }
-
-            source.releaseSource();
-            cv::destroyAllWindows();
-
-            utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
         }
 
         components::source::Source* Orchestrator::GetSourceByName(std::string name)

@@ -40,6 +40,7 @@ namespace core
                 inline std::string getName() const { return name; }
                 inline bool isSourceOpen() const { return video_stream->isOpened(); }
 
+                int getMaxFailRetries() const;
                 time_type getLastFrameTime() const;
                 bool isInCooldown() const;
                 time_type getCooldownStopTime() const;
@@ -71,6 +72,8 @@ namespace core
                 std::unique_ptr<VideoStream> video_stream;
                 float active_fps;
                 float passive_fps;
+
+                int max_fail_retries;
 
                 std::atomic<bool> enabled;
 

@@ -23,6 +23,8 @@ namespace core
 
                 static const std::string ORCHESTRATOR_CATEGORY_NAME;
             protected:
+                void RunSourceLoop(components::source::Source& source);
+
                 static void startSourceOrchestration(components::source::Source& source);
 
                 void logConfig();
