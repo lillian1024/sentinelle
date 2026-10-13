@@ -3,6 +3,9 @@ FROM lilian1024/opencv:4.14.0
 #Prepare and build sentinelle
 WORKDIR /app/sentinelle-src
 
+RUN ["apt", "update"]
+RUN ["apt", "upgrade", "-y"]
+
 RUN ["apt", "install", "-y", "gdb", "libjsoncpp-dev", "libyaml-cpp-dev", "libmosquitto-dev"]
 
 COPY ./src ./src
