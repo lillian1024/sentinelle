@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cstddef>
 #include <ctime>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -190,13 +191,14 @@ namespace core
             try {
                 RunSourceLoop(source);
             }
-            catch (...)
+            catch (const std::exception& e)
             {
                 std::ostringstream sb;
 
                 sb << "Source ";
                 sb << source.getName();
-                sb << " raised an error and stopped!";
+                sb << " raised an error and stopped! ";
+                sb << e.what() << '\n';
 
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
             }
