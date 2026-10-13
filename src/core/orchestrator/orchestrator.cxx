@@ -109,9 +109,21 @@ namespace core
 
         void Orchestrator::StopOrchestrator()
         {
+            stop = true;
+
+            for (size_t i = 0; i < sources.size(); i++)
+            {
+                sources[i]->Stop();
+            }
+        }
+
+        void Orchestrator::CleanOrchestrator()
+        {
             utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
                 "Stopping...",
                 utils::logger::Logger::LogLevel::INFO);
+
+            stop = true;
 
             for (size_t i = 0; i < sources.size(); i++)
             {
@@ -306,7 +318,7 @@ namespace core
             {
                 if (!hasSourceRunning())
                 {
-                    stop = true;
+                    StopOrchestrator();
                 }
             }
         }

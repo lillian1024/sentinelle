@@ -20,6 +20,7 @@ namespace core
 
                 void StartOrchestrator();
                 void StopOrchestrator();
+                void CleanOrchestrator();
 
                 void OrchestrateSource(components::source::Source& source);
 

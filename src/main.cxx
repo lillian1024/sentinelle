@@ -1,8 +1,12 @@
 #include "core/event/event-manager.hh"
 #include "core/orchestrator/orchestrator.hh"
 #include "utils/config/config-manager.hh"
-#include <chrono>
-#include <thread>
+#include <csignal>
+
+void stopSignalHandler(int)
+{
+    core::orchestrator::Orchestrator::instance().StopOrchestrator();
+}
 
 int main()
 {
@@ -14,15 +18,12 @@ int main()
     core::orchestrator::Orchestrator::instance().LoadConfiguration();
     core::orchestrator::Orchestrator::instance().StartOrchestrator();
 
-    // TODO: to change
-    /*while (true)
-    {
-        std::this_thread::sleep_for(std::chrono::microseconds(500));
-    }*/
+    signal(SIGINT, stopSignalHandler);
+    signal(SIGTERM, stopSignalHandler);
 
     core::orchestrator::Orchestrator::instance().AttachToRunning();
 
-    core::orchestrator::Orchestrator::instance().StopOrchestrator();
+    core::orchestrator::Orchestrator::instance().CleanOrchestrator();
 
     core::event::EventManager::instance().stopEventManager();
 
