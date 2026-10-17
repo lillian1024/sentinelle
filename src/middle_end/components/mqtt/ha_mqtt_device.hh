@@ -15,6 +15,9 @@ namespace middle_end
         #define SWITCH_COMMAND_NAME "set"
         #define SWITCH_VALUE_NAME "value"
 
+        #define STATE_TOPIC_NAME "state"
+        #define STATUS_TOPIC_NAME "status"
+
         #define SWITCH_ON_VALUE "ON"
 
         class MQTTSourceDevice
@@ -30,13 +33,15 @@ namespace middle_end
 
                 void subscribeToDeviceTopic(mosquitto *mosq) const;
 
-                std::string getSerializedBoolState(std::string value_name, bool trigger) const;
+                std::string getSerializedBoolState(std::string value_name, bool state) const;
+                std::string getSerializedBoolStatus(bool status) const;
                 std::string getSerializedState(std::string value_name, std::string value) const;
             protected:
                 Json::Value getDeviceTriggerComponent() const;
                 Json::Value getDeviceEnabledComponent() const;
 
                 std::string getStateTopic(std::string component_name) const;
+                std::string getStatusTopic(std::string component_name) const;
                 std::string getCommandTopic(std::string component_name, std::string command_name) const;
 
                 core::components::source::Source& base_source;

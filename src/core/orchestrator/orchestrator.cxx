@@ -1,6 +1,7 @@
 #include "orchestrator.hh"
 #include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
+#include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/source-stop-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
@@ -158,6 +159,8 @@ namespace core
         void Orchestrator::OrchestrateSource(components::source::Source& source)
         {
             source.Resume();
+
+            event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStartEvent>(source));
 
             source.startResource();
 

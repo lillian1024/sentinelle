@@ -71,6 +71,7 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/event/event-manager.cxx
     src/core/event/events/event.cxx
     src/core/event/events/modules/source-stop-event.cxx
+    src/core/event/events/modules/source-start-event.cxx
     src/core/event/events/modules/trigger/triggered-event.cxx
     src/core/event/events/modules/trigger/untriggered-event.cxx
     )

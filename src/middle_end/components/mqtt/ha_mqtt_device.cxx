@@ -8,6 +8,7 @@
 #define ORIGIN_CATEGORY_NAME "o"
 #define COMPONENTS_CATEGORY_NAME "cmps"
 #define STATE_TOPIC_CATEGORY_NAME "state_topic"
+#define STATUS_TOPIC_CATEGORY_NAME "availability_topic"
 #define QOS_CATEGORY_NAME "qos"
 
 namespace middle_end
@@ -81,6 +82,7 @@ namespace middle_end
             trigger_state_comp["value_template"] = val_temp_sb.str();
 
             trigger_state_comp[STATE_TOPIC_CATEGORY_NAME] = getStateTopic(TRIGGER_SENSOR_ID);
+            trigger_state_comp[STATUS_TOPIC_CATEGORY_NAME] = getStatusTopic(TRIGGER_SENSOR_ID);
 
             return trigger_state_comp;
         }
@@ -100,6 +102,7 @@ namespace middle_end
             enabled_state_comp["value_template"] = val_temp_sb.str();
 
             enabled_state_comp[STATE_TOPIC_CATEGORY_NAME] = getStateTopic(ENABLED_SWITCH_ID);
+            enabled_state_comp[STATUS_TOPIC_CATEGORY_NAME] = getStatusTopic(ENABLED_SWITCH_ID);
             enabled_state_comp["command_topic"] = getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME);
 
             return enabled_state_comp;
@@ -110,16 +113,21 @@ namespace middle_end
             mosquitto_subscribe(mosq, nullptr, getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME).c_str(), 1);
         }
 
-        std::string MQTTSourceDevice::getSerializedBoolState(std::string value_name, bool trigger) const
+        std::string MQTTSourceDevice::getSerializedBoolState(std::string value_name, bool state) const
         {
             Json::Value payload_root;
 
-            payload_root[value_name] = trigger ? "ON" : "OFF";
+            payload_root[value_name] = state ? "ON" : "OFF";
 
             std::ostringstream sb;
             sb << payload_root;
 
             return sb.str();
+        }
+
+        std::string MQTTSourceDevice::getSerializedBoolStatus(bool status) const
+        {
+            return status ? "online" : "offline";
         }
 
         std::string MQTTSourceDevice::getSerializedState(std::string value_name, std::string value) const
@@ -136,7 +144,12 @@ namespace middle_end
 
         std::string MQTTSourceDevice::getStateTopic(std::string component_name) const
         {
-            return getCommandTopic(component_name, "state");
+            return getCommandTopic(component_name, STATE_TOPIC_NAME);
+        }
+
+        std::string MQTTSourceDevice::getStatusTopic(std::string component_name) const
+        {
+            return getCommandTopic(component_name, STATUS_TOPIC_NAME);
         }
 
         std::string MQTTSourceDevice::getCommandTopic(std::string component_name, std::string command_name) const
