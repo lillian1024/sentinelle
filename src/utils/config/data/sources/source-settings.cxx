@@ -16,12 +16,14 @@
 #define ENABLED_FIELD "enabled"
 #define ACTIVE_FPS_FIELD "active_fps"
 #define PASSIVE_FPS_FIELD "passive_fps"
-#define MAX_FAIL_RETRIES "max_retries"
+#define MAX_FAIL_RETRIES_FIELD "max_retries"
+#define RESTART_FIELD "restart"
 #define PROCESS_FIELD "process"
 
 #define ENABLED_DEFAULT_VALUE TRUE_STR
 #define IS_LIVE_DEFAULT_VALUE true
 #define MAX_FAIL_RETRIES_DEFAULT_VALUE "10"
+#define RESTART_DEFAULT_VALUE "true"
 
 namespace utils
 {
@@ -34,35 +36,16 @@ namespace utils
                 SourceSettings::SourceSettings(YAML::Node node, std::string source_name)
                     : source_name(source_name)
                 {
-                    std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
+                    //std::optional<std::string> is_live_str = DataModule::readScalarOptional(node, IS_LIVE_FIELD);
+                    is_live = DataModule::readBool(node, IS_LIVE_FIELD, source_name + " source", true, IS_LIVE_FIELD);
                     enabled = DataModule::readScalarOptional(node, ENABLED_FIELD).value_or(ENABLED_DEFAULT_VALUE) == TRUE_STR;
-                    std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, source_name + " source");
-                    std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, source_name + " source");
-                    max_fail_retries = DataModule::readInt(node, MAX_FAIL_RETRIES, source_name + " source", true, MAX_FAIL_RETRIES_DEFAULT_VALUE);
+                    //std::string active_fps_str = DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD, source_name + " source");
+                    //std::string passive_fps_str = DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD, source_name + " source");
+                    active_fps = DataModule::readDouble(node, ACTIVE_FPS_FIELD, source_name + " source", false, "");
+                    passive_fps = DataModule::readDouble(node, PASSIVE_FPS_FIELD, source_name + " source", false, "");
+                    max_fail_retries = DataModule::readInt(node, MAX_FAIL_RETRIES_FIELD, source_name + " source", true, MAX_FAIL_RETRIES_DEFAULT_VALUE);
+                    restart = DataModule::readBool(node, RESTART_FIELD, source_name + " source", true, RESTART_DEFAULT_VALUE);
                     YAML::Node process_seq = DataModule::readSequenceOrError(node, PROCESS_FIELD, source_name + " source");
-
-                    if (is_live_str.has_value())
-                    {
-                        is_live = is_live_str == "true";
-                    }
-                    else
-                    {
-                        is_live = IS_LIVE_DEFAULT_VALUE;
-                    }
-
-                    try
-                    {
-                        active_fps = std::stof(active_fps_str);
-                        passive_fps = std::stof(passive_fps_str);
-                    }
-                    catch (const std::invalid_argument&)
-                    {
-                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: expected float for " + ACTIVE_FPS_FIELD + " and " + PASSIVE_FPS_FIELD + " field!");
-                    }
-                    catch (const std::out_of_range&)
-                    {
-                        throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse config: " + ACTIVE_FPS_FIELD + " or " + PASSIVE_FPS_FIELD + " exceeds max value!");
-                    }
 
                     if (active_fps < 0.0)
                     {

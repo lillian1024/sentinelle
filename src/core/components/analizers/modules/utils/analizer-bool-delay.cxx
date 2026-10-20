@@ -61,7 +61,7 @@ namespace core
                 return res;
             }
 
-            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerBoolDelay::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger)
+            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerBoolDelay::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool&)
             {
                 (void)source;
 

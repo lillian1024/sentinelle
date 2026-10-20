@@ -22,11 +22,11 @@ namespace utils
 
                 template< class F, class... Args >
                 requires ParamFunctor<F, Args...>
-                std::optional<std::thread> CreateThread(bool join, F&& f, Args&&... args);
+                std::optional<std::thread> CreateThread(bool join, bool detach, F&& f, Args&&... args);
 
                 template< class F, class... Args >
                 requires ParamFunctor<F, Args...>
-                std::optional<std::thread> CreateThreadOrExec(bool join, F&& f, Args&&... args);
+                std::optional<std::thread> CreateThreadOrExec(bool join, bool detach, F&& f, Args&&... args);
 
                 inline std::size_t GetThreadCount()
                 {

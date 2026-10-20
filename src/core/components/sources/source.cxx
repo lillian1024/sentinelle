@@ -52,6 +52,7 @@ namespace core
                   active_fps(config.getActiveFps()),
                   passive_fps(config.getPassiveFps()),
                   max_fail_retries(config.getMaxRetries()),
+                  restart(config.getRestart()),
                   enabled(config.getEnabled()),
                   is_active(false),
                   is_triggered(false),
@@ -110,6 +111,11 @@ namespace core
             int Source::getMaxFailRetries() const
             {
                 return max_fail_retries;
+            }
+
+            bool Source::getRestart() const
+            {
+                return restart;
             }
 
             time_type Source::getLastFrameTime() const

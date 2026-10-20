@@ -1,6 +1,8 @@
 #include "orchestrator.hh"
 #include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
+#include "core/event/events/modules/source-start-event.hh"
+#include "core/event/events/modules/source-stop-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
 #include "core/event/event-manager.hh"
@@ -11,6 +13,7 @@
 #include <chrono>
 #include <cstddef>
 #include <ctime>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -22,7 +25,6 @@
 #include <optional>
 #include <sstream>
 #include <stdexcept>
-#include <thread>
 
 #define SOURCE_DISABLE_CHECK_INTERVAL_MILLIS 20
 
@@ -37,6 +39,8 @@ namespace core
             utils::logger::Logger::instance().LogPlain(cv::getBuildInformation(), utils::logger::Logger::LogLevel::DEBUG);
 
             logConfig();
+
+            event::EventManager::instance().registerEventHandler(this);
 
             auto& sources_config = utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings();
 
@@ -63,23 +67,7 @@ namespace core
             {
                 auto& source = *sources[i].get();
 
-                if (!utils::thread::ThreadManager::instance().CanCreateNewThread())
-                {
-                    utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
-                        "Thread limit reached! Unable to start sources threads! sequential mode will be used.\n\tWarning: seqential sources mode will severly degrade performance!",
-                        utils::logger::Logger::LogLevel::WARNING);
-
-                    throw std::runtime_error("Sequential source mode is not implemented yet!");
-                }
-                else
-                {
-                    std::optional<std::thread> t = utils::thread::ThreadManager::instance().CreateThread(false, startSourceOrchestration, std::ref(source));
-
-                    if (!t.has_value())
-                    {
-                        throw std::runtime_error("Unable to start the source thread! Please report this error.");
-                    }
-                }
+                startSource(source);
             }
 
             utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
@@ -98,6 +86,71 @@ namespace core
                 utils::logger::Logger::LogLevel::INFO);
         }
 
+        void Orchestrator::startSource(components::source::Source& source)
+        {
+            if (!utils::thread::ThreadManager::instance().CanCreateNewThread())
+            {
+                utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+                    "Thread limit reached! Unable to start sources threads! sequential mode will be used.\n\tWarning: seqential sources mode will severly degrade performance!",
+                    utils::logger::Logger::LogLevel::WARNING);
+
+                throw std::runtime_error("Sequential source mode is not implemented yet!");
+            }
+            else
+            {
+                std::optional<std::thread> t = utils::thread::ThreadManager::instance().CreateThread(false, false, startSourceOrchestration, std::ref(source));
+
+                if (!t.has_value())
+                {
+                    throw std::runtime_error("Unable to start the source thread! Please report this error.");
+                }
+
+                source_threads.emplace_back(std::move(t.value()));
+            }
+        }
+
+        void Orchestrator::StopOrchestrator()
+        {
+            stop = true;
+
+            for (size_t i = 0; i < sources.size(); i++)
+            {
+                sources[i]->Stop();
+            }
+        }
+
+        void Orchestrator::CleanOrchestrator()
+        {
+            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+                "Stopping...",
+                utils::logger::Logger::LogLevel::INFO);
+
+            stop = true;
+
+            for (size_t i = 0; i < sources.size(); i++)
+            {
+                sources[i]->Stop();
+            }
+
+            AttachToRunning();
+
+            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+
+            for (auto mid : middle_ends)
+            {
+                mid.get().Stop();
+            }
+
+            for (auto mid : middle_ends)
+            {
+                mid.get().AttachToRunning();
+            }
+
+            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+                "Stopped all middle ends successfully.",
+                utils::logger::Logger::LogLevel::INFO);
+        }
+
         void Orchestrator::startSourceOrchestration(components::source::Source& source)
         {
             Orchestrator::instance().OrchestrateSource(source);
@@ -105,6 +158,10 @@ namespace core
 
         void Orchestrator::OrchestrateSource(components::source::Source& source)
         {
+            source.Resume();
+
+            event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStartEvent>(source));
+
             source.startResource();
 
             if (!source.isSourceOpen())
@@ -118,6 +175,8 @@ namespace core
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
 
                 source.Stop();
+
+                event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStopEvent>(source));
 
                 return;
             }
@@ -135,21 +194,23 @@ namespace core
             try {
                 RunSourceLoop(source);
             }
-            catch (...)
+            catch (const std::exception& e)
             {
                 std::ostringstream sb;
 
                 sb << "Source ";
                 sb << source.getName();
-                sb << " raised an error and stopped!";
+                sb << " raised an error and stopped! ";
+                sb << e.what() << '\n';
 
                 utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
             }
 
             source.Stop();
 
+            event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStopEvent>(source));
+
             source.releaseSource();
-            cv::destroyAllWindows();
 
             utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
         }
@@ -183,7 +244,7 @@ namespace core
 
                     nbFail++;
 
-                    if (nbFail > source.getMaxFailRetries())
+                    if (nbFail >= 0 && nbFail > source.getMaxFailRetries())
                     {
                         source.Stop();
 
@@ -237,6 +298,67 @@ namespace core
             }
 
             return nullptr;
+        }
+
+        void Orchestrator::handleEvent(event::Event& event)
+        {
+            event::modules::SourceStopEvent* stop_event = dynamic_cast<event::modules::SourceStopEvent*>(&event);
+
+            if (stop_event == nullptr)
+            {
+                return;
+            }
+
+            if (!IsRunning())
+            {
+                return;
+            }
+
+            if (stop_event->getSource().getRestart())
+            {
+                startSource(stop_event->getSource());
+            }
+            else
+            {
+                if (!hasSourceRunning())
+                {
+                    StopOrchestrator();
+                }
+            }
+        }
+
+        bool Orchestrator::hasSourceRunning()
+        {
+            for (size_t i = 0; i < sources.size(); i++)
+            {
+                if (!sources[i]->isStopping())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        bool Orchestrator::IsRunning()
+        {
+            return !stop;
+        }
+
+        void Orchestrator::AttachToRunning()
+        {
+            while (!stop)
+            {
+                std::this_thread::sleep_for(std::chrono::microseconds(500));
+            }
+
+            for (auto& t : source_threads)
+            {
+                if (t.joinable())
+                {
+                    t.join();
+                }
+            }
         }
 
         void Orchestrator::logConfig()

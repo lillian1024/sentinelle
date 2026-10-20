@@ -1,4 +1,7 @@
-FROM lilian1024/opencv:4.x
+ARG BASE_IMAGE=lilian1024/opencv:4.x
+ARG ENABLE_ADDITIONAL_GCC=false
+
+FROM ${BASE_IMAGE}
 
 #Prepare and build sentinelle
 WORKDIR /app/sentinelle-src
@@ -8,11 +11,13 @@ RUN ["apt", "upgrade", "-y"]
 
 RUN ["apt", "install", "-y", "gdb", "libjsoncpp-dev", "libyaml-cpp-dev", "libmosquitto-dev"]
 
+ARG ENABLE_ADDITIONAL_GCC
+
 #Install correct version of g++ for ubuntu 24.x
-#RUN ["apt", "install", "-y", "software-properties-common", "gcc-14", "g++-14"]
-#RUN ["add-apt-repository", "-y", "ppa:ubuntu-toolchain-r/test"]
-#RUN ["update-alternatives", "--install", "/usr/bin/g++", "g++", "/usr/bin/g++-14", "100"]
-#RUN ["update-alternatives", "--install", "/usr/bin/gcc", "gcc", "/usr/bin/gcc-14", "100"]
+RUN if $ENABLE_ADDITIONAL_GCC; then apt install -y software-properties-common gcc-14 g++-14; fi
+RUN if $ENABLE_ADDITIONAL_GCC; then add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+RUN if $ENABLE_ADDITIONAL_GCC; then update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100; fi
+RUN if $ENABLE_ADDITIONAL_GCC; then update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100; fi
 
 COPY ./src ./src
 COPY ./CMakeLists.txt ./CMakeLists.txt

@@ -1,6 +1,8 @@
 #include "middle_end_mqtt.hh"
 #include "core/event/event-manager.hh"
 #include "core/event/events/event.hh"
+#include "core/event/events/modules/source-start-event.hh"
+#include "core/event/events/modules/source-stop-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
 #include "core/orchestrator/orchestrator.hh"
@@ -148,6 +150,8 @@ namespace middle_end
             {
                 utils::logger::Logger::instance().Log(CATEGORY_NAME, "Unable to connect to the MQTT broker!", utils::logger::Logger::LogLevel::ERROR);
 
+                enabled = false;
+
                 return;
             }
 
@@ -177,6 +181,7 @@ namespace middle_end
 
                 id_source.second.subscribeToDeviceTopic(client_instance);
 
+                sendDeviceStatus(id_source.second, true);
                 sendDeviceState(id_source.second);
             }
 
@@ -195,17 +200,51 @@ namespace middle_end
             sendEnabledState(device, device.getBaseSource().isEnabled());
         }
 
+        void MiddleEndMQTT::sendDeviceStatus(MQTTSourceDevice device, bool status) const
+        {
+            std::string trigger_payload = device.getSerializedBoolStatus(status);
+            std::string enable_payload = device.getSerializedBoolStatus(status);
+
+            sendTriggerStatus(device, trigger_payload);
+            sendEnabledStatus(device, enable_payload);
+        }
+
         void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, bool state) const
         {
             std::string state_payload = device.getSerializedBoolState(TRIGGER_SENSOR_ID, state);
 
+            sendTriggerState(device, state_payload);
+        }
+
+        void MiddleEndMQTT::sendTriggerState(MQTTSourceDevice device, std::string state_payload) const
+        {
             std::ostringstream topic_builder;
 
             topic_builder << "homeassistant/sentinelle/";
             topic_builder << device.getBaseSource().getName();
             topic_builder << "/";
             topic_builder << TRIGGER_SENSOR_ID;
-            topic_builder << "/state";
+            topic_builder << "/";
+            topic_builder << STATE_TOPIC_NAME;
+
+            int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
+
+            if (error_code != MOSQ_ERR_SUCCESS)
+            {
+                utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish trigger state message!", utils::logger::Logger::LogLevel::WARNING);
+            }
+        }
+
+        void MiddleEndMQTT::sendTriggerStatus(MQTTSourceDevice device, std::string state_payload) const
+        {
+            std::ostringstream topic_builder;
+
+            topic_builder << "homeassistant/sentinelle/";
+            topic_builder << device.getBaseSource().getName();
+            topic_builder << "/";
+            topic_builder << TRIGGER_SENSOR_ID;
+            topic_builder << "/";
+            topic_builder << STATUS_TOPIC_NAME;
 
             int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
 
@@ -219,13 +258,42 @@ namespace middle_end
         {
             std::string state_payload = device.getSerializedBoolState(ENABLED_SWITCH_ID, state);
 
+            sendEnabledState(device, state_payload);
+        }
+
+        void MiddleEndMQTT::sendEnabledState(MQTTSourceDevice device, std::string state_payload) const
+        {
             std::ostringstream topic_builder;
 
             topic_builder << "homeassistant/sentinelle/";
             topic_builder << device.getBaseSource().getName();
             topic_builder << "/";
             topic_builder << ENABLED_SWITCH_ID;
-            topic_builder << "/state";
+            topic_builder << "/";
+            topic_builder << STATE_TOPIC_NAME;
+
+            std::string temp = topic_builder.str();
+
+            int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
+
+            if (error_code != MOSQ_ERR_SUCCESS)
+            {
+                utils::logger::Logger::instance().Log("MiddleEndMQTT", "Failed to publish trigger state message!", utils::logger::Logger::LogLevel::WARNING);
+            }
+        }
+
+        void MiddleEndMQTT::sendEnabledStatus(MQTTSourceDevice device, std::string state_payload) const
+        {
+            std::ostringstream topic_builder;
+
+            topic_builder << "homeassistant/sentinelle/";
+            topic_builder << device.getBaseSource().getName();
+            topic_builder << "/";
+            topic_builder << ENABLED_SWITCH_ID;
+            topic_builder << "/";
+            topic_builder << STATUS_TOPIC_NAME;
+
+            std::string temp = topic_builder.str();
 
             int error_code = mosquitto_publish(client_instance, nullptr, topic_builder.str().c_str(), state_payload.size()*sizeof(char), state_payload.c_str(), 1, false);
 
@@ -237,7 +305,16 @@ namespace middle_end
 
         void MiddleEndMQTT::Stop()
         {
+            for (auto id_source : id_source_map)
+            {
+                sendDeviceStatus(id_source.second, false);
+            }
+
             core::event::EventManager::instance().removeEventHandler(this);
+
+            mosquitto_disconnect(client_instance);
+
+            mosquitto_loop_stop(client_instance, false);
         }
 
         void MiddleEndMQTT::handleTriggerEvent(core::event::modules::TriggeredEvent& event)
@@ -252,9 +329,27 @@ namespace middle_end
 
             sendTriggerState(dev, false);
         }
+        void MiddleEndMQTT::handleSourceStopEvent(core::event::modules::SourceStopEvent& event)
+        {
+            MQTTSourceDevice dev(event.getSource());
+
+            sendDeviceStatus(dev, false);
+        }
+        void MiddleEndMQTT::handleSourceStartEvent(core::event::modules::SourceStartEvent& event)
+        {
+            MQTTSourceDevice dev(event.getSource());
+
+            sendDeviceStatus(dev, true);
+            sendDeviceState(dev);
+        }
 
         void MiddleEndMQTT::handleEvent(core::event::Event& event)
         {
+            if (!enabled)
+            {
+                return;
+            }
+
             auto* trigger_event = dynamic_cast<core::event::modules::TriggeredEvent*>(&event);
 
             if (trigger_event != nullptr)
@@ -271,6 +366,20 @@ namespace middle_end
                 handleUnTriggerEvent(*untrigger_event);
 
                 return;
+            }
+
+            auto* source_stop_event = dynamic_cast<core::event::modules::SourceStopEvent*>(&event);
+
+            if (source_stop_event != nullptr)
+            {
+                handleSourceStopEvent(*source_stop_event);
+            }
+
+            auto* source_start_event = dynamic_cast<core::event::modules::SourceStartEvent*>(&event);
+
+            if (source_start_event != nullptr)
+            {
+                handleSourceStartEvent(*source_start_event);
             }
         }
 
@@ -584,6 +693,13 @@ namespace middle_end
             MiddleEndMQTT* context = (MiddleEndMQTT*)data;
 
             context->OnDisconnect(client, reason);
+        }
+
+        void MiddleEndMQTT::AttachToRunning()
+        {
+            //No threads are managed by the mqtt middle, so nothing here
+
+            return;
         }
     }
 }

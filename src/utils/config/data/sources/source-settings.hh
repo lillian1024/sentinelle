@@ -64,6 +64,11 @@ namespace utils
                             return max_fail_retries;
                         }
 
+                        bool getRestart() const
+                        {
+                            return restart;
+                        }
+
                         virtual cv::VideoCapture getVideoCapture() const = 0;
 
                         virtual std::unique_ptr<SourceSettings> clone() const = 0;
@@ -94,6 +99,7 @@ namespace utils
                         float passive_fps;
 
                         int max_fail_retries;
+                        bool restart;
 
                         std::vector<std::unique_ptr<core::components::chains::Chain>> process;
                 };

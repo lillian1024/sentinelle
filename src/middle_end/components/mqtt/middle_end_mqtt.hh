@@ -2,10 +2,13 @@
 
 #include "core/event/event-handler.hh"
 #include "core/event/events/event.hh"
+#include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
+#include "core/event/events/modules/source-stop-event.hh"
 #include "middle_end/components/mqtt/ha_mqtt_device.hh"
 #include "middle_end/middle_end.hh"
+#include <atomic>
 #include <cstddef>
 #include <map>
 #include <mosquitto.h>
@@ -29,6 +32,8 @@ namespace middle_end
                 virtual void Start();
                 virtual void Stop();
 
+                virtual void AttachToRunning();
+
                 virtual void HandleDeviceCommand(std::string device_name, std::string component, std::string command, std::string payload);
 
                 virtual void OnConnect(mosquitto *client, int response);
@@ -42,10 +47,17 @@ namespace middle_end
 
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
+                virtual void handleSourceStopEvent(core::event::modules::SourceStopEvent& event);
+                virtual void handleSourceStartEvent(core::event::modules::SourceStartEvent& event);
 
                 void sendDeviceState(MQTTSourceDevice device) const;
+                void sendDeviceStatus(MQTTSourceDevice device, bool status) const;
                 void sendTriggerState(MQTTSourceDevice device, bool state) const;
+                void sendTriggerState(MQTTSourceDevice device, std::string state_payload) const;
+                void sendTriggerStatus(MQTTSourceDevice device, std::string state_payload) const;
                 void sendEnabledState(MQTTSourceDevice device, bool state) const;
+                void sendEnabledState(MQTTSourceDevice device, std::string state_payload) const;
+                void sendEnabledStatus(MQTTSourceDevice device, std::string state_payload) const;
 
                 std::string getResponseString(int response_code);
                 std::string getReasonString(int response_code);
