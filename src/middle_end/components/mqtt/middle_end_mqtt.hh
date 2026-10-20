@@ -31,6 +31,9 @@ namespace middle_end
 
                 virtual void HandleDeviceCommand(std::string device_name, std::string component, std::string command, std::string payload);
 
+                virtual void OnConnect(mosquitto *client, int response);
+                virtual void OnDisconnect(mosquitto *client, int reason);
+
                 static const std::string middle_end_mqtt_name;
 
                 static std::vector<std::string> split(const std::string& input, char delimiter);
@@ -43,6 +46,9 @@ namespace middle_end
                 void sendDeviceState(MQTTSourceDevice device) const;
                 void sendTriggerState(MQTTSourceDevice device, bool state) const;
                 void sendEnabledState(MQTTSourceDevice device, bool state) const;
+
+                std::string getResponseString(int response_code);
+                std::string getReasonString(int response_code);
 
                 bool enabled;
 
@@ -60,5 +66,7 @@ namespace middle_end
         };
 
         void mqttMessageCallBack(struct mosquitto *mosq, void *obj, const mosquitto_message *message);
+        void mqttConnectCallBack(struct mosquitto *mosq, void *obj, int response);
+        void mqttDisconnectCallBack(struct mosquitto *mosq, void *obj, int reason);
     }
 }

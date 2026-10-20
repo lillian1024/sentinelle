@@ -120,6 +120,9 @@ namespace middle_end
                 true,
                 this);
 
+            mosquitto_connect_callback_set(client_instance, &mqttConnectCallBack);
+            mosquitto_disconnect_callback_set(client_instance, &mqttDisconnectCallBack);
+
             if (client_instance == nullptr)
             {
                 utils::logger::Logger::instance().Log(CATEGORY_NAME, "Unable to start the mqtt client instance!", utils::logger::Logger::LogLevel::ERROR);
@@ -303,6 +306,223 @@ namespace middle_end
             }
         }
 
+        std::string MiddleEndMQTT::getResponseString(int response_code)
+        {
+            std::ostringstream sb;
+
+            switch (response_code)
+            {
+                case 0:
+                    sb << "Connection accepted";
+
+                    break;
+                case 1:
+                    sb << "The Server does not support the level of the MQTT protocol requested by the Client";
+
+                    break;
+                case 2:
+                    sb << "The Client identifier is correct UTF-8 but not allowed by the Server";
+
+                    break;
+                case 3:
+                    sb << "The Network Connection has been made but the MQTT service is unavailable";
+
+                    break;
+                case 4:
+                    sb << "The data in the user name or password is malformed";
+
+                    break;
+                case 5:
+                    sb << "The Client is not authorized to connect";
+
+                    break;
+                default:
+                    sb << "Unkown response code (";
+                    sb << response_code;
+                    sb << ")";
+
+                    break;
+            }
+
+            return sb.str();
+        }
+
+        std::string MiddleEndMQTT::getReasonString(int reason_code)
+        {
+            std::ostringstream sb;
+
+            switch (reason_code)
+            {
+                case 0:
+                    sb << "Disconnected successfully";
+
+                    break;
+                case 4:
+                    sb << "Disconnect with Will Message";
+
+                    break;
+                case 7:
+                    sb << "Connection lost";
+
+                    break;
+                case 128:
+                    sb << "Unspecified error";
+
+                    break;
+                case 129:
+                    sb << "Malformed Packet";
+
+                    break;
+                case 130:
+                    sb << "Protocol Error";
+
+                    break;
+                case 131:
+                    sb << "Implementation specific error";
+
+                    break;
+                case 135:
+                    sb << "Not authorized";
+
+                    break;
+
+                case 137:
+                    sb << "Server busy";
+
+                    break;
+                case 139:
+                    sb << "Server shutting down";
+
+                    break;
+                case 140:
+                    sb << "Bad authentication method";
+
+                    break;
+                case 141:
+                    sb << "Keep Alive timeout";
+
+                    break;
+                case 142:
+                    sb << "Session taken over";
+
+                    break;
+                case 143:
+                    sb << "Topic Filter invalid";
+
+                    break;
+                case 144:
+                    sb << "Topic Name invalid";
+
+                    break;
+                case 147:
+                    sb << "Receive Maximum exceeded";
+
+                    break;
+                case 148:
+                    sb << "Topic Alias invalid";
+
+                    break;
+                case 149:
+                    sb << "Packet too large";
+
+                    break;
+                case 150:
+                    sb << "Message rate too high";
+
+                    break;
+                case 151:
+                    sb << "Quota exceeded";
+
+                    break;
+                case 152:
+                    sb << "Administrative action";
+
+                    break;
+                case 153:
+                    sb << "Payload format invalid";
+
+                    break;
+                case 154:
+                    sb << "Retain not supported";
+
+                    break;
+                case 155:
+                    sb << "QoS not supported";
+
+                    break;
+                case 156:
+                    sb << "Use another server";
+
+                    break;
+                case 157:
+                    sb << "Server moved";
+
+                    break;
+                case 158:
+                    sb << "Shared Subscription not supported";
+
+                    break;
+                case 159:
+                    sb << "Connection rate exceeded";
+
+                    break;
+                case 160:
+                    sb << "Maximum connect time";
+
+                    break;
+                case 161:
+                    sb << "Subscription Identifiers not supported";
+
+                    break;
+                case 162:
+                    sb << "Wildcard Subscription not supported";
+
+                    break;
+                default:
+                    sb << "Unkown reason code (";
+                    sb << reason_code;
+                    sb << ")";
+
+                    break;
+            }
+
+            return sb.str();
+        }
+
+        void MiddleEndMQTT::OnConnect(mosquitto *, int response)
+        {
+            if (response != 0)
+            {
+                std::ostringstream sb;
+
+                sb << "Error while connecting to broker: ";
+                sb << getResponseString(response);
+
+                utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::WARNING);
+            }
+            else
+            {
+                utils::logger::Logger::instance().Log(CATEGORY_NAME, "Connected to broker successfully", utils::logger::Logger::LogLevel::INFO);
+            }
+        }
+        void MiddleEndMQTT::OnDisconnect(mosquitto *, int reason)
+        {
+            if (reason == 0)
+            {
+                utils::logger::Logger::instance().Log(CATEGORY_NAME, "Disconnected from broker successfully.", utils::logger::Logger::LogLevel::DEBUG);
+            }
+            else
+            {
+                std::ostringstream sb;
+
+                sb << "Disconnected from broker unexpectedly: ";
+                sb << getReasonString(reason);
+                sb << ", trying to reconnect...";
+
+                utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
+            }
+        }
+
         void mqttMessageCallBack(struct mosquitto *, void *data, const mosquitto_message *message)
         {
             MiddleEndMQTT* context = (MiddleEndMQTT*)data;
@@ -350,6 +570,20 @@ namespace middle_end
             }
 
             return res;
+        }
+
+        void mqttConnectCallBack(struct mosquitto *client, void *data, int response)
+        {
+            MiddleEndMQTT* context = (MiddleEndMQTT*)data;
+
+            context->OnConnect(client, response);
+        }
+
+        void mqttDisconnectCallBack(struct mosquitto *client, void *data, int reason)
+        {
+            MiddleEndMQTT* context = (MiddleEndMQTT*)data;
+
+            context->OnDisconnect(client, reason);
         }
     }
 }
