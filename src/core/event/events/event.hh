@@ -16,14 +16,26 @@ namespace core
             SOURCE_START
         };
 
+        /**
+         * \brief This class describes an event that can be triggered using the EventManager.
+         */
         class Event
         {
             public:
+                /**
+                 * \brief Create a new event with the provided message.
+                 */
                 Event(std::string message);
                 virtual ~Event() = default;
 
+                /**
+                 * \brief Get the type of the event.
+                 */
                 virtual EventType getType() = 0;
 
+                /**
+                 * \brief Get the message of the event.
+                 */
                 std::string getMessage();
             private:
                 std::string message;
@@ -46,7 +58,7 @@ namespace core
                     os << "SOURCE_STOP";
                     break;
                 case EventType::SOURCE_START:
-                    os << "SOURCE_STOP";
+                    os << "SOURCE_START";
                     break;
                 }
 

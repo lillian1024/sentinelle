@@ -9,6 +9,9 @@ namespace core
     {
         namespace modules
         {
+            /**
+             * \brief An event triggered by a source starting.
+             */
             class SourceStartEvent : public Event
             {
                 public:
