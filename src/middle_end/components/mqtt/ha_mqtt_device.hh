@@ -20,6 +20,9 @@ namespace middle_end
 
         #define SWITCH_ON_VALUE "ON"
 
+        /**
+         * \brief This class represent an MQTT device and is used by MiddleEndMQTT class to serialize source status to MQTT payload.
+         */
         class MQTTSourceDevice
         {
             public:
