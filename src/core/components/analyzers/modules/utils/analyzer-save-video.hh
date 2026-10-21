@@ -12,6 +12,12 @@ namespace core
     {
         namespace analyzer
         {
+            /**
+             * \brief This analyzer records videos from provided frames.
+             * \param image INPUT: The input image
+             * \param file INPUT: The name of the file to save
+             * \param enable INPUT: If the recorder should save this frame of the video
+             */
             class AnalyzerSaveVideo : public Analyzer
             {
                 public:

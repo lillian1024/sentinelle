@@ -12,6 +12,14 @@ namespace core
         {
             namespace dnn
             {
+                /**
+                 * \brief This DNN is specialized in whole-frame object detection.
+                 * \details This DNN is lightweight but the objects need to be big on the image to be detected.
+                 * \details Link to the DNN: https://huggingface.co/Kalray/ssd-mobilenet-v2
+                 * \param image INPUT: The input image
+                 * \param debug_image OUTPUT: The image with squares around detected object, class names and confidence percent on the object
+                 * \param detected OUPUT: If at least one object has been detected
+                 */
                 class AnalyzerDNNGenericIdent : public AnalyzerDNN
                 {
                     public:

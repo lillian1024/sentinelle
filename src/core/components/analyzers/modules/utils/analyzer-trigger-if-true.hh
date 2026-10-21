@@ -12,6 +12,10 @@ namespace core
     {
         namespace analyzer
         {
+            /**
+             * \brief This analyzer triggers the current source if the input value is true. It does nothing otherwise.
+             * \param input If the source should be triggered
+             */
             class AnalyzerTriggerIfTrue : public Analyzer
             {
                 public:

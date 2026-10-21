@@ -12,6 +12,13 @@ namespace core
     {
         namespace analyzer
         {
+            /**
+             * \brief This analyzer allows smart recording of videos onto the host's filesystem.
+             * \details This analyzer saves videos depending on the input value and set the name of the file to a unique human readable name.
+             * \param image INPUT: The input image
+             * \param prefix INPUT: The file name's prefix
+             * \param enable INPUT: If the recorder should save this frame of the video
+             */
             class AnalyzerRecorder : public Analyzer
             {
                 public:

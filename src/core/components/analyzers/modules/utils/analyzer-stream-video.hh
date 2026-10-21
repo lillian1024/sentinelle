@@ -12,6 +12,12 @@ namespace core
     {
         namespace analyzer
         {
+            /**
+             * \brief WIP: This analyzer create a video stream of the provided frames.
+             * \param image INPUT: The image input
+             * \param file INPUT: The stream name
+             * \param enable INPUT: If the provided frame should be streamed
+             */
             class AnalyzerStreamVideo : public Analyzer
             {
                 public:

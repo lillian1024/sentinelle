@@ -14,6 +14,14 @@ namespace core
         {
             namespace dnn
             {
+                /**
+                 * \brief This DNN is specialized in mass object recognition with high accuracy.
+                 * \details This DNN might to heavy to use and the usage of a GPU is suggested.
+                 * \details Link to the DNN: https://github.com/WongKinYiu/yolov9
+                 * \param image INPUT: The input image
+                 * \param debug_image OUTPUT: The image with squares around detected object, class names and confidence percent on the object
+                 * \param detected OUPUT: If at least one object has been detected
+                 */
                 class AnalyzerDNNYoloV9 : public AnalyzerDNN
                 {
                     public:

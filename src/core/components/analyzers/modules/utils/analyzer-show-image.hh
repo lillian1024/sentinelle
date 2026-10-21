@@ -8,6 +8,11 @@ namespace core
     {
         namespace analyzer
         {
+            /**
+             * \brief This analyzer opens a window and show the frames of the provided video.
+             * \param image INPUT: The image inputs
+             * \param name INPUT: The name of the window
+             */
             class AnalyzerShowImage : public Analyzer
             {
                 public:
