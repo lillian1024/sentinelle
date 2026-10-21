@@ -8,7 +8,6 @@
 #include "core/event/events/modules/source-stop-event.hh"
 #include "middle_end/components/mqtt/ha_mqtt_device.hh"
 #include "middle_end/middle_end.hh"
-#include <atomic>
 #include <cstddef>
 #include <map>
 #include <mosquitto.h>

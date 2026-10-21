@@ -6,6 +6,9 @@ namespace utils
     class Singleton
     {
     public:
+        /**
+         * \brief Get the instance of the class.
+         */
         static T& instance()
         {
             static T instance_;

@@ -268,7 +268,7 @@ namespace core
                 stop.store(true);
             }
 
-            void Source::Resume()
+            void Source::ResetStopState()
             {
                 stop.store(false);
             }

@@ -21,8 +21,6 @@
 #include "core/event/event-manager.hh"
 #include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/source-stop-event.hh"
-#include "core/event/events/modules/trigger/triggered-event.hh"
-#include "core/event/events/modules/trigger/untriggered-event.hh"
 #include "utils/config/config-manager.hh"
 #include "utils/config/data/sources/source-type/url-source-settings.hh"
 #include "utils/logger/logger.hh"
@@ -75,11 +73,13 @@ namespace core
 
         void Orchestrator::StartOrchestrator()
         {
+            stop = false;
+
             for (size_t i = 0; i < sources.size(); i++)
             {
                 auto& source = *sources[i].get();
 
-                startSource(source);
+                createSourceThread(source);
             }
 
             utils::logger::Logger::instance().Log(
@@ -103,7 +103,8 @@ namespace core
                 utils::logger::Logger::LogLevel::INFO);
         }
 
-        void Orchestrator::startSource(components::source::Source& source)
+        void
+        Orchestrator::createSourceThread(components::source::Source& source)
         {
             if (!utils::thread::ThreadManager::instance().CanCreateNewThread())
             {
@@ -189,7 +190,7 @@ namespace core
 
         void Orchestrator::OrchestrateSource(components::source::Source& source)
         {
-            source.Resume();
+            source.ResetStopState();
 
             event::EventManager::instance().registerEvent(
                 std::make_unique<event::modules::SourceStartEvent>(source));
@@ -365,7 +366,7 @@ namespace core
 
             if (stop_event->getSource().getRestart())
             {
-                startSource(stop_event->getSource());
+                createSourceThread(stop_event->getSource());
             }
             else
             {
@@ -419,12 +420,14 @@ namespace core
                       .getGeneralSettings()
                       .getServerName()
                << std::endl;
+
             sb << "Nb sources: "
                << utils::config::ConfigManager::instance()
                       .getGeneralSettings()
                       .getSourceSettings()
                       .sources.size()
                << std::endl;
+
             sb << "Logger level: "
                << utils::config::ConfigManager::instance()
                       .getGeneralSettings()
