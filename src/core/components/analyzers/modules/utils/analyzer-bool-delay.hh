@@ -2,8 +2,6 @@
 
 #include "core/components/analyzers/analyzer.hh"
 
-#include <cstddef>
-
 namespace core
 {
     namespace components
