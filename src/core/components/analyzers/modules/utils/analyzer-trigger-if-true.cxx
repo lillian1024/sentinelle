@@ -1,10 +1,10 @@
-#include "analizer-trigger-if-true.hh"
+#include "analyzer-trigger-if-true.hh"
 
 #include <memory>
 #include <sstream>
 #include <string>
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "utils/io_data/io_data.hh"
 #include "utils/io_data/types/io_data_bool.hh"
 #include "utils/logger/logger.hh"
@@ -15,14 +15,14 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            AnalizerTriggerIfTrue::AnalizerTriggerIfTrue(std::string name)
-                : Analizer(name)
+            AnalyzerTriggerIfTrue::AnalyzerTriggerIfTrue(std::string name)
+                : Analyzer(name)
             {}
 
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerTriggerIfTrue::getInputs()
+            AnalyzerTriggerIfTrue::getInputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -32,7 +32,7 @@ namespace core
                 return res;
             }
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerTriggerIfTrue::getOutputs()
+            AnalyzerTriggerIfTrue::getOutputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -40,7 +40,7 @@ namespace core
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-            AnalizerTriggerIfTrue::process(
+            AnalyzerTriggerIfTrue::process(
                 std::map<std::string, utils::io_data::IOData*> inputs,
                 source::Source& source, bool& trigger)
             {
@@ -57,7 +57,7 @@ namespace core
                     sb << "' argument!";
 
                     utils::logger::Logger::instance().Log(
-                        "AnalizerTriggerIfTrue", sb.str(),
+                        "AnalyzerTriggerIfTrue", sb.str(),
                         utils::logger::Logger::LogLevel::ERROR);
 
                     return std::map<std::string,
@@ -76,7 +76,7 @@ namespace core
                     sb << "' should be a boolean!";
 
                     utils::logger::Logger::instance().Log(
-                        "AnalizerTriggerIfTrue", sb.str(),
+                        "AnalyzerTriggerIfTrue", sb.str(),
                         utils::logger::Logger::LogLevel::ERROR);
 
                     return std::map<std::string,
@@ -94,10 +94,10 @@ namespace core
                                 std::unique_ptr<utils::io_data::IOData>>();
             }
 
-            std::unique_ptr<Analizer> AnalizerTriggerIfTrue::clone()
+            std::unique_ptr<Analyzer> AnalyzerTriggerIfTrue::clone()
             {
-                return std::make_unique<AnalizerTriggerIfTrue>(*this);
+                return std::make_unique<AnalyzerTriggerIfTrue>(*this);
             }
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

@@ -1,24 +1,24 @@
-#include "analizer.hh"
+#include "analyzer.hh"
 
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
 
-#include "core/components/analizers/modules/dnn/modules/analizer-dnn-yolov9.hh"
-#include "core/components/analizers/modules/utils/analizer-bool-delay.hh"
-#include "core/components/analizers/modules/utils/analizer-recorder.hh"
-#include "core/components/analizers/modules/utils/analizer-save-video.hh"
-#include "core/components/analizers/modules/utils/analizer-show-image.hh"
-#include "core/components/analizers/modules/utils/analizer-stream-video.hh"
-#include "core/components/analizers/modules/utils/analizer-trigger-if-true.hh"
-#include "modules/dnn/modules/analizer-dnn-generic-ident.hh"
+#include "core/components/analyzers/modules/dnn/modules/analyzer-dnn-yolov9.hh"
+#include "core/components/analyzers/modules/utils/analyzer-bool-delay.hh"
+#include "core/components/analyzers/modules/utils/analyzer-recorder.hh"
+#include "core/components/analyzers/modules/utils/analyzer-save-video.hh"
+#include "core/components/analyzers/modules/utils/analyzer-show-image.hh"
+#include "core/components/analyzers/modules/utils/analyzer-stream-video.hh"
+#include "core/components/analyzers/modules/utils/analyzer-trigger-if-true.hh"
+#include "modules/dnn/modules/analyzer-dnn-generic-ident.hh"
 #include "utils/config/data-module.hh"
 #include "utils/io_data/io_data.hh"
 #include "utils/logger/logger.hh"
 
-#define GENERIC_ANALIZER_CATEGORY_NAME "AnalizerDNNGenericIdent"
-#define PARENT_FIELD_NAME "analizers"
+#define GENERIC_ANALIZER_CATEGORY_NAME "AnalyzerDNNGenericIdent"
+#define PARENT_FIELD_NAME "analyzers"
 
 #define ANALIZER_TYPE_FIELD "type"
 
@@ -26,12 +26,12 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            const std::string Analizer::ANALIZE_CATEGORY_NAME = "Analizer";
+            const std::string Analyzer::ANALIZE_CATEGORY_NAME = "Analyzer";
 
-            std::unique_ptr<Analizer>
-            Analizer::getAnalizerFromNode(YAML::Node node, std::string name)
+            std::unique_ptr<Analyzer>
+            Analyzer::getAnalyzerFromNode(YAML::Node node, std::string name)
             {
                 std::string type = utils::config::DataModule::readScalarOrError(
                     node, ANALIZER_TYPE_FIELD, PARENT_FIELD_NAME);
@@ -52,44 +52,44 @@ namespace core
                 {
                     throw std::runtime_error(
                         ANALIZE_CATEGORY_NAME
-                        + ": Unable to load analizer: unknown type!");
+                        + ": Unable to load analyzer: unknown type!");
                 }
 
-                Type analizer_type = type_map.find(type)->second;
+                Type analyzer_type = type_map.find(type)->second;
 
-                switch (analizer_type)
+                switch (analyzer_type)
                 {
                 case Type::DDN_GENERAL_IDENT:
-                    return std::make_unique<dnn::AnalizerDNNGenericIdent>(node,
+                    return std::make_unique<dnn::AnalyzerDNNGenericIdent>(node,
                                                                           name);
                 case Type::YOLOV9M:
-                    return std::make_unique<dnn::AnalizerDNNYoloV9>(node, name);
+                    return std::make_unique<dnn::AnalyzerDNNYoloV9>(node, name);
                 case Type::YOLOV9P:
-                    return std::make_unique<dnn::AnalizerDNNYoloV9>(node, name);
+                    return std::make_unique<dnn::AnalyzerDNNYoloV9>(node, name);
                 case Type::SHOW_IMAGE:
-                    return std::make_unique<AnalizerShowImage>(name);
+                    return std::make_unique<AnalyzerShowImage>(name);
                 case Type::SAVE_VIDEO:
-                    return std::make_unique<AnalizerSaveVideo>(node, name);
+                    return std::make_unique<AnalyzerSaveVideo>(node, name);
                 case Type::VIDEO_RECORDER:
-                    return std::make_unique<AnalizerRecorder>(node, name);
+                    return std::make_unique<AnalyzerRecorder>(node, name);
                 case Type::STREAM_VIDEO:
-                    return std::make_unique<AnalizerStreamVideo>(node, name);
+                    return std::make_unique<AnalyzerStreamVideo>(node, name);
                 case Type::TRIGGER_IF_TRUE:
-                    return std::make_unique<AnalizerTriggerIfTrue>(name);
+                    return std::make_unique<AnalyzerTriggerIfTrue>(name);
                 case Type::BOOL_DELAY:
-                    return std::make_unique<AnalizerBoolDelay>(node, name);
+                    return std::make_unique<AnalyzerBoolDelay>(node, name);
                 }
 
                 throw std::runtime_error(
                     ANALIZE_CATEGORY_NAME
-                    + ": Unable to load analizer: unknown type!");
+                    + ": Unable to load analyzer: unknown type!");
             }
 
-            Analizer::Analizer(std::string name)
+            Analyzer::Analyzer(std::string name)
                 : name(name)
             {}
 
-            bool Analizer::validateInputs(
+            bool Analyzer::validateInputs(
                 std::map<std::string, utils::io_data::IOData*> inputs)
             {
                 auto inputTypes = getInputs();
@@ -98,7 +98,7 @@ namespace core
                 {
                     utils::logger::Logger::instance().Log(
                         ANALIZE_CATEGORY_NAME,
-                        "Unable to process analizer: missmatched number of "
+                        "Unable to process analyzer: missmatched number of "
                         "arguments!",
                         utils::logger::Logger::LogLevel::ERROR);
 
@@ -111,7 +111,7 @@ namespace core
                     {
                         utils::logger::Logger::instance().Log(
                             ANALIZE_CATEGORY_NAME,
-                            "Unable to process analizer: missmatched argument "
+                            "Unable to process analyzer: missmatched argument "
                             "types!",
                             utils::logger::Logger::LogLevel::ERROR);
 
@@ -122,7 +122,7 @@ namespace core
                 return true;
             }
 
-            bool Analizer::validateInputs(
+            bool Analyzer::validateInputs(
                 std::map<std::string, utils::io_data::IODataType> types)
             {
                 auto inputTypes = getInputs();
@@ -131,7 +131,7 @@ namespace core
                 {
                     utils::logger::Logger::instance().Log(
                         ANALIZE_CATEGORY_NAME,
-                        "Unable to process analizer: missmatched number of "
+                        "Unable to process analyzer: missmatched number of "
                         "arguments!",
                         utils::logger::Logger::LogLevel::ERROR);
 
@@ -144,7 +144,7 @@ namespace core
                     {
                         utils::logger::Logger::instance().Log(
                             ANALIZE_CATEGORY_NAME,
-                            "Unable to process analizer: missmatched argument "
+                            "Unable to process analyzer: missmatched argument "
                             "types!",
                             utils::logger::Logger::LogLevel::ERROR);
 
@@ -154,6 +154,6 @@ namespace core
 
                 return true;
             }
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

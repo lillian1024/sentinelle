@@ -1,4 +1,4 @@
-#include "analizer-dnn-yolov9.hh"
+#include "analyzer-dnn-yolov9.hh"
 
 #include <iostream>
 #include <map>
@@ -13,14 +13,14 @@
 #include <string>
 #include <vector>
 
-#include "core/components/analizers/modules/dnn/analizer-dnn.hh"
+#include "core/components/analyzers/modules/dnn/analyzer-dnn.hh"
 #include "utils/cache/cache-manager.hh"
 #include "utils/config/data-module.hh"
 #include "utils/io_data/types/io_data_bool.hh"
 #include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 
-#define CATEGORY_NAME "AnalizerDNNYoloV9"
+#define CATEGORY_NAME "AnalyzerDNNYoloV9"
 
 #define CATEGORY_PROPERTY_NAME "classes"
 #define CONFIDENCE_PROPERTY_NAME "min_confidence"
@@ -45,24 +45,24 @@
 #define DNN_CATEGORY_NAME "DDNManager"
 
 #define MISSING_CLASS_FILE_ERROR_MSG                                           \
-    "Unable to start analizer: unable to locate class data file in cache!"
+    "Unable to start analyzer: unable to locate class data file in cache!"
 
 namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             namespace dnn
             {
-                AnalizerDNNYoloV9::AnalizerDNNYoloV9(YAML::Node node,
+                AnalyzerDNNYoloV9::AnalyzerDNNYoloV9(YAML::Node node,
                                                      std::string name)
-                    : AnalizerDNN(name, NN_NAME, NN_URL, true,
+                    : AnalyzerDNN(name, NN_NAME, NN_URL, true,
                                   NetStoreType::ONNX)
                 {
                     auto cat_map =
                         utils::config::DataModule::readSequenceOrError(
-                            node, CATEGORY_PROPERTY_NAME, name + " analizer");
+                            node, CATEGORY_PROPERTY_NAME, name + " analyzer");
                     auto min_confidence_str =
                         utils::config::DataModule::readScalarOptional(
                             node, CONFIDENCE_PROPERTY_NAME)
@@ -73,7 +73,7 @@ namespace core
                             .value_or(NMS_PROPERTY_DEFAULT);
 
                     auto use_cuda = utils::config::DataModule::readBool(
-                        node, USE_CUDA_PROPERTY_NAME, name + " analizer", true,
+                        node, USE_CUDA_PROPERTY_NAME, name + " analyzer", true,
                         USE_CUDA_PROPERTY_DEFAULT);
                     setUseCUDA(use_cuda);
 
@@ -153,9 +153,9 @@ namespace core
                     }
                 }
 
-                AnalizerDNNYoloV9::AnalizerDNNYoloV9(
-                    const AnalizerDNNYoloV9& from)
-                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true,
+                AnalyzerDNNYoloV9::AnalyzerDNNYoloV9(
+                    const AnalyzerDNNYoloV9& from)
+                    : AnalyzerDNN(from.getName(), NN_NAME, NN_URL, true,
                                   NetStoreType::ONNX)
                     , min_confidence(from.min_confidence)
                     , nms_threshold(from.nms_threshold)
@@ -169,7 +169,7 @@ namespace core
                 }
 
                 std::map<std::string, utils::io_data::IODataType>
-                AnalizerDNNYoloV9::getInputs()
+                AnalyzerDNNYoloV9::getInputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
@@ -180,7 +180,7 @@ namespace core
                 }
 
                 std::map<std::string, utils::io_data::IODataType>
-                AnalizerDNNYoloV9::getOutputs()
+                AnalyzerDNNYoloV9::getOutputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
@@ -193,7 +193,7 @@ namespace core
                 }
 
                 std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-                AnalizerDNNYoloV9::process(
+                AnalyzerDNNYoloV9::process(
                     std::map<std::string, utils::io_data::IOData*> inputs,
                     source::Source&, bool&)
                 {
@@ -335,7 +335,7 @@ namespace core
                     return res;
                 }
 
-                void AnalizerDNNYoloV9::processDetection(
+                void AnalyzerDNNYoloV9::processDetection(
                     cv::Mat& image, std::vector<Detection> detections,
                     bool& detected)
                 {
@@ -412,7 +412,7 @@ namespace core
                                 cv::Scalar(0, 255, 255), 1);
                 }
 
-                cv::Mat AnalizerDNNYoloV9::letterbox(const cv::Mat& src,
+                cv::Mat AnalyzerDNNYoloV9::letterbox(const cv::Mat& src,
                                                      int targetW, int targetH,
                                                      float& scale)
                 {
@@ -431,11 +431,11 @@ namespace core
                     return canvas;
                 }
 
-                std::unique_ptr<Analizer> AnalizerDNNYoloV9::clone()
+                std::unique_ptr<Analyzer> AnalyzerDNNYoloV9::clone()
                 {
-                    return std::make_unique<AnalizerDNNYoloV9>(*this);
+                    return std::make_unique<AnalyzerDNNYoloV9>(*this);
                 }
             } // namespace dnn
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "utils/io_data/io_data.hh"
 
 #include <map>
@@ -10,20 +10,20 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            class AnalizerTriggerIfTrue : public Analizer
+            class AnalyzerTriggerIfTrue : public Analyzer
             {
                 public:
-                    AnalizerTriggerIfTrue(std::string name);
-                    ~AnalizerTriggerIfTrue() = default;
+                    AnalyzerTriggerIfTrue(std::string name);
+                    ~AnalyzerTriggerIfTrue() = default;
 
                     std::map<std::string, utils::io_data::IODataType> getInputs();
                     std::map<std::string, utils::io_data::IODataType> getOutputs();
 
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger);
 
-                    std::unique_ptr<Analizer> clone();
+                    std::unique_ptr<Analyzer> clone();
             };
         }
     }

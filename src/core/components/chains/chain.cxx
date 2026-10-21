@@ -7,8 +7,8 @@
 #include <string>
 #include <utility>
 
-#include "core/components/analizers/analizer.hh"
-#include "core/components/chains/analizer-usage.hh"
+#include "core/components/analyzers/analyzer.hh"
+#include "core/components/chains/analyzer-usage.hh"
 #include "core/components/chains/context/context.hh"
 #include "utils/logger/logger.hh"
 #include "yaml-cpp/node/node.h"
@@ -23,8 +23,8 @@ namespace core
         {
             Chain::Chain(YAML::Node node,
                          std::map<std::string,
-                                  std::reference_wrapper<analizer::Analizer>>
-                             analizers)
+                                  std::reference_wrapper<analyzer::Analyzer>>
+                             analyzers)
             {
                 for (size_t i = 0; i < node.size(); i++)
                 {
@@ -54,7 +54,7 @@ namespace core
                     {
                         std::string msg =
                             "Unable to parse chain: stages must be maps "
-                            "containing the analizers to run!";
+                            "containing the analyzers to run!";
 
                         utils::logger::Logger::instance().Log(
                             CHAIN_CATEGORY_NAME, msg,
@@ -70,25 +70,25 @@ namespace core
                         throw std::runtime_error(sb.str());
                     }
 
-                    stages.push_back(parseStage(stage_node, analizers));
+                    stages.push_back(parseStage(stage_node, analyzers));
                 }
             }
 
-            std::map<std::string, AnalizerUsage> Chain::parseStage(
+            std::map<std::string, AnalyzerUsage> Chain::parseStage(
                 YAML::Node node,
                 std::map<std::string,
-                         std::reference_wrapper<analizer::Analizer>>
-                    analizers)
+                         std::reference_wrapper<analyzer::Analyzer>>
+                    analyzers)
             {
-                std::map<std::string, AnalizerUsage> res;
+                std::map<std::string, AnalyzerUsage> res;
 
-                for (auto analizer : node)
+                for (auto analyzer : node)
                 {
-                    if (!analizer.second.IsMap())
+                    if (!analyzer.second.IsMap())
                     {
                         std::string msg =
-                            "Unable to parse chain: analizers in stages must "
-                            "be maps containing the input of the analizer!";
+                            "Unable to parse chain: analyzers in stages must "
+                            "be maps containing the input of the analyzer!";
 
                         utils::logger::Logger::instance().Log(
                             CHAIN_CATEGORY_NAME, msg,
@@ -104,14 +104,14 @@ namespace core
                         throw std::runtime_error(sb.str());
                     }
 
-                    std::string analizer_name = analizer.first.Scalar();
+                    std::string analyzer_name = analyzer.first.Scalar();
 
-                    auto ana = analizers.find(analizer_name);
+                    auto ana = analyzers.find(analyzer_name);
 
-                    if (ana == analizers.end())
+                    if (ana == analyzers.end())
                     {
                         std::string msg =
-                            "Unable to parse chain: Analizer not found!";
+                            "Unable to parse chain: Analyzer not found!";
 
                         utils::logger::Logger::instance().Log(
                             CHAIN_CATEGORY_NAME, msg,
@@ -127,23 +127,23 @@ namespace core
                         throw std::runtime_error(sb.str());
                     }
 
-                    AnalizerUsage usage(ana->second,
-                                        parseAnalizerinputs(analizer.second));
+                    AnalyzerUsage usage(ana->second,
+                                        parseAnalyzerinputs(analyzer.second));
 
-                    if (res.contains(analizer_name))
+                    if (res.contains(analyzer_name))
                     {
                         throw std::runtime_error(
-                            "[Chain]: Duplicated analizer name detected!");
+                            "[Chain]: Duplicated analyzer name detected!");
                     }
 
-                    res.insert({ analizer_name, usage });
+                    res.insert({ analyzer_name, usage });
                 }
 
                 return res;
             }
 
             std::map<std::string, std::string>
-            Chain::parseAnalizerinputs(YAML::Node node)
+            Chain::parseAnalyzerinputs(YAML::Node node)
             {
                 std::map<std::string, std::string> res;
 
@@ -186,14 +186,14 @@ namespace core
                 {
                     auto& stage = stages[i];
 
-                    for (auto& analizer : stage)
+                    for (auto& analyzer : stage)
                     {
                         auto outputs =
-                            analizer.second.process(context, source, trigger);
+                            analyzer.second.process(context, source, trigger);
 
                         for (auto& output : outputs)
                         {
-                            context.setVariable(i, analizer.first, output.first,
+                            context.setVariable(i, analyzer.first, output.first,
                                                 std::move(output.second));
                         }
                     }
@@ -213,7 +213,7 @@ namespace core
                     sb << "Stage #";
                     sb << i;
                     sb << '\n';
-                    sb << "\tNumber of analizers: ";
+                    sb << "\tNumber of analyzers: ";
                     sb << stages[i].size();
                     sb << '\n';
                 }

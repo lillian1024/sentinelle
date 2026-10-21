@@ -1,10 +1,10 @@
-#include "analizers-settings.hh"
+#include "analyzers-settings.hh"
 
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "utils/config/config-manager.hh"
 
 namespace utils
@@ -13,9 +13,9 @@ namespace utils
     {
         namespace data
         {
-            namespace analizers
+            namespace analyzers
             {
-                void AnalizersSettings::readModule(YAML::Node node)
+                void AnalyzersSettings::readModule(YAML::Node node)
                 {
                     for (auto it = node.begin(); it != node.end(); it++)
                     {
@@ -23,57 +23,57 @@ namespace utils
                         {
                             throw std::runtime_error(
                                 ConfigManager::managerMessagePrefix
-                                + "Unable to parse analizers: analizer keys "
+                                + "Unable to parse analyzers: analyzer keys "
                                   "should be scalar!");
                         }
 
                         std::string name = it->first.Scalar();
 
-                        analizers.insert(
+                        analyzers.insert(
                             { name,
-                              core::components::analizer::Analizer::
-                                  getAnalizerFromNode(it->second, name) });
+                              core::components::analyzer::Analyzer::
+                                  getAnalyzerFromNode(it->second, name) });
                     }
                 }
 
-                bool AnalizersSettings::hasAnalizer(std::string name)
+                bool AnalyzersSettings::hasAnalyzer(std::string name)
                 {
-                    return analizers.find(name) != analizers.end();
+                    return analyzers.find(name) != analyzers.end();
                 }
 
-                core::components::analizer::Analizer*
-                AnalizersSettings::getAnalizer(std::string name)
+                core::components::analyzer::Analyzer*
+                AnalyzersSettings::getAnalyzer(std::string name)
                 {
-                    return analizers.find(name)->second.get();
+                    return analyzers.find(name)->second.get();
                 }
 
                 std::map<std::string,
                          std::reference_wrapper<
-                             core::components::analizer::Analizer>>
-                AnalizersSettings::getAnalizersRefMap()
+                             core::components::analyzer::Analyzer>>
+                AnalyzersSettings::getAnalyzersRefMap()
                 {
                     std::map<std::string,
                              std::reference_wrapper<
-                                 core::components::analizer::Analizer>>
+                                 core::components::analyzer::Analyzer>>
                         res;
 
-                    for (auto& analizer : analizers)
+                    for (auto& analyzer : analyzers)
                     {
-                        res.insert({ analizer.first, *analizer.second.get() });
+                        res.insert({ analyzer.first, *analyzer.second.get() });
                     }
 
                     return res;
                 }
 
-                std::string AnalizersSettings::dumpInfo()
+                std::string AnalyzersSettings::dumpInfo()
                 {
                     std::ostringstream sb;
 
-                    sb << "Analizers number: ";
-                    sb << analizers.size();
+                    sb << "Analyzers number: ";
+                    sb << analyzers.size();
                     sb << '\n';
 
-                    for (auto it = analizers.begin(); it != analizers.end();
+                    for (auto it = analyzers.begin(); it != analyzers.end();
                          it++)
                     {
                         sb << "\t- ";
@@ -83,7 +83,7 @@ namespace utils
 
                     return sb.str();
                 }
-            } // namespace analizers
+            } // namespace analyzers
         } // namespace data
     } // namespace config
 } // namespace utils

@@ -1,4 +1,4 @@
-#include "analizer-show-image.hh"
+#include "analyzer-show-image.hh"
 
 #include <iostream>
 #include <memory>
@@ -17,15 +17,15 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            AnalizerShowImage::AnalizerShowImage(std::string name)
-                : Analizer(name)
+            AnalyzerShowImage::AnalyzerShowImage(std::string name)
+                : Analyzer(name)
                 , prev_frame(std::chrono::steady_clock::now())
             {}
 
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerShowImage::getInputs()
+            AnalyzerShowImage::getInputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -37,7 +37,7 @@ namespace core
                 return res;
             }
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerShowImage::getOutputs()
+            AnalyzerShowImage::getOutputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -45,7 +45,7 @@ namespace core
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-            AnalizerShowImage::process(
+            AnalyzerShowImage::process(
                 std::map<std::string, utils::io_data::IOData*> inputs,
                 source::Source& source, bool&)
             {
@@ -133,10 +133,10 @@ namespace core
                                 std::unique_ptr<utils::io_data::IOData>>();
             }
 
-            std::unique_ptr<Analizer> AnalizerShowImage::clone()
+            std::unique_ptr<Analyzer> AnalyzerShowImage::clone()
             {
-                return std::make_unique<AnalizerShowImage>(*this);
+                return std::make_unique<AnalyzerShowImage>(*this);
             }
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

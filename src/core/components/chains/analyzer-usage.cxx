@@ -1,4 +1,4 @@
-#include "analizer-usage.hh"
+#include "analyzer-usage.hh"
 
 #include <iostream>
 #include <memory>
@@ -15,7 +15,7 @@
 #include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
 
-#define ANALIZER_USAGE_CATEGORY_NAME "AnalizerUsage"
+#define ANALIZER_USAGE_CATEGORY_NAME "AnalyzerUsage"
 
 #define PATH_DELIMITER '.'
 #define REF_CHAR_START '$'
@@ -29,22 +29,22 @@ namespace core
     {
         namespace chains
         {
-            AnalizerUsage::AnalizerUsage(
-                analizer::Analizer& analizer,
+            AnalyzerUsage::AnalyzerUsage(
+                analyzer::Analyzer& analyzer,
                 std::map<std::string, std::string> inputPath)
                 : inputPath(inputPath)
             {
-                this->analizer = analizer.clone();
+                this->analyzer = analyzer.clone();
             }
 
-            AnalizerUsage::AnalizerUsage(const AnalizerUsage& old_usage)
+            AnalyzerUsage::AnalyzerUsage(const AnalyzerUsage& old_usage)
                 : inputPath(old_usage.inputPath)
             {
-                this->analizer = old_usage.analizer->clone();
+                this->analyzer = old_usage.analyzer->clone();
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-            AnalizerUsage::process(Context& context, source::Source& source,
+            AnalyzerUsage::process(Context& context, source::Source& source,
                                    bool& trigger)
             {
                 std::map<std::string, utils::io_data::IOData*> inputs;
@@ -64,11 +64,11 @@ namespace core
                     inputs.insert({ input_name, value });
                 }
 
-                return analizer->process(inputs, source, trigger);
+                return analyzer->process(inputs, source, trigger);
             }
 
             utils::io_data::IOData*
-            AnalizerUsage::getValueFromPath(Context& context, std::string path)
+            AnalyzerUsage::getValueFromPath(Context& context, std::string path)
             {
                 if (path.empty())
                 {
@@ -98,7 +98,7 @@ namespace core
                     }
 
                     if (!context.hasVariable(path_data->getStage(),
-                                             path_data->getAnalizerName(),
+                                             path_data->getAnalyzerName(),
                                              path_data->getOutputName()))
                     {
                         std::ostringstream sb;
@@ -114,7 +114,7 @@ namespace core
                     }
 
                     return context.getVariable(path_data->getStage(),
-                                               path_data->getAnalizerName(),
+                                               path_data->getAnalyzerName(),
                                                path_data->getOutputName());
                 }
                 else
@@ -179,7 +179,7 @@ namespace core
             }
 
             std::optional<bool>
-            AnalizerUsage::tryParseBool(const std::string& value)
+            AnalyzerUsage::tryParseBool(const std::string& value)
             {
                 if (value == TRUE_VALUE_STR)
                 {
@@ -195,7 +195,7 @@ namespace core
             }
 
             std::optional<int>
-            AnalizerUsage::tryParseInt(const std::string& value)
+            AnalyzerUsage::tryParseInt(const std::string& value)
             {
                 try
                 {
@@ -212,7 +212,7 @@ namespace core
             }
 
             std::optional<float>
-            AnalizerUsage::tryParseFloat(const std::string& value)
+            AnalyzerUsage::tryParseFloat(const std::string& value)
             {
                 try
                 {
@@ -228,7 +228,7 @@ namespace core
                 }
             }
 
-            bool AnalizerUsage::isValidCharForPath(char c)
+            bool AnalyzerUsage::isValidCharForPath(char c)
             {
                 if (c >= 'a' && c <= 'z')
                 {
@@ -253,7 +253,7 @@ namespace core
                 return false;
             }
 
-            bool AnalizerUsage::isAcceptedPath(std::string& path)
+            bool AnalyzerUsage::isAcceptedPath(std::string& path)
             {
                 if (path.size() < 3)
                 {
@@ -271,7 +271,7 @@ namespace core
                 return true;
             }
 
-            std::optional<PathData> AnalizerUsage::getPathData(std::string path)
+            std::optional<PathData> AnalyzerUsage::getPathData(std::string path)
             {
                 if (!isAcceptedPath(path))
                 {
@@ -316,7 +316,7 @@ namespace core
             }
 
             std::vector<std::string>
-            AnalizerUsage::split(const std::string& input, char delimiter)
+            AnalyzerUsage::split(const std::string& input, char delimiter)
             {
                 std::vector<std::string> res;
                 size_t last_pos = 0;

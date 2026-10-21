@@ -11,7 +11,7 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             enum class Type
             {
@@ -26,15 +26,15 @@ namespace core
                 BOOL_DELAY,
             };
 
-            class Analizer
+            class Analyzer
             {
                 public:
                     static const std::string ANALIZE_CATEGORY_NAME;
 
-                    Analizer(std::string name);
-                    virtual ~Analizer() = default;
+                    Analyzer(std::string name);
+                    virtual ~Analyzer() = default;
 
-                    static std::unique_ptr<Analizer> getAnalizerFromNode(YAML::Node, std::string name);
+                    static std::unique_ptr<Analyzer> getAnalyzerFromNode(YAML::Node, std::string name);
 
                     virtual std::map<std::string, utils::io_data::IODataType> getInputs() = 0;
                     virtual std::map<std::string, utils::io_data::IODataType> getOutputs() = 0;
@@ -49,7 +49,7 @@ namespace core
 
                     virtual inline std::string getName() const { return name; }
 
-                    virtual std::unique_ptr<Analizer> clone() = 0;
+                    virtual std::unique_ptr<Analyzer> clone() = 0;
                 protected:
                     std::string name;
             };
@@ -57,4 +57,4 @@ namespace core
     }
 }
 
-#include "analizer.hxx"
+#include "analyzer.hxx"

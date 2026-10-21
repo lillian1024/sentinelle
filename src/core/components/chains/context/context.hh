@@ -22,11 +22,11 @@ namespace core
                     static const std::string INPUT_STAGE_NAME;
                     static const int INPUT_STAGE_INDEX;
 
-                    bool hasVariable(int stage, std::string analizer_name, std::string output_name) const;
+                    bool hasVariable(int stage, std::string analyzer_name, std::string output_name) const;
 
-                    utils::io_data::IOData* getVariable(int stage, std::string analizer_name, std::string output_name) const;
+                    utils::io_data::IOData* getVariable(int stage, std::string analyzer_name, std::string output_name) const;
 
-                    void setVariable(int stage, std::string analizer_name, std::string output_name, std::unique_ptr<utils::io_data::IOData> value);
+                    void setVariable(int stage, std::string analyzer_name, std::string output_name, std::unique_ptr<utils::io_data::IOData> value);
 
                     void storeTemporaryValue(std::unique_ptr<utils::io_data::IOData> value);
                 private:

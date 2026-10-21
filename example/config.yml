@@ -15,7 +15,7 @@ middle_end:
       - cam01
       - cam02
 
-analizers:
+analyzers:
   detection:
     type: yolov9-m
     classes:

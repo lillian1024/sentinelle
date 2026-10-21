@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "yaml-cpp/node/node.h"
 #include <opencv2/videoio.hpp>
 #include <optional>
@@ -10,14 +10,14 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            class AnalizerRecorder : public Analizer
+            class AnalyzerRecorder : public Analyzer
             {
                 public:
-                    AnalizerRecorder(YAML::Node node, std::string name);
-                    AnalizerRecorder(const AnalizerRecorder& copy_from);
-                    ~AnalizerRecorder();
+                    AnalyzerRecorder(YAML::Node node, std::string name);
+                    AnalyzerRecorder(const AnalyzerRecorder& copy_from);
+                    ~AnalyzerRecorder();
 
                     std::map<std::string, utils::io_data::IODataType> getInputs();
                     std::map<std::string, utils::io_data::IODataType> getOutputs();
@@ -26,9 +26,9 @@ namespace core
 
                     void openNewFile(std::string file_prefix, int frame_width, int frame_height);
 
-                    std::unique_ptr<Analizer> clone();
+                    std::unique_ptr<Analyzer> clone();
                 protected:
-                    static unsigned int analizer_count;
+                    static unsigned int analyzer_count;
 
                     static unsigned int getNewId();
 
@@ -46,7 +46,7 @@ namespace core
 
                     bool stop_release;
 
-                    unsigned int analizer_id;
+                    unsigned int analyzer_id;
 
                     std::optional<cv::VideoWriter> writer;
             };

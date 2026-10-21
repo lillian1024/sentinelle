@@ -10,15 +10,15 @@ namespace core
             class PathData
             {
                 public:
-                    PathData(int stage, std::string analizer_name, std::string output_name)
-                        : stage(stage), analizer_name(analizer_name), output_name(output_name) { }
+                    PathData(int stage, std::string analyzer_name, std::string output_name)
+                        : stage(stage), analyzer_name(analyzer_name), output_name(output_name) { }
 
                     inline int getStage() { return stage; }
-                    inline std::string getAnalizerName() { return analizer_name; }
+                    inline std::string getAnalyzerName() { return analyzer_name; }
                     inline std::string getOutputName() { return output_name; }
                 private:
                     int stage;
-                    std::string analizer_name;
+                    std::string analyzer_name;
                     std::string output_name;
             };
         }

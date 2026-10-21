@@ -6,7 +6,7 @@
 
 #include "sources/sources-settings.hh"
 #include "utils/config/config-manager.hh"
-#include "utils/config/data/analizers/analizers-settings.hh"
+#include "utils/config/data/analyzers/analyzers-settings.hh"
 #include "utils/config/data/chains/chains-settings.hh"
 #include "utils/config/data/middle-end/middle-end-settings.hh"
 #include "utils/logger/logger.hh"
@@ -82,7 +82,7 @@ namespace utils
 
                 logging_level = log_level.value();
 
-                analizers_settings.readModule(readMapOrError(
+                analyzers_settings.readModule(readMapOrError(
                     node, ANALIZERS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));
                 chains_settings.readModule(readMapOrError(
                     node, CHAINS_SETTINGS_FIELD_NAME, PARENT_FIELD_NAME));

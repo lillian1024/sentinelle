@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "yaml-cpp/node/node.h"
 #include <opencv2/videoio.hpp>
 #include <optional>
@@ -10,14 +10,14 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            class AnalizerStreamVideo : public Analizer
+            class AnalyzerStreamVideo : public Analyzer
             {
                 public:
-                    AnalizerStreamVideo(YAML::Node node, std::string name);
-                    AnalizerStreamVideo(const AnalizerStreamVideo& copy_from);
-                    ~AnalizerStreamVideo();
+                    AnalyzerStreamVideo(YAML::Node node, std::string name);
+                    AnalyzerStreamVideo(const AnalyzerStreamVideo& copy_from);
+                    ~AnalyzerStreamVideo();
 
                     std::map<std::string, utils::io_data::IODataType> getInputs();
                     std::map<std::string, utils::io_data::IODataType> getOutputs();
@@ -26,7 +26,7 @@ namespace core
 
                     void openNewStream(std::string stream_name, double fps, int frame_width, int frame_height);
 
-                    std::unique_ptr<Analizer> clone();
+                    std::unique_ptr<Analyzer> clone();
                 protected:
                     int getFourcc(std::string format);
 

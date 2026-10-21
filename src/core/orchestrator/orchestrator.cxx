@@ -437,7 +437,7 @@ namespace core
             utils::logger::Logger::instance().LogPlain(
                 sb.str(), utils::logger::Logger::LogLevel::DEBUG);
             logSourceConfig();
-            logAnalizerConfig();
+            logAnalyzerConfig();
         }
 
         void Orchestrator::logSourceConfig()
@@ -474,12 +474,12 @@ namespace core
             }
         }
 
-        void Orchestrator::logAnalizerConfig()
+        void Orchestrator::logAnalyzerConfig()
         {
             utils::logger::Logger::instance().LogPlain(
                 utils::config::ConfigManager::instance()
                     .getGeneralSettings()
-                    .getAnalizersSettings()
+                    .getAnalyzersSettings()
                     .dumpInfo(),
                 utils::logger::Logger::LogLevel::DEBUG);
 

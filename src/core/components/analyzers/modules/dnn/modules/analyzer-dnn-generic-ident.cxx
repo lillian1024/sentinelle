@@ -1,4 +1,4 @@
-#include "analizer-dnn-generic-ident.hh"
+#include "analyzer-dnn-generic-ident.hh"
 
 #include <iostream>
 #include <map>
@@ -11,14 +11,14 @@
 #include <stdexcept>
 #include <string>
 
-#include "core/components/analizers/modules/dnn/analizer-dnn.hh"
+#include "core/components/analyzers/modules/dnn/analyzer-dnn.hh"
 #include "utils/cache/cache-manager.hh"
 #include "utils/config/data-module.hh"
 #include "utils/io_data/types/io_data_bool.hh"
 #include "utils/io_data/types/io_data_mat.hh"
 #include "utils/logger/logger.hh"
 
-#define CATEGORY_NAME "AnalizerDNNGenericIdent"
+#define CATEGORY_NAME "AnalyzerDNNGenericIdent"
 
 #define CATEGORY_PROPERTY_NAME "classes"
 #define CONFIDENCE_PROPERTY_NAME "min_confidence"
@@ -42,31 +42,31 @@
 #define DNN_CATEGORY_NAME "DDNManager"
 
 #define MISSING_CLASS_FILE_ERROR_MSG                                           \
-    "Unable to start analizer: unable to locate class data file in cache!"
+    "Unable to start analyzer: unable to locate class data file in cache!"
 
 namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             namespace dnn
             {
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(
+                AnalyzerDNNGenericIdent::AnalyzerDNNGenericIdent(
                     YAML::Node node, std::string name)
-                    : AnalizerDNN(name, NN_NAME, NN_URL, true,
+                    : AnalyzerDNN(name, NN_NAME, NN_URL, true,
                                   NetStoreType::TENSOR_FLOW)
                 {
                     auto cat_map =
                         utils::config::DataModule::readSequenceOrError(
-                            node, CATEGORY_PROPERTY_NAME, name + " analizer");
+                            node, CATEGORY_PROPERTY_NAME, name + " analyzer");
                     auto min_confidence_str =
                         utils::config::DataModule::readScalarOptional(
                             node, CONFIDENCE_PROPERTY_NAME)
                             .value_or(CONFIDENCE_PROPERTY_DEFAULT);
 
                     auto use_cuda = utils::config::DataModule::readBool(
-                        node, USE_CUDA_PROPERTY_NAME, name + " analizer", true,
+                        node, USE_CUDA_PROPERTY_NAME, name + " analyzer", true,
                         USE_CUDA_PROPERTY_DEFAULT);
                     setUseCUDA(use_cuda);
 
@@ -122,9 +122,9 @@ namespace core
                     }
                 }
 
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(
-                    const AnalizerDNNGenericIdent& from)
-                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true,
+                AnalyzerDNNGenericIdent::AnalyzerDNNGenericIdent(
+                    const AnalyzerDNNGenericIdent& from)
+                    : AnalyzerDNN(from.getName(), NN_NAME, NN_URL, true,
                                   NetStoreType::TENSOR_FLOW)
                     , min_confidence(from.min_confidence)
                 {
@@ -137,7 +137,7 @@ namespace core
                 }
 
                 std::map<std::string, utils::io_data::IODataType>
-                AnalizerDNNGenericIdent::getInputs()
+                AnalyzerDNNGenericIdent::getInputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
@@ -148,7 +148,7 @@ namespace core
                 }
 
                 std::map<std::string, utils::io_data::IODataType>
-                AnalizerDNNGenericIdent::getOutputs()
+                AnalyzerDNNGenericIdent::getOutputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
@@ -161,7 +161,7 @@ namespace core
                 }
 
                 std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-                AnalizerDNNGenericIdent::process(
+                AnalyzerDNNGenericIdent::process(
                     std::map<std::string, utils::io_data::IOData*> inputs,
                     source::Source&, bool&)
                 {
@@ -315,11 +315,11 @@ namespace core
                     return res;
                 }
 
-                std::unique_ptr<Analizer> AnalizerDNNGenericIdent::clone()
+                std::unique_ptr<Analyzer> AnalyzerDNNGenericIdent::clone()
                 {
-                    return std::make_unique<AnalizerDNNGenericIdent>(*this);
+                    return std::make_unique<AnalyzerDNNGenericIdent>(*this);
                 }
             } // namespace dnn
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

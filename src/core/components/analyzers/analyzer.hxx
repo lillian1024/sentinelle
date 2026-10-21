@@ -2,10 +2,10 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             template<class T>
-            T* Analizer::getInputTypeFromInputs(std::map<std::string, utils::io_data::IOData*> inputs, std::string name)
+            T* Analyzer::getInputTypeFromInputs(std::map<std::string, utils::io_data::IOData*> inputs, std::string name)
             {
                 if (inputs.find(name) == inputs.end())
                 {

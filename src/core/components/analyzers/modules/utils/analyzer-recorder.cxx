@@ -1,4 +1,4 @@
-#include "analizer-recorder.hh"
+#include "analyzer-recorder.hh"
 
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "utils/config/data-module.hh"
 #include "utils/io_data/io_data.hh"
 #include "utils/io_data/types/io_data_bool.hh"
@@ -17,7 +17,7 @@
 #include "utils/io_data/types/io_data_string.hh"
 #include "utils/logger/logger.hh"
 
-#define CATEGORY_NAME "AnalizerRecorder"
+#define CATEGORY_NAME "AnalyzerRecorder"
 
 #define FORMAT_FIELD_NAME "format"
 #define EXTENSION_FIELD_NAME "extension"
@@ -36,15 +36,15 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            unsigned int AnalizerRecorder::AnalizerRecorder::analizer_count = 0;
+            unsigned int AnalyzerRecorder::AnalyzerRecorder::analyzer_count = 0;
 
-            AnalizerRecorder::AnalizerRecorder(YAML::Node node,
+            AnalyzerRecorder::AnalyzerRecorder(YAML::Node node,
                                                std::string name)
-                : Analizer(name)
+                : Analyzer(name)
             {
-                analizer_id = getNewId();
+                analyzer_id = getNewId();
 
                 std::string format_str =
                     utils::config::DataModule::readScalarOrError(
@@ -68,9 +68,9 @@ namespace core
                 writer = std::nullopt;
             }
 
-            AnalizerRecorder::AnalizerRecorder(
-                const AnalizerRecorder& copy_from)
-                : Analizer(copy_from.name)
+            AnalyzerRecorder::AnalyzerRecorder(
+                const AnalyzerRecorder& copy_from)
+                : Analyzer(copy_from.name)
                 , format(copy_from.format)
                 , file_extension(copy_from.file_extension)
                 , video_fps(copy_from.video_fps)
@@ -78,12 +78,12 @@ namespace core
                 , storage_path(copy_from.storage_path)
                 , stop_release(copy_from.stop_release)
             {
-                analizer_id = getNewId();
+                analyzer_id = getNewId();
 
                 writer = std::nullopt;
             }
 
-            AnalizerRecorder::~AnalizerRecorder()
+            AnalyzerRecorder::~AnalyzerRecorder()
             {
                 if (writer != std::nullopt)
                 {
@@ -91,16 +91,16 @@ namespace core
                 }
             }
 
-            unsigned int AnalizerRecorder::getNewId()
+            unsigned int AnalyzerRecorder::getNewId()
             {
-                unsigned int id = analizer_count;
-                analizer_count++;
+                unsigned int id = analyzer_count;
+                analyzer_count++;
 
                 return id;
             }
 
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerRecorder::getInputs()
+            AnalyzerRecorder::getInputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -114,7 +114,7 @@ namespace core
                 return res;
             }
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerRecorder::getOutputs()
+            AnalyzerRecorder::getOutputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -122,7 +122,7 @@ namespace core
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-            AnalizerRecorder::process(
+            AnalyzerRecorder::process(
                 std::map<std::string, utils::io_data::IOData*> inputs,
                 source::Source&, bool&)
             {
@@ -229,7 +229,7 @@ namespace core
                                 std::unique_ptr<utils::io_data::IOData>>();
             }
 
-            void AnalizerRecorder::openNewFile(std::string file_prefix,
+            void AnalyzerRecorder::openNewFile(std::string file_prefix,
                                                int frame_width,
                                                int frame_height)
             {
@@ -251,7 +251,7 @@ namespace core
             }
 
             std::string
-            AnalizerRecorder::ComposeFileName(std::string file_prefix)
+            AnalyzerRecorder::ComposeFileName(std::string file_prefix)
             {
                 std::ostringstream sb;
 
@@ -282,12 +282,12 @@ namespace core
                 return sb.str();
             }
 
-            std::unique_ptr<Analizer> AnalizerRecorder::clone()
+            std::unique_ptr<Analyzer> AnalyzerRecorder::clone()
             {
-                return std::make_unique<AnalizerRecorder>(*this);
+                return std::make_unique<AnalyzerRecorder>(*this);
             }
 
-            int AnalizerRecorder::getFourcc(std::string format)
+            int AnalyzerRecorder::getFourcc(std::string format)
             {
                 // std::transform(format.begin(), format.end(), format.begin(),
                 // ::toupper);
@@ -312,6 +312,6 @@ namespace core
 
                 return cv::VideoWriter::fourcc(c1, c2, c3, c4);
             }
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

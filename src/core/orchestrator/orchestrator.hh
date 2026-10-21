@@ -105,9 +105,9 @@ namespace core
                  */
                 void logSourceConfig();
                 /**
-                 * \prief Logs the analizer configuration.
+                 * \prief Logs the analyzer configuration.
                  */
-                void logAnalizerConfig();
+                void logAnalyzerConfig();
 
                 /**
                  * \brief If Orchestrator is stopping.

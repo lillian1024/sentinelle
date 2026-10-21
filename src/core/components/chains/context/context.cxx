@@ -49,7 +49,7 @@ namespace core
                           source_name) });
             }
 
-            bool Context::hasVariable(int stage, std::string analizer_name,
+            bool Context::hasVariable(int stage, std::string analyzer_name,
                                       std::string output_name) const
             {
                 auto stage_data = data.find(stage);
@@ -59,20 +59,20 @@ namespace core
                     return false;
                 }
 
-                auto analizer_data = stage_data->second.find(analizer_name);
+                auto analyzer_data = stage_data->second.find(analyzer_name);
 
-                if (analizer_data == stage_data->second.end())
+                if (analyzer_data == stage_data->second.end())
                 {
                     return false;
                 }
 
-                auto output = analizer_data->second.find(output_name);
+                auto output = analyzer_data->second.find(output_name);
 
-                return output != analizer_data->second.end();
+                return output != analyzer_data->second.end();
             }
 
             utils::io_data::IOData*
-            Context::getVariable(int stage, std::string analizer_name,
+            Context::getVariable(int stage, std::string analyzer_name,
                                  std::string output_name) const
             {
                 auto stage_data = data.find(stage);
@@ -82,16 +82,16 @@ namespace core
                     return nullptr;
                 }
 
-                auto analizer_data = stage_data->second.find(analizer_name);
+                auto analyzer_data = stage_data->second.find(analyzer_name);
 
-                if (analizer_data == stage_data->second.end())
+                if (analyzer_data == stage_data->second.end())
                 {
                     return nullptr;
                 }
 
-                auto output = analizer_data->second.find(output_name);
+                auto output = analyzer_data->second.find(output_name);
 
-                if (output == analizer_data->second.end())
+                if (output == analyzer_data->second.end())
                 {
                     return nullptr;
                 }
@@ -100,7 +100,7 @@ namespace core
             }
 
             void
-            Context::setVariable(int stage, std::string analizer_name,
+            Context::setVariable(int stage, std::string analyzer_name,
                                  std::string output_name,
                                  std::unique_ptr<utils::io_data::IOData> value)
             {
@@ -118,20 +118,20 @@ namespace core
                     stage_data = data.find(stage);
                 }
 
-                auto analizer_data = stage_data->second.find(analizer_name);
+                auto analyzer_data = stage_data->second.find(analyzer_name);
 
-                if (analizer_data == stage_data->second.end())
+                if (analyzer_data == stage_data->second.end())
                 {
                     stage_data->second.insert(
-                        { analizer_name,
+                        { analyzer_name,
                           std::map<
                               std::string,
                               std::unique_ptr<utils::io_data::IOData>>() });
 
-                    analizer_data = stage_data->second.find(analizer_name);
+                    analyzer_data = stage_data->second.find(analyzer_name);
                 }
 
-                analizer_data->second.insert_or_assign(output_name,
+                analyzer_data->second.insert_or_assign(output_name,
                                                        std::move(value));
             }
 

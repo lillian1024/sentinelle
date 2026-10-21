@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include <opencv2/dnn/dnn.hpp>
 #include <string>
 
@@ -8,11 +8,11 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             namespace dnn
             {
-                class AnalizerDNN : public Analizer
+                class AnalyzerDNN : public Analyzer
                 {
                     public:
                         enum class NetStoreType
@@ -22,8 +22,8 @@ namespace core
                             ONNX
                         };
 
-                        AnalizerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store);
-                        virtual ~AnalizerDNN() = default;
+                        AnalyzerDNN(std::string name, std::string net_name, std::string net_url, bool pull_net, NetStoreType net_store);
+                        virtual ~AnalyzerDNN() = default;
 
                         std::string getNetName();
                     protected:

@@ -46,25 +46,25 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/sources/source.cxx)
 
-#Core analizer sources
+#Core analyzer sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
-    src/core/components/analizers/analizer.cxx
-    src/core/components/analizers/modules/utils/analizer-trigger-if-true.cxx
-    src/core/components/analizers/modules/utils/analizer-show-image.cxx
-    src/core/components/analizers/modules/utils/analizer-save-video.cxx
-    src/core/components/analizers/modules/utils/analizer-recorder.cxx
-    src/core/components/analizers/modules/utils/analizer-stream-video.cxx
-    src/core/components/analizers/modules/utils/analizer-bool-delay.cxx
-    src/core/components/analizers/modules/dnn/analizer-dnn.cxx
-    src/core/components/analizers/modules/dnn/modules/analizer-dnn-generic-ident.cxx
-    src/core/components/analizers/modules/dnn/modules/analizer-dnn-yolov9.cxx
+    src/core/components/analyzers/analyzer.cxx
+    src/core/components/analyzers/modules/utils/analyzer-trigger-if-true.cxx
+    src/core/components/analyzers/modules/utils/analyzer-show-image.cxx
+    src/core/components/analyzers/modules/utils/analyzer-save-video.cxx
+    src/core/components/analyzers/modules/utils/analyzer-recorder.cxx
+    src/core/components/analyzers/modules/utils/analyzer-stream-video.cxx
+    src/core/components/analyzers/modules/utils/analyzer-bool-delay.cxx
+    src/core/components/analyzers/modules/dnn/analyzer-dnn.cxx
+    src/core/components/analyzers/modules/dnn/modules/analyzer-dnn-generic-ident.cxx
+    src/core/components/analyzers/modules/dnn/modules/analyzer-dnn-yolov9.cxx
     )
 
 #Core chain sources
 set(PROJECT_SRCS ${PROJECT_SRCS}
     src/core/components/chains/chain.cxx
     src/core/components/chains/context/context.cxx
-    src/core/components/chains/analizer-usage.cxx
+    src/core/components/chains/analyzer-usage.cxx
     src/core/components/chains/path-data.cxx
     )
 
@@ -92,7 +92,7 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     src/utils/config/data/sources/sources-settings.cxx
     src/utils/config/data/sources/source-settings.cxx
     src/utils/config/data/sources/source-type/url-source-settings.cxx
-    src/utils/config/data/analizers/analizers-settings.cxx
+    src/utils/config/data/analyzers/analyzers-settings.cxx
     src/utils/config/data/chains/chains-settings.cxx
     src/utils/config/data/middle-end/middle-end-settings.cxx
     )

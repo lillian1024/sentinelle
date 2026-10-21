@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/modules/dnn/analizer-dnn.hh"
+#include "core/components/analyzers/modules/dnn/analyzer-dnn.hh"
 #include "yaml-cpp/node/node.h"
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -10,23 +10,23 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             namespace dnn
             {
-                class AnalizerDNNYoloV9 : public AnalizerDNN
+                class AnalyzerDNNYoloV9 : public AnalyzerDNN
                 {
                     public:
-                        AnalizerDNNYoloV9(YAML::Node config, std::string name);
-                        AnalizerDNNYoloV9(const AnalizerDNNYoloV9& from);
-                        ~AnalizerDNNYoloV9() = default;
+                        AnalyzerDNNYoloV9(YAML::Node config, std::string name);
+                        AnalyzerDNNYoloV9(const AnalyzerDNNYoloV9& from);
+                        ~AnalyzerDNNYoloV9() = default;
 
                         std::map<std::string, utils::io_data::IODataType> getInputs();
                         std::map<std::string, utils::io_data::IODataType> getOutputs();
 
                         std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*>, source::Source&, bool& trigger);
 
-                        std::unique_ptr<Analizer> clone();
+                        std::unique_ptr<Analyzer> clone();
                     private:
                         struct Detection {
                             int class_id;

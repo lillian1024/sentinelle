@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 
 #include <cstddef>
 
@@ -8,20 +8,20 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            class AnalizerBoolDelay : public Analizer
+            class AnalyzerBoolDelay : public Analyzer
             {
                 public:
-                    AnalizerBoolDelay(YAML::Node node, std::string name);
-                    ~AnalizerBoolDelay() = default;
+                    AnalyzerBoolDelay(YAML::Node node, std::string name);
+                    ~AnalyzerBoolDelay() = default;
 
                     std::map<std::string, utils::io_data::IODataType> getInputs();
                     std::map<std::string, utils::io_data::IODataType> getOutputs();
 
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger);
 
-                    std::unique_ptr<Analizer> clone();
+                    std::unique_ptr<Analyzer> clone();
                 protected:
                     bool start_value;
 

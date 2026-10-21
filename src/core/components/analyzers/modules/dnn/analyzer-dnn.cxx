@@ -1,4 +1,4 @@
-#include "analizer-dnn.hh"
+#include "analyzer-dnn.hh"
 
 #include <opencv2/dnn/dnn.hpp>
 #include <stdexcept>
@@ -17,11 +17,11 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
             namespace dnn
             {
-                const std::vector<std::string> AnalizerDNN::coco_class_names = {
+                const std::vector<std::string> AnalyzerDNN::coco_class_names = {
                     "person",        "bicycle",      "car",
                     "motorcycle",    "airplane",     "bus",
                     "train",         "truck",        "boat",
@@ -51,12 +51,12 @@ namespace core
                     "hair drier",    "toothbrush"
                 };
 
-                const std::string AnalizerDNN::DNN_CACHE_NAME = "dnn";
+                const std::string AnalyzerDNN::DNN_CACHE_NAME = "dnn";
 
-                AnalizerDNN::AnalizerDNN(std::string name, std::string net_name,
+                AnalyzerDNN::AnalyzerDNN(std::string name, std::string net_name,
                                          std::string net_url, bool pull_net,
                                          NetStoreType net_store)
-                    : Analizer(name)
+                    : Analyzer(name)
                     , loaded(false)
                     , net_name(net_name)
                     , net_url(net_url)
@@ -65,7 +65,7 @@ namespace core
                     , useCUDA(false)
                 {}
 
-                void AnalizerDNN::loadNet()
+                void AnalyzerDNN::loadNet()
                 {
                     switch (net_store)
                     {
@@ -95,7 +95,7 @@ namespace core
                 }
 
                 cv::dnn::dnn4_v20260709::Net
-                AnalizerDNN::loadFromTensor(std::string net_name, std::string,
+                AnalyzerDNN::loadFromTensor(std::string net_name, std::string,
                                             bool pull_net)
                 {
                     std::string pb_name = net_name + ".pb";
@@ -133,7 +133,7 @@ namespace core
                 }
 
                 cv::dnn::dnn4_v20260709::Net
-                AnalizerDNN::loadFromTorch(std::string net_name, std::string,
+                AnalyzerDNN::loadFromTorch(std::string net_name, std::string,
                                            bool pull_net)
                 {
                     std::string file_name = net_name + ".dump";
@@ -165,7 +165,7 @@ namespace core
                 }
 
                 cv::dnn::dnn4_v20260709::Net
-                AnalizerDNN::loadFromONNX(std::string net_name, std::string,
+                AnalyzerDNN::loadFromONNX(std::string net_name, std::string,
                                           bool pull_net)
                 {
                     std::string file_name = net_name + ".onnx";
@@ -195,7 +195,7 @@ namespace core
                     return cv::dnn::dnn4_v20260709::readNetFromONNX(file_path);
                 }
 
-                cv::dnn::dnn4_v20260709::Net& AnalizerDNN::getNet()
+                cv::dnn::dnn4_v20260709::Net& AnalyzerDNN::getNet()
                 {
                     if (!isLoaded())
                     {
@@ -205,7 +205,7 @@ namespace core
                     return net;
                 }
 
-                bool AnalizerDNN::setNetToCUDA()
+                bool AnalyzerDNN::setNetToCUDA()
                 {
                     net.setPreferableBackend(
                         cv::dnn::dnn4_v20260709::DNN_BACKEND_CUDA);
@@ -215,26 +215,26 @@ namespace core
                     return false;
                 }
 
-                std::string AnalizerDNN::getNetName()
+                std::string AnalyzerDNN::getNetName()
                 {
                     return net_name;
                 }
 
-                void AnalizerDNN::setUseCUDA(bool useCUDA)
+                void AnalyzerDNN::setUseCUDA(bool useCUDA)
                 {
                     this->useCUDA = useCUDA;
                 }
 
-                bool AnalizerDNN::getUseCUDA() const
+                bool AnalyzerDNN::getUseCUDA() const
                 {
                     return useCUDA;
                 }
 
-                bool AnalizerDNN::isLoaded()
+                bool AnalyzerDNN::isLoaded()
                 {
                     return loaded;
                 }
             } // namespace dnn
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

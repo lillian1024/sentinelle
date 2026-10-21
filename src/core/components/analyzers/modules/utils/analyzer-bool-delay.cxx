@@ -1,4 +1,4 @@
-#include "analizer-bool-delay.hh"
+#include "analyzer-bool-delay.hh"
 
 #include <memory>
 #include <yaml-cpp/node/node.h>
@@ -7,7 +7,7 @@
 #include "utils/io_data/types/io_data_bool.hh"
 #include "utils/logger/logger.hh"
 
-#define PARENT_NAME "AnalizerBoolDelay"
+#define PARENT_NAME "AnalyzerBoolDelay"
 
 #define START_VALUE_PROPERTY_NAME "start_value"
 #define CHARGE_DELAY_PROPERTY_NAME "charge_delay"
@@ -24,11 +24,11 @@ namespace core
 {
     namespace components
     {
-        namespace analizer
+        namespace analyzer
         {
-            AnalizerBoolDelay::AnalizerBoolDelay(YAML::Node node,
+            AnalyzerBoolDelay::AnalyzerBoolDelay(YAML::Node node,
                                                  std::string name)
-                : Analizer(name)
+                : Analyzer(name)
                 , charge_status(0)
                 , discharge_status(0)
             {
@@ -54,7 +54,7 @@ namespace core
             }
 
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerBoolDelay::getInputs()
+            AnalyzerBoolDelay::getInputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -64,7 +64,7 @@ namespace core
                 return res;
             }
             std::map<std::string, utils::io_data::IODataType>
-            AnalizerBoolDelay::getOutputs()
+            AnalyzerBoolDelay::getOutputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
@@ -75,7 +75,7 @@ namespace core
             }
 
             std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
-            AnalizerBoolDelay::process(
+            AnalyzerBoolDelay::process(
                 std::map<std::string, utils::io_data::IOData*> inputs,
                 source::Source& source, bool&)
             {
@@ -92,7 +92,7 @@ namespace core
                     sb << "' argument!";
 
                     utils::logger::Logger::instance().Log(
-                        "AnalizerTriggerIfTrue", sb.str(),
+                        "AnalyzerTriggerIfTrue", sb.str(),
                         utils::logger::Logger::LogLevel::ERROR);
 
                     return std::map<std::string,
@@ -111,7 +111,7 @@ namespace core
                     sb << "' should be a boolean!";
 
                     utils::logger::Logger::instance().Log(
-                        "AnalizerTriggerIfTrue", sb.str(),
+                        "AnalyzerTriggerIfTrue", sb.str(),
                         utils::logger::Logger::LogLevel::ERROR);
 
                     return std::map<std::string,
@@ -163,10 +163,10 @@ namespace core
                 return res;
             }
 
-            std::unique_ptr<Analizer> AnalizerBoolDelay::clone()
+            std::unique_ptr<Analyzer> AnalyzerBoolDelay::clone()
             {
-                return std::make_unique<AnalizerBoolDelay>(*this);
+                return std::make_unique<AnalyzerBoolDelay>(*this);
             }
-        } // namespace analizer
+        } // namespace analyzer
     } // namespace components
 } // namespace core

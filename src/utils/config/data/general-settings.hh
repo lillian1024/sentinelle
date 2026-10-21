@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/config/data-module.hh"
-#include "utils/config/data/analizers/analizers-settings.hh"
+#include "utils/config/data/analyzers/analyzers-settings.hh"
 #include "utils/config/data/chains/chains-settings.hh"
 #include "utils/config/data/middle-end/middle-end-settings.hh"
 #include "utils/config/data/sources/sources-settings.hh"
@@ -28,7 +28,7 @@ namespace utils
                 inline std::string getCachePath() { return cache_path; }
                 inline std::string getLogFile() { return log_file; }
                 inline sources::SourcesSettings& getSourceSettings() { return sources_settings; }
-                inline analizers::AnalizersSettings& getAnalizersSettings() { return analizers_settings; }
+                inline analyzers::AnalyzersSettings& getAnalyzersSettings() { return analyzers_settings; }
                 inline chains::ChainsSettings& getChainsSettings() { return chains_settings; }
                 inline middle_end::MiddleEndSettings& getMiddleEndSettings() { return middle_end_settings; }
             protected:
@@ -38,7 +38,7 @@ namespace utils
                 std::string cache_path;
                 std::string log_file;
                 sources::SourcesSettings sources_settings;
-                analizers::AnalizersSettings analizers_settings;
+                analyzers::AnalyzersSettings analyzers_settings;
                 chains::ChainsSettings chains_settings;
                 middle_end::MiddleEndSettings middle_end_settings;
             };

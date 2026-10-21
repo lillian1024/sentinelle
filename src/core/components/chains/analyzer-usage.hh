@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/components/analizers/analizer.hh"
+#include "core/components/analyzers/analyzer.hh"
 #include "core/components/chains/context/context.hh"
 #include "core/components/chains/path-data.hh"
 #include "utils/io_data/io_data.hh"
@@ -15,13 +15,13 @@ namespace core
         {
             /**
              * \brief A class describing a single usage of an analyzer.
-             * \details The used analyzer will be copied into the AnalizerUsage.
+             * \details The used analyzer will be copied into the AnalyzerUsage.
              */
-            class AnalizerUsage
+            class AnalyzerUsage
             {
                 public:
-                    AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, std::string> inputPath);
-                    AnalizerUsage(const AnalizerUsage &old_usage);
+                    AnalyzerUsage(analyzer::Analyzer& analyzer, std::map<std::string, std::string> inputPath);
+                    AnalyzerUsage(const AnalyzerUsage &old_usage);
 
                     std::map<std::string, std::unique_ptr<utils::io_data::IOData>> process(Context& context, source::Source& source, bool& trigger);
                 private:
@@ -38,7 +38,7 @@ namespace core
 
                     static std::vector<std::string> split(const std::string& input, char delimiter);
 
-                    std::unique_ptr<analizer::Analizer> analizer;
+                    std::unique_ptr<analyzer::Analyzer> analyzer;
                     std::map<std::string, std::string> inputPath;
             };
         }

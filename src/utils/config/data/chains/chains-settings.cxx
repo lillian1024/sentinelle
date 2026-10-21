@@ -28,14 +28,14 @@ namespace utils
 
                         std::string name = it->first.Scalar();
 
-                        auto analizers = ConfigManager::instance()
+                        auto analyzers = ConfigManager::instance()
                                              .getGeneralSettings()
-                                             .getAnalizersSettings()
-                                             .getAnalizersRefMap();
+                                             .getAnalyzersSettings()
+                                             .getAnalyzersRefMap();
 
                         chains.insert({ name,
                                         core::components::chains::Chain(
-                                            it->second, analizers) });
+                                            it->second, analyzers) });
                     }
                 }
 
