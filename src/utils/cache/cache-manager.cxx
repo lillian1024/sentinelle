@@ -1,11 +1,12 @@
 #include "cache-manager.hh"
-#include "utils/config/config-manager.hh"
-#include "utils/logger/logger.hh"
+
 #include <filesystem>
 #include <optional>
 #include <string>
-
 #include <unistd.h>
+
+#include "utils/config/config-manager.hh"
+#include "utils/logger/logger.hh"
 
 #define CACHE_CATEGORY_NAME "CacheManager"
 
@@ -36,7 +37,11 @@ namespace utils
             {
                 if (fileExist(cachePath))
                 {
-                    logger::Logger::instance().Log(CACHE_CATEGORY_NAME, "Unable to initialize cahce: cache path is not a directory!", logger::Logger::LogLevel::ERROR);
+                    logger::Logger::instance().Log(
+                        CACHE_CATEGORY_NAME,
+                        "Unable to initialize cahce: cache path is not a "
+                        "directory!",
+                        logger::Logger::LogLevel::ERROR);
                 }
 
                 std::filesystem::create_directories(cachePath);
@@ -45,14 +50,20 @@ namespace utils
 
         std::string CacheManager::getCachePath()
         {
-            return config::ConfigManager::instance().getGeneralSettings().getCachePath();
+            return config::ConfigManager::instance()
+                .getGeneralSettings()
+                .getCachePath();
         }
 
-        std::string CacheManager::getPath(std::string category, std::string file_name)
+        std::string CacheManager::getPath(std::string category,
+                                          std::string file_name)
         {
             checkOrCreateCachePath();
 
-            std::string path = config::ConfigManager::instance().getGeneralSettings().getCachePath() + "/" + category + "/" + file_name;
+            std::string path = config::ConfigManager::instance()
+                                   .getGeneralSettings()
+                                   .getCachePath()
+                + "/" + category + "/" + file_name;
 
             return path;
         }
@@ -61,7 +72,10 @@ namespace utils
         {
             checkOrCreateCachePath();
 
-            std::string path = config::ConfigManager::instance().getGeneralSettings().getCachePath() + "/" + category + "/" + file_name;
+            std::string path = config::ConfigManager::instance()
+                                   .getGeneralSettings()
+                                   .getCachePath()
+                + "/" + category + "/" + file_name;
 
             if (access(path.c_str(), R_OK) == -1)
             {
@@ -70,5 +84,5 @@ namespace utils
 
             return true;
         }
-    }
-}
+    } // namespace cache
+} // namespace utils

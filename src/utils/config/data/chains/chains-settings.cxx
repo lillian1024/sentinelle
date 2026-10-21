@@ -1,8 +1,10 @@
 #include "chains-settings.hh"
-#include "core/components/chains/chain.hh"
-#include "utils/config/config-manager.hh"
+
 #include <iostream>
 #include <sstream>
+
+#include "core/components/chains/chain.hh"
+#include "utils/config/config-manager.hh"
 
 namespace utils
 {
@@ -18,14 +20,22 @@ namespace utils
                     {
                         if (!it->first.IsScalar())
                         {
-                            throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse chains: chain keys should be a string!");
+                            throw std::runtime_error(
+                                ConfigManager::managerMessagePrefix
+                                + "Unable to parse chains: chain keys should "
+                                  "be a string!");
                         }
 
                         std::string name = it->first.Scalar();
 
-                        auto analizers = ConfigManager::instance().getGeneralSettings().getAnalizersSettings().getAnalizersRefMap();
+                        auto analizers = ConfigManager::instance()
+                                             .getGeneralSettings()
+                                             .getAnalizersSettings()
+                                             .getAnalizersRefMap();
 
-                        chains.insert({name, core::components::chains::Chain(it->second, analizers)});
+                        chains.insert({ name,
+                                        core::components::chains::Chain(
+                                            it->second, analizers) });
                     }
                 }
 
@@ -34,7 +44,8 @@ namespace utils
                     return chains.find(name) != chains.end();
                 }
 
-                core::components::chains::Chain& ChainsSettings::getChain(std::string name)
+                core::components::chains::Chain&
+                ChainsSettings::getChain(std::string name)
                 {
                     return chains.find(name)->second;
                 }
@@ -54,7 +65,7 @@ namespace utils
 
                     return sb.str();
                 }
-            }
-        }
-    }
-}
+            } // namespace chains
+        } // namespace data
+    } // namespace config
+} // namespace utils

@@ -1,13 +1,15 @@
 #include "middle_end.hh"
 
-#include "components/mqtt/middle_end_mqtt.hh"
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 
+#include "components/mqtt/middle_end_mqtt.hh"
+
 namespace middle_end
 {
-    std::unique_ptr<MiddleEnd> MiddleEnd::createNewMiddleEnd(std::string name, YAML::Node node)
+    std::unique_ptr<MiddleEnd> MiddleEnd::createNewMiddleEnd(std::string name,
+                                                             YAML::Node node)
     {
         if (name == mqtt::MiddleEndMQTT::middle_end_mqtt_name)
         {
@@ -24,4 +26,4 @@ namespace middle_end
             throw std::runtime_error(sb.str());
         }
     }
-}
+} // namespace middle_end

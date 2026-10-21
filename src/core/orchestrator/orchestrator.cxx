@@ -1,15 +1,5 @@
 #include "orchestrator.hh"
-#include "core/components/chains/chain.hh"
-#include "core/components/sources/source.hh"
-#include "core/event/events/modules/source-start-event.hh"
-#include "core/event/events/modules/source-stop-event.hh"
-#include "core/event/events/modules/trigger/triggered-event.hh"
-#include "core/event/events/modules/trigger/untriggered-event.hh"
-#include "core/event/event-manager.hh"
-#include "utils/config/config-manager.hh"
-#include "utils/config/data/sources/source-type/url-source-settings.hh"
-#include "utils/logger/logger.hh"
-#include "utils/thread/thread-manager.hh"
+
 #include <chrono>
 #include <cstddef>
 #include <ctime>
@@ -26,34 +16,56 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "core/components/chains/chain.hh"
+#include "core/components/sources/source.hh"
+#include "core/event/event-manager.hh"
+#include "core/event/events/modules/source-start-event.hh"
+#include "core/event/events/modules/source-stop-event.hh"
+#include "core/event/events/modules/trigger/triggered-event.hh"
+#include "core/event/events/modules/trigger/untriggered-event.hh"
+#include "utils/config/config-manager.hh"
+#include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "utils/logger/logger.hh"
+#include "utils/thread/thread-manager.hh"
+
 #define SOURCE_DISABLE_CHECK_INTERVAL_MILLIS 20
 
 namespace core
 {
     namespace orchestrator
     {
-        const std::string Orchestrator::ORCHESTRATOR_CATEGORY_NAME = "Orchestrator";
+        const std::string Orchestrator::ORCHESTRATOR_CATEGORY_NAME =
+            "Orchestrator";
 
         void Orchestrator::LoadConfiguration()
         {
-            utils::logger::Logger::instance().LogPlain(cv::getBuildInformation(), utils::logger::Logger::LogLevel::DEBUG);
+            utils::logger::Logger::instance().LogPlain(
+                cv::getBuildInformation(),
+                utils::logger::Logger::LogLevel::DEBUG);
 
             logConfig();
 
             event::EventManager::instance().registerEventHandler(this);
 
-            auto& sources_config = utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings();
+            auto& sources_config = utils::config::ConfigManager::instance()
+                                       .getGeneralSettings()
+                                       .getSourceSettings();
 
             for (size_t i = 0; i < sources_config.sources.size(); i++)
             {
                 auto* source_config = sources_config.sources[i].get();
 
-                std::unique_ptr<components::source::Source> source = components::source::Source::getSourceFromConfig(*source_config);
+                std::unique_ptr<components::source::Source> source =
+                    components::source::Source::getSourceFromConfig(
+                        *source_config);
 
                 sources.push_back(std::move(source));
             }
 
-            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+            auto middle_ends = utils::config::ConfigManager::instance()
+                                   .getGeneralSettings()
+                                   .getMiddleEndSettings()
+                                   .getMiddleEnds();
 
             for (auto mid : middle_ends)
             {
@@ -70,18 +82,23 @@ namespace core
                 startSource(source);
             }
 
-            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+            utils::logger::Logger::instance().Log(
+                ORCHESTRATOR_CATEGORY_NAME,
                 "All sources initialized successfully.",
                 utils::logger::Logger::LogLevel::INFO);
 
-            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+            auto middle_ends = utils::config::ConfigManager::instance()
+                                   .getGeneralSettings()
+                                   .getMiddleEndSettings()
+                                   .getMiddleEnds();
 
             for (auto mid : middle_ends)
             {
                 mid.get().Start();
             }
 
-            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+            utils::logger::Logger::instance().Log(
+                ORCHESTRATOR_CATEGORY_NAME,
                 "All middle ends started successfully.",
                 utils::logger::Logger::LogLevel::INFO);
         }
@@ -90,19 +107,28 @@ namespace core
         {
             if (!utils::thread::ThreadManager::instance().CanCreateNewThread())
             {
-                utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
-                    "Thread limit reached! Unable to start sources threads! sequential mode will be used.\n\tWarning: seqential sources mode will severly degrade performance!",
+                utils::logger::Logger::instance().Log(
+                    ORCHESTRATOR_CATEGORY_NAME,
+                    "Thread limit reached! Unable to start sources threads! "
+                    "sequential mode will be used.\n\tWarning: seqential "
+                    "sources mode will severly degrade performance!",
                     utils::logger::Logger::LogLevel::WARNING);
 
-                throw std::runtime_error("Sequential source mode is not implemented yet!");
+                throw std::runtime_error(
+                    "Sequential source mode is not implemented yet!");
             }
             else
             {
-                std::optional<std::thread> t = utils::thread::ThreadManager::instance().CreateThread(false, false, startSourceOrchestration, std::ref(source));
+                std::optional<std::thread> t =
+                    utils::thread::ThreadManager::instance().CreateThread(
+                        false, false, startSourceOrchestration,
+                        std::ref(source));
 
                 if (!t.has_value())
                 {
-                    throw std::runtime_error("Unable to start the source thread! Please report this error.");
+                    throw std::runtime_error(
+                        "Unable to start the source thread! Please report this "
+                        "error.");
                 }
 
                 source_threads.emplace_back(std::move(t.value()));
@@ -121,8 +147,8 @@ namespace core
 
         void Orchestrator::CleanOrchestrator()
         {
-            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
-                "Stopping...",
+            utils::logger::Logger::instance().Log(
+                ORCHESTRATOR_CATEGORY_NAME, "Stopping...",
                 utils::logger::Logger::LogLevel::INFO);
 
             stop = true;
@@ -134,7 +160,10 @@ namespace core
 
             AttachToRunning();
 
-            auto middle_ends = utils::config::ConfigManager::instance().getGeneralSettings().getMiddleEndSettings().getMiddleEnds();
+            auto middle_ends = utils::config::ConfigManager::instance()
+                                   .getGeneralSettings()
+                                   .getMiddleEndSettings()
+                                   .getMiddleEnds();
 
             for (auto mid : middle_ends)
             {
@@ -146,12 +175,14 @@ namespace core
                 mid.get().AttachToRunning();
             }
 
-            utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME,
+            utils::logger::Logger::instance().Log(
+                ORCHESTRATOR_CATEGORY_NAME,
                 "Stopped all middle ends successfully.",
                 utils::logger::Logger::LogLevel::INFO);
         }
 
-        void Orchestrator::startSourceOrchestration(components::source::Source& source)
+        void Orchestrator::startSourceOrchestration(
+            components::source::Source& source)
         {
             Orchestrator::instance().OrchestrateSource(source);
         }
@@ -160,7 +191,8 @@ namespace core
         {
             source.Resume();
 
-            event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStartEvent>(source));
+            event::EventManager::instance().registerEvent(
+                std::make_unique<event::modules::SourceStartEvent>(source));
 
             source.startResource();
 
@@ -172,11 +204,13 @@ namespace core
                 sb << source.getName();
                 sb << ")!";
 
-                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                utils::logger::Logger::instance().Log(
+                    "Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
 
                 source.Stop();
 
-                event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStopEvent>(source));
+                event::EventManager::instance().registerEvent(
+                    std::make_unique<event::modules::SourceStopEvent>(source));
 
                 return;
             }
@@ -188,10 +222,12 @@ namespace core
                 sb << source.getName();
                 sb << " started successfully.";
 
-                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
+                utils::logger::Logger::instance().Log(
+                    "Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
             }
 
-            try {
+            try
+            {
                 RunSourceLoop(source);
             }
             catch (const std::exception& e)
@@ -203,16 +239,20 @@ namespace core
                 sb << " raised an error and stopped! ";
                 sb << e.what() << '\n';
 
-                utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                utils::logger::Logger::instance().Log(
+                    "Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
             }
 
             source.Stop();
 
-            event::EventManager::instance().registerEvent(std::make_unique<event::modules::SourceStopEvent>(source));
+            event::EventManager::instance().registerEvent(
+                std::make_unique<event::modules::SourceStopEvent>(source));
 
             source.releaseSource();
 
-            utils::logger::Logger::instance().Log("Source", "Source closed successfully.", utils::logger::Logger::LogLevel::INFO);
+            utils::logger::Logger::instance().Log(
+                "Source", "Source closed successfully.",
+                utils::logger::Logger::LogLevel::INFO);
         }
 
         void Orchestrator::RunSourceLoop(components::source::Source& source)
@@ -223,7 +263,8 @@ namespace core
             {
                 if (!source.isEnabled())
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(SOURCE_DISABLE_CHECK_INTERVAL_MILLIS));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(
+                        SOURCE_DISABLE_CHECK_INTERVAL_MILLIS));
 
                     source.setTriggered(false);
 
@@ -240,7 +281,10 @@ namespace core
 
                 if (!image.has_value())
                 {
-                    utils::logger::Logger::instance().Log(ORCHESTRATOR_CATEGORY_NAME, "Image not available! Frame processing skipped!", utils::logger::Logger::LogLevel::WARNING);
+                    utils::logger::Logger::instance().Log(
+                        ORCHESTRATOR_CATEGORY_NAME,
+                        "Image not available! Frame processing skipped!",
+                        utils::logger::Logger::LogLevel::WARNING);
 
                     nbFail++;
 
@@ -254,7 +298,9 @@ namespace core
                         sb << source.getName();
                         sb << ", stopping!";
 
-                        utils::logger::Logger::instance().Log("Source", sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                        utils::logger::Logger::instance().Log(
+                            "Source", sb.str(),
+                            utils::logger::Logger::LogLevel::ERROR);
                     }
 
                     continue;
@@ -264,7 +310,8 @@ namespace core
 
                 bool trigger = false;
 
-                for (size_t i = 0; i < source.getSourceConfig().getProcess().size(); i++)
+                for (size_t i = 0;
+                     i < source.getSourceConfig().getProcess().size(); i++)
                 {
                     auto chain = source.getSourceConfig().getProcess()[i];
 
@@ -280,7 +327,8 @@ namespace core
             }
         }
 
-        components::source::Source* Orchestrator::GetSourceByName(std::string name)
+        components::source::Source*
+        Orchestrator::GetSourceByName(std::string name)
         {
             for (size_t i = 0; i < sources.size(); i++)
             {
@@ -302,7 +350,8 @@ namespace core
 
         void Orchestrator::handleEvent(event::Event& event)
         {
-            event::modules::SourceStopEvent* stop_event = dynamic_cast<event::modules::SourceStopEvent*>(&event);
+            event::modules::SourceStopEvent* stop_event =
+                dynamic_cast<event::modules::SourceStopEvent*>(&event);
 
             if (stop_event == nullptr)
             {
@@ -365,18 +414,35 @@ namespace core
         {
             std::ostringstream sb;
 
-            sb << "Server name: " << utils::config::ConfigManager::instance().getGeneralSettings().getServerName() << std::endl;
-            sb << "Nb sources: " << utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings().sources.size() << std::endl;
-            sb << "Logger level: " << utils::config::ConfigManager::instance().getGeneralSettings().getLoggingLevel() << std::endl;
+            sb << "Server name: "
+               << utils::config::ConfigManager::instance()
+                      .getGeneralSettings()
+                      .getServerName()
+               << std::endl;
+            sb << "Nb sources: "
+               << utils::config::ConfigManager::instance()
+                      .getGeneralSettings()
+                      .getSourceSettings()
+                      .sources.size()
+               << std::endl;
+            sb << "Logger level: "
+               << utils::config::ConfigManager::instance()
+                      .getGeneralSettings()
+                      .getLoggingLevel()
+               << std::endl;
 
-            utils::logger::Logger::instance().LogPlain(sb.str(), utils::logger::Logger::LogLevel::DEBUG);
+            utils::logger::Logger::instance().LogPlain(
+                sb.str(), utils::logger::Logger::LogLevel::DEBUG);
             logSourceConfig();
             logAnalizerConfig();
         }
 
         void Orchestrator::logSourceConfig()
         {
-            for (auto& source_setting: utils::config::ConfigManager::instance().getGeneralSettings().getSourceSettings().sources)
+            for (auto& source_setting : utils::config::ConfigManager::instance()
+                                            .getGeneralSettings()
+                                            .getSourceSettings()
+                                            .sources)
             {
                 std::ostringstream sb;
 
@@ -384,24 +450,42 @@ namespace core
                 sb << source_setting->getName();
                 sb << ":\n";
 
-                utils::logger::Logger::instance().LogPlain(sb.str(), utils::logger::Logger::LogLevel::DEBUG);
+                utils::logger::Logger::instance().LogPlain(
+                    sb.str(), utils::logger::Logger::LogLevel::DEBUG);
 
-                auto* url_source = dynamic_cast<utils::config::data::sources::UrlSourceSettings*>(source_setting.get());
+                auto* url_source = dynamic_cast<
+                    utils::config::data::sources::UrlSourceSettings*>(
+                    source_setting.get());
 
                 if (url_source == nullptr)
                 {
-                    utils::logger::Logger::instance().LogPlain("\tUnkown source type\n", utils::logger::Logger::LogLevel::DEBUG);
+                    utils::logger::Logger::instance().LogPlain(
+                        "\tUnkown source type\n",
+                        utils::logger::Logger::LogLevel::DEBUG);
                     continue;
                 }
 
-                utils::logger::Logger::instance().LogPlain(source_setting->dumpSettings(), utils::logger::Logger::LogLevel::DEBUG);
+                utils::logger::Logger::instance().LogPlain(
+                    source_setting->dumpSettings(),
+                    utils::logger::Logger::LogLevel::DEBUG);
             }
         }
 
         void Orchestrator::logAnalizerConfig()
         {
-            utils::logger::Logger::instance().LogPlain(utils::config::ConfigManager::instance().getGeneralSettings().getAnalizersSettings().dumpInfo(), utils::logger::Logger::LogLevel::DEBUG);
-            utils::logger::Logger::instance().LogPlain(utils::config::ConfigManager::instance().getGeneralSettings().getChainsSettings().dumpInfo(), utils::logger::Logger::LogLevel::DEBUG);
+            utils::logger::Logger::instance().LogPlain(
+                utils::config::ConfigManager::instance()
+                    .getGeneralSettings()
+                    .getAnalizersSettings()
+                    .dumpInfo(),
+                utils::logger::Logger::LogLevel::DEBUG);
+
+            utils::logger::Logger::instance().LogPlain(
+                utils::config::ConfigManager::instance()
+                    .getGeneralSettings()
+                    .getChainsSettings()
+                    .dumpInfo(),
+                utils::logger::Logger::LogLevel::DEBUG);
         }
-    }
-}
+    } // namespace orchestrator
+} // namespace core

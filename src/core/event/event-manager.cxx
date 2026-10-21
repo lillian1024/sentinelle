@@ -1,6 +1,5 @@
 #include "event-manager.hh"
-#include "utils/logger/logger.hh"
-#include "utils/thread/thread-manager.hh"
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -9,7 +8,10 @@
 #include <stdexcept>
 #include <thread>
 
-//#define ON_PROCESSED_SLEEP_FOR_MILLIS 1
+#include "utils/logger/logger.hh"
+#include "utils/thread/thread-manager.hh"
+
+// #define ON_PROCESSED_SLEEP_FOR_MILLIS 1
 #define ON_EMPTY_SLEEP_FOR_MILLIS 5
 
 namespace core
@@ -20,14 +22,18 @@ namespace core
         {
             if (!utils::thread::ThreadManager::instance().CanCreateNewThread())
             {
-                throw std::runtime_error("[EventManager]: thread limit too low to start the event manager!");
+                throw std::runtime_error("[EventManager]: thread limit too low "
+                                         "to start the event manager!");
             }
 
-            std::optional<std::thread> t = utils::thread::ThreadManager::instance().CreateThread(false, false, startEventLoop, std::ref(*this));
+            std::optional<std::thread> t =
+                utils::thread::ThreadManager::instance().CreateThread(
+                    false, false, startEventLoop, std::ref(*this));
 
             if (!t.has_value())
             {
-                throw std::runtime_error("[EventManager]: Unable to start the EventManager thread!");
+                throw std::runtime_error(
+                    "[EventManager]: Unable to start the EventManager thread!");
             }
 
             event_manager_thread = std::move(t.value());
@@ -35,7 +41,9 @@ namespace core
 
         void EventManager::stopEventManager()
         {
-            utils::logger::Logger::instance().Log("EventManager", "Stopping EventManager...", utils::logger::Logger::LogLevel::INFO);
+            utils::logger::Logger::instance().Log(
+                "EventManager", "Stopping EventManager...",
+                utils::logger::Logger::LogLevel::INFO);
 
             stop = true;
         }
@@ -83,9 +91,11 @@ namespace core
                     sb << handler_list.size();
                     sb << " handlers";
 
-                    utils::logger::Logger::instance().Log("EventManager", sb.str(), utils::logger::Logger::LogLevel::DEBUG);
+                    utils::logger::Logger::instance().Log(
+                        "EventManager", sb.str(),
+                        utils::logger::Logger::LogLevel::DEBUG);
 
-                    for (auto* handler: handler_list)
+                    for (auto* handler : handler_list)
                     {
                         if (handler == nullptr)
                         {
@@ -97,12 +107,14 @@ namespace core
 
                     if (handler_list.empty())
                     {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(ON_EMPTY_SLEEP_FOR_MILLIS));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(
+                            ON_EMPTY_SLEEP_FOR_MILLIS));
                     }
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(ON_EMPTY_SLEEP_FOR_MILLIS));
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(ON_EMPTY_SLEEP_FOR_MILLIS));
                 }
             }
         }
@@ -127,5 +139,5 @@ namespace core
 
             return front;
         }
-    }
-}
+    } // namespace event
+} // namespace core

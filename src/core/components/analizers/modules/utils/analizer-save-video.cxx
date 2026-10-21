@@ -1,11 +1,5 @@
 #include "analizer-save-video.hh"
-#include "core/components/analizers/analizer.hh"
-#include "utils/config/data-module.hh"
-#include "utils/io_data/io_data.hh"
-#include "utils/io_data/types/io_data_bool.hh"
-#include "utils/io_data/types/io_data_mat.hh"
-#include "utils/io_data/types/io_data_string.hh"
-#include "utils/logger/logger.hh"
+
 #include <iostream>
 #include <memory>
 #include <opencv2/core/mat.hpp>
@@ -15,6 +9,14 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+
+#include "core/components/analizers/analizer.hh"
+#include "utils/config/data-module.hh"
+#include "utils/io_data/io_data.hh"
+#include "utils/io_data/types/io_data_bool.hh"
+#include "utils/io_data/types/io_data_mat.hh"
+#include "utils/io_data/types/io_data_string.hh"
+#include "utils/logger/logger.hh"
 
 #define CATEGORY_NAME "AnalizerSaveVideo"
 
@@ -31,11 +33,16 @@ namespace core
     {
         namespace analizer
         {
-            AnalizerSaveVideo::AnalizerSaveVideo(YAML::Node node, std::string name)
+            AnalizerSaveVideo::AnalizerSaveVideo(YAML::Node node,
+                                                 std::string name)
                 : Analizer(name)
             {
-                std::string format_str = utils::config::DataModule::readScalarOrError(node, EXTENSION_FIELD_NAME, CATEGORY_NAME);
-                stop_release = utils::config::DataModule::readScalarOrError(node, RELEASE_FIELD_NAME, CATEGORY_NAME) == "true";
+                std::string format_str =
+                    utils::config::DataModule::readScalarOrError(
+                        node, EXTENSION_FIELD_NAME, CATEGORY_NAME);
+                stop_release = utils::config::DataModule::readScalarOrError(
+                                   node, RELEASE_FIELD_NAME, CATEGORY_NAME)
+                    == "true";
                 previous_file = "";
 
                 format = getFourcc(format_str);
@@ -43,7 +50,8 @@ namespace core
                 writer = std::nullopt;
             }
 
-            AnalizerSaveVideo::AnalizerSaveVideo(const AnalizerSaveVideo& copy_from)
+            AnalizerSaveVideo::AnalizerSaveVideo(
+                const AnalizerSaveVideo& copy_from)
                 : Analizer(copy_from.name)
             {
                 format = copy_from.format;
@@ -60,43 +68,60 @@ namespace core
                 }
             }
 
-            std::map<std::string, utils::io_data::IODataType> AnalizerSaveVideo::getInputs()
+            std::map<std::string, utils::io_data::IODataType>
+            AnalizerSaveVideo::getInputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
-                res.insert({IMAGE_INPUT_NAME, utils::io_data::IODataType::MAT});
-                res.insert({FILE_NAME_INPUT_NAME, utils::io_data::IODataType::STRING});
-                res.insert({ENABLE_INPUT_NAME, utils::io_data::IODataType::BOOL});
+                res.insert(
+                    { IMAGE_INPUT_NAME, utils::io_data::IODataType::MAT });
+                res.insert({ FILE_NAME_INPUT_NAME,
+                             utils::io_data::IODataType::STRING });
+                res.insert(
+                    { ENABLE_INPUT_NAME, utils::io_data::IODataType::BOOL });
 
                 return res;
             }
-            std::map<std::string, utils::io_data::IODataType> AnalizerSaveVideo::getOutputs()
+            std::map<std::string, utils::io_data::IODataType>
+            AnalizerSaveVideo::getOutputs()
             {
                 std::map<std::string, utils::io_data::IODataType> res;
 
                 return res;
             }
 
-            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerSaveVideo::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source& source, bool& trigger)
+            std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
+            AnalizerSaveVideo::process(
+                std::map<std::string, utils::io_data::IOData*> inputs,
+                source::Source& source, bool& trigger)
             {
                 auto image_data_field = inputs.find(IMAGE_INPUT_NAME);
                 auto file_data_field = inputs.find(FILE_NAME_INPUT_NAME);
                 auto enable_data_field = inputs.find(ENABLE_INPUT_NAME);
 
                 // Check that input exist
-                if (image_data_field == inputs.end() || file_data_field == inputs.end() || enable_data_field == inputs.end())
+                if (image_data_field == inputs.end()
+                    || file_data_field == inputs.end()
+                    || enable_data_field == inputs.end())
                 {
-                    utils::logger::Logger::instance().Log(CATEGORY_NAME, "Mismatched arguments!", utils::logger::Logger::LogLevel::ERROR);
+                    utils::logger::Logger::instance().Log(
+                        CATEGORY_NAME, "Mismatched arguments!",
+                        utils::logger::Logger::LogLevel::ERROR);
 
-                    return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                    return std::map<std::string,
+                                    std::unique_ptr<utils::io_data::IOData>>();
                 }
 
-                auto* image_data = dynamic_cast<utils::io_data::IODataMat*>(image_data_field->second);
-                auto* file_data = dynamic_cast<utils::io_data::IODataString*>(file_data_field->second);
-                auto* enable_data = dynamic_cast<utils::io_data::IODataBool*>(enable_data_field->second);
+                auto* image_data = dynamic_cast<utils::io_data::IODataMat*>(
+                    image_data_field->second);
+                auto* file_data = dynamic_cast<utils::io_data::IODataString*>(
+                    file_data_field->second);
+                auto* enable_data = dynamic_cast<utils::io_data::IODataBool*>(
+                    enable_data_field->second);
 
                 // Check that input is the right type
-                if (image_data == nullptr || file_data == nullptr || enable_data == nullptr)
+                if (image_data == nullptr || file_data == nullptr
+                    || enable_data == nullptr)
                 {
                     std::ostringstream sb;
 
@@ -118,9 +143,12 @@ namespace core
                     }
                     sb << '!';
 
-                    utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                    utils::logger::Logger::instance().Log(
+                        CATEGORY_NAME, sb.str(),
+                        utils::logger::Logger::LogLevel::ERROR);
 
-                    return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                    return std::map<std::string,
+                                    std::unique_ptr<utils::io_data::IOData>>();
                 }
 
                 cv::Mat input_image = image_data->getData();
@@ -130,9 +158,13 @@ namespace core
                 // Check that file name is valid
                 if (input_file.empty())
                 {
-                    utils::logger::Logger::instance().Log(CATEGORY_NAME, "Unable to save to file: '" + input_file + "'!", utils::logger::Logger::LogLevel::ERROR);
+                    utils::logger::Logger::instance().Log(
+                        CATEGORY_NAME,
+                        "Unable to save to file: '" + input_file + "'!",
+                        utils::logger::Logger::LogLevel::ERROR);
 
-                    return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                    return std::map<std::string,
+                                    std::unique_ptr<utils::io_data::IOData>>();
                 }
 
                 if (!enable)
@@ -143,7 +175,8 @@ namespace core
                         writer = std::nullopt;
                     }
 
-                    return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                    return std::map<std::string,
+                                    std::unique_ptr<utils::io_data::IOData>>();
                 }
 
                 int frame_width = input_image.cols;
@@ -152,31 +185,43 @@ namespace core
                 // If file not open or changing file
                 if (input_file != previous_file || !writer.has_value())
                 {
-                    // TODO: change fps to current fps with futur is_active value
-                    openNewFile(input_file, source.getFPS(trigger || source.isActive()), frame_width, frame_height);
+                    // TODO: change fps to current fps with futur is_active
+                    // value
+                    openNewFile(input_file,
+                                source.getFPS(trigger || source.isActive()),
+                                frame_width, frame_height);
                 }
 
                 // Check that writer has been initialized correctly
                 if (!writer.has_value() || !writer->isOpened())
                 {
-                    utils::logger::Logger::instance().Log(CATEGORY_NAME, "Unable to save to file: '" + input_file + "'!", utils::logger::Logger::LogLevel::ERROR);
+                    utils::logger::Logger::instance().Log(
+                        CATEGORY_NAME,
+                        "Unable to save to file: '" + input_file + "'!",
+                        utils::logger::Logger::LogLevel::ERROR);
 
-                    return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                    return std::map<std::string,
+                                    std::unique_ptr<utils::io_data::IOData>>();
                 }
 
                 // Write the frame
                 writer->write(input_image);
 
-                return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                return std::map<std::string,
+                                std::unique_ptr<utils::io_data::IOData>>();
             }
 
-            void AnalizerSaveVideo::openNewFile(std::string file, double fps, int frame_width, int frame_height)
+            void AnalizerSaveVideo::openNewFile(std::string file, double fps,
+                                                int frame_width,
+                                                int frame_height)
             {
                 if (writer.has_value())
                 {
                     writer->release();
 
-                    utils::logger::Logger::instance().Log(CATEGORY_NAME, "Released previous writer", utils::logger::Logger::LogLevel::DEBUG);
+                    utils::logger::Logger::instance().Log(
+                        CATEGORY_NAME, "Released previous writer",
+                        utils::logger::Logger::LogLevel::DEBUG);
 
                     writer = std::nullopt;
                 }
@@ -195,7 +240,8 @@ namespace core
 
             int AnalizerSaveVideo::getFourcc(std::string format)
             {
-                //std::transform(format.begin(), format.end(), format.begin(), ::toupper);
+                // std::transform(format.begin(), format.end(), format.begin(),
+                // ::toupper);
 
                 if (format.length() != 4)
                 {
@@ -215,8 +261,8 @@ namespace core
                 char c3 = format[2];
                 char c4 = format[3];
 
-                return cv::VideoWriter::fourcc(c1,c2,c3,c4);
+                return cv::VideoWriter::fourcc(c1, c2, c3, c4);
             }
-        }
-    }
-}
+        } // namespace analizer
+    } // namespace components
+} // namespace core

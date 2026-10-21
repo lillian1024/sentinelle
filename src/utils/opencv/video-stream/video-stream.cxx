@@ -1,4 +1,5 @@
 #include "video-stream.hh"
+
 #include <opencv2/videoio.hpp>
 
 namespace utils
@@ -9,12 +10,12 @@ namespace utils
         {
             VideoStream::VideoStream(cv::VideoCapture video_stream)
                 : video_stream(video_stream)
-            { }
+            {}
 
             bool VideoStream::isOpened() const
             {
                 return video_stream.isOpened();
             }
-        }
-    }
-}
+        } // namespace video_stream
+    } // namespace opencv
+} // namespace utils

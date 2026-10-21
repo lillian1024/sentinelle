@@ -1,17 +1,19 @@
 #include "analizer-usage.hh"
-#include "core/components/chains/context/context.hh"
-#include "core/components/chains/path-data.hh"
-#include "utils/io_data/types/io_data_bool.hh"
-#include "utils/io_data/types/io_data_int.hh"
-#include "utils/io_data/types/io_data_float.hh"
-#include "utils/io_data/types/io_data_string.hh"
-#include "utils/logger/logger.hh"
+
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+
+#include "core/components/chains/context/context.hh"
+#include "core/components/chains/path-data.hh"
+#include "utils/io_data/types/io_data_bool.hh"
+#include "utils/io_data/types/io_data_float.hh"
+#include "utils/io_data/types/io_data_int.hh"
+#include "utils/io_data/types/io_data_string.hh"
+#include "utils/logger/logger.hh"
 
 #define ANALIZER_USAGE_CATEGORY_NAME "AnalizerUsage"
 
@@ -27,23 +29,27 @@ namespace core
     {
         namespace chains
         {
-            AnalizerUsage::AnalizerUsage(analizer::Analizer& analizer, std::map<std::string, std::string> inputPath)
+            AnalizerUsage::AnalizerUsage(
+                analizer::Analizer& analizer,
+                std::map<std::string, std::string> inputPath)
                 : inputPath(inputPath)
             {
                 this->analizer = analizer.clone();
             }
 
-            AnalizerUsage::AnalizerUsage(const AnalizerUsage &old_usage)
+            AnalizerUsage::AnalizerUsage(const AnalizerUsage& old_usage)
                 : inputPath(old_usage.inputPath)
             {
                 this->analizer = old_usage.analizer->clone();
             }
 
-            std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerUsage::process(Context& context, source::Source& source, bool& trigger)
+            std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
+            AnalizerUsage::process(Context& context, source::Source& source,
+                                   bool& trigger)
             {
-                std::map<std::string, utils::io_data::IOData *> inputs;
+                std::map<std::string, utils::io_data::IOData*> inputs;
 
-                for (auto input: inputPath)
+                for (auto input : inputPath)
                 {
                     const std::string& input_name = input.first;
                     const std::string& input_path = input.second;
@@ -55,17 +61,20 @@ namespace core
                         continue;
                     }
 
-                    inputs.insert({input_name, value});
+                    inputs.insert({ input_name, value });
                 }
 
                 return analizer->process(inputs, source, trigger);
             }
 
-            utils::io_data::IOData* AnalizerUsage::getValueFromPath(Context& context, std::string path)
+            utils::io_data::IOData*
+            AnalizerUsage::getValueFromPath(Context& context, std::string path)
             {
                 if (path.empty())
                 {
-                    utils::logger::Logger::instance().Log(ANALIZER_USAGE_CATEGORY_NAME, "empty value detected!", utils::logger::Logger::LogLevel::ERROR);
+                    utils::logger::Logger::instance().Log(
+                        ANALIZER_USAGE_CATEGORY_NAME, "empty value detected!",
+                        utils::logger::Logger::LogLevel::ERROR);
 
                     return nullptr;
                 }
@@ -81,24 +90,32 @@ namespace core
                         sb << path;
                         sb << " !";
 
-                        utils::logger::Logger::instance().Log(ANALIZER_USAGE_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                        utils::logger::Logger::instance().Log(
+                            ANALIZER_USAGE_CATEGORY_NAME, sb.str(),
+                            utils::logger::Logger::LogLevel::ERROR);
 
                         return nullptr;
                     }
 
-                    if (!context.hasVariable(path_data->getStage(), path_data->getAnalizerName(), path_data->getOutputName()))
+                    if (!context.hasVariable(path_data->getStage(),
+                                             path_data->getAnalizerName(),
+                                             path_data->getOutputName()))
                     {
                         std::ostringstream sb;
                         sb << "Invalid reference detected: ";
                         sb << path;
                         sb << " !";
 
-                        utils::logger::Logger::instance().Log(ANALIZER_USAGE_CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::ERROR);
+                        utils::logger::Logger::instance().Log(
+                            ANALIZER_USAGE_CATEGORY_NAME, sb.str(),
+                            utils::logger::Logger::LogLevel::ERROR);
 
                         return nullptr;
                     }
 
-                    return context.getVariable(path_data->getStage(), path_data->getAnalizerName(), path_data->getOutputName());
+                    return context.getVariable(path_data->getStage(),
+                                               path_data->getAnalizerName(),
+                                               path_data->getOutputName());
                 }
                 else
                 {
@@ -106,7 +123,9 @@ namespace core
 
                     if (bool_val.has_value())
                     {
-                        auto value = std::make_unique<utils::io_data::IODataBool>(bool_val.value());
+                        auto value =
+                            std::make_unique<utils::io_data::IODataBool>(
+                                bool_val.value());
                         auto value_ptr = value.get();
 
                         context.storeTemporaryValue(std::move(value));
@@ -118,7 +137,9 @@ namespace core
 
                     if (int_val.has_value())
                     {
-                        auto value = std::make_unique<utils::io_data::IODataInt>(int_val.value());
+                        auto value =
+                            std::make_unique<utils::io_data::IODataInt>(
+                                int_val.value());
                         auto value_ptr = value.get();
 
                         context.storeTemporaryValue(std::move(value));
@@ -130,7 +151,9 @@ namespace core
 
                     if (float_val.has_value())
                     {
-                        auto value = std::make_unique<utils::io_data::IODataFloat>(float_val.value());
+                        auto value =
+                            std::make_unique<utils::io_data::IODataFloat>(
+                                float_val.value());
                         auto value_ptr = value.get();
 
                         context.storeTemporaryValue(std::move(value));
@@ -138,7 +161,8 @@ namespace core
                         return value_ptr;
                     }
 
-                    auto value = std::make_unique<utils::io_data::IODataString>(path);
+                    auto value =
+                        std::make_unique<utils::io_data::IODataString>(path);
                     auto value_ptr = value.get();
 
                     context.storeTemporaryValue(std::move(value));
@@ -146,12 +170,16 @@ namespace core
                     return value_ptr;
                 }
 
-                utils::logger::Logger::instance().Log(ANALIZER_USAGE_CATEGORY_NAME, "Unkown error detected in value parsing!", utils::logger::Logger::LogLevel::ERROR);
+                utils::logger::Logger::instance().Log(
+                    ANALIZER_USAGE_CATEGORY_NAME,
+                    "Unkown error detected in value parsing!",
+                    utils::logger::Logger::LogLevel::ERROR);
 
                 return nullptr;
             }
 
-            std::optional<bool> AnalizerUsage::tryParseBool(const std::string& value)
+            std::optional<bool>
+            AnalizerUsage::tryParseBool(const std::string& value)
             {
                 if (value == TRUE_VALUE_STR)
                 {
@@ -166,7 +194,8 @@ namespace core
                 return std::nullopt;
             }
 
-            std::optional<int> AnalizerUsage::tryParseInt(const std::string& value)
+            std::optional<int>
+            AnalizerUsage::tryParseInt(const std::string& value)
             {
                 try
                 {
@@ -182,7 +211,8 @@ namespace core
                 }
             }
 
-            std::optional<float> AnalizerUsage::tryParseFloat(const std::string& value)
+            std::optional<float>
+            AnalizerUsage::tryParseFloat(const std::string& value)
             {
                 try
                 {
@@ -230,7 +260,7 @@ namespace core
                     return false;
                 }
 
-                for (auto c: path)
+                for (auto c : path)
                 {
                     if (!isValidCharForPath(c))
                     {
@@ -257,7 +287,8 @@ namespace core
                         return std::nullopt;
                     }
 
-                    return PathData(Context::INPUT_STAGE_INDEX, Context::INPUT_STAGE_NAME, parts[1]);
+                    return PathData(Context::INPUT_STAGE_INDEX,
+                                    Context::INPUT_STAGE_NAME, parts[1]);
                 }
                 else if (parts.size() == 3)
                 {
@@ -284,7 +315,8 @@ namespace core
                 }
             }
 
-            std::vector<std::string> AnalizerUsage::split(const std::string& input, char delimiter)
+            std::vector<std::string>
+            AnalizerUsage::split(const std::string& input, char delimiter)
             {
                 std::vector<std::string> res;
                 size_t last_pos = 0;
@@ -304,6 +336,6 @@ namespace core
 
                 return res;
             }
-        }
-    }
-}
+        } // namespace chains
+    } // namespace components
+} // namespace core

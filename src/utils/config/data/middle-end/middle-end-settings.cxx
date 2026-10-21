@@ -1,9 +1,10 @@
 #include "middle-end-settings.hh"
-#include "middle_end/middle_end.hh"
 
 #include <functional>
 #include <sstream>
 #include <stdexcept>
+
+#include "middle_end/middle_end.hh"
 
 namespace utils
 {
@@ -17,25 +18,33 @@ namespace utils
                 {
                     if (!node.IsMap())
                     {
-                        throw std::runtime_error("[MiddleEndSettings]: middle_end field should be a map!");
+                        throw std::runtime_error(
+                            "[MiddleEndSettings]: middle_end field should be a "
+                            "map!");
                     }
 
-                    for (auto middle: node)
+                    for (auto middle : node)
                     {
                         if (!middle.first.IsScalar())
                         {
-                            throw std::runtime_error("[MiddleEndSettings]: elements of the field middle_end should have string names!");
+                            throw std::runtime_error(
+                                "[MiddleEndSettings]: elements of the field "
+                                "middle_end should have string names!");
                         }
 
                         auto name = middle.first.Scalar();
 
-                        middle_ends.push_back(::middle_end::MiddleEnd::createNewMiddleEnd(name, middle.second));
+                        middle_ends.push_back(
+                            ::middle_end::MiddleEnd::createNewMiddleEnd(
+                                name, middle.second));
                     }
                 }
 
-                std::vector<std::reference_wrapper<::middle_end::MiddleEnd>> MiddleEndSettings::getMiddleEnds()
+                std::vector<std::reference_wrapper<::middle_end::MiddleEnd>>
+                MiddleEndSettings::getMiddleEnds()
                 {
-                    std::vector<std::reference_wrapper<::middle_end::MiddleEnd>> res;
+                    std::vector<std::reference_wrapper<::middle_end::MiddleEnd>>
+                        res;
 
                     for (size_t i = 0; i < middle_ends.size(); i++)
                     {
@@ -49,11 +58,9 @@ namespace utils
                 {
                     std::ostringstream sb;
 
-
-
                     return sb.str();
                 }
-            }
-        }
-    }
-}
+            } // namespace middle_end
+        } // namespace data
+    } // namespace config
+} // namespace utils

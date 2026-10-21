@@ -8,9 +8,11 @@ namespace core
     {
         namespace modules
         {
-            UnTriggeredEvent::UnTriggeredEvent(components::source::Source& source)
-                : Event("Source has been untriggered"),
-                source(source) { }
+            UnTriggeredEvent::UnTriggeredEvent(
+                components::source::Source& source)
+                : Event("Source has been untriggered")
+                , source(source)
+            {}
 
             components::source::Source& UnTriggeredEvent::getSource()
             {
@@ -21,6 +23,6 @@ namespace core
             {
                 return EventType::UNTRIGGERED;
             }
-        }
-    }
-}
+        } // namespace modules
+    } // namespace event
+} // namespace core

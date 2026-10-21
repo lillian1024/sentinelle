@@ -7,6 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
 enable_testing()
 
+find_program(CLANG_FORMAT_EXE clang-format REQUIRED)
+
 #Included libraries
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -118,6 +120,14 @@ set(PROJECT_SRCS ${PROJECT_SRCS}
     )
 
 add_executable(Sentinelle ${PROJECT_SRCS})
+
+#Add clang formating target
+add_custom_target(format
+    COMMENT "Formatting files with clang-format..."
+    COMMAND ${CLANG_FORMAT_EXE} -i ${PROJECT_SRCS}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+message(STATUS "Added 'format' target")
 
 target_include_directories(Sentinelle PRIVATE src)
 

@@ -5,7 +5,6 @@ namespace core
     namespace components
     {
         namespace chains
-        {
-        }
-    }
-}
+        {}
+    } // namespace components
+} // namespace core

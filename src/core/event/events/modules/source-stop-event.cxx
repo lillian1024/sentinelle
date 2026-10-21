@@ -9,8 +9,9 @@ namespace core
         namespace modules
         {
             SourceStopEvent::SourceStopEvent(components::source::Source& source)
-                : Event("Source has stopped"),
-                source(source) { }
+                : Event("Source has stopped")
+                , source(source)
+            {}
 
             components::source::Source& SourceStopEvent::getSource()
             {
@@ -21,6 +22,6 @@ namespace core
             {
                 return EventType::SOURCE_STOP;
             }
-        }
-    }
-}
+        } // namespace modules
+    } // namespace event
+} // namespace core

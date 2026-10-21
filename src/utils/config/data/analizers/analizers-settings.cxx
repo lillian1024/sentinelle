@@ -1,9 +1,11 @@
 #include "analizers-settings.hh"
-#include "core/components/analizers/analizer.hh"
-#include "utils/config/config-manager.hh"
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+
+#include "core/components/analizers/analizer.hh"
+#include "utils/config/config-manager.hh"
 
 namespace utils
 {
@@ -19,12 +21,18 @@ namespace utils
                     {
                         if (!it->first.IsScalar())
                         {
-                            throw std::runtime_error(ConfigManager::managerMessagePrefix + "Unable to parse analizers: analizer keys should be scalar!");
+                            throw std::runtime_error(
+                                ConfigManager::managerMessagePrefix
+                                + "Unable to parse analizers: analizer keys "
+                                  "should be scalar!");
                         }
 
                         std::string name = it->first.Scalar();
 
-                        analizers.insert({name, core::components::analizer::Analizer::getAnalizerFromNode(it->second, name)});
+                        analizers.insert(
+                            { name,
+                              core::components::analizer::Analizer::
+                                  getAnalizerFromNode(it->second, name) });
                     }
                 }
 
@@ -33,18 +41,25 @@ namespace utils
                     return analizers.find(name) != analizers.end();
                 }
 
-                core::components::analizer::Analizer* AnalizersSettings::getAnalizer(std::string name)
+                core::components::analizer::Analizer*
+                AnalizersSettings::getAnalizer(std::string name)
                 {
                     return analizers.find(name)->second.get();
                 }
 
-                std::map<std::string, std::reference_wrapper<core::components::analizer::Analizer>> AnalizersSettings::getAnalizersRefMap()
+                std::map<std::string,
+                         std::reference_wrapper<
+                             core::components::analizer::Analizer>>
+                AnalizersSettings::getAnalizersRefMap()
                 {
-                    std::map<std::string, std::reference_wrapper<core::components::analizer::Analizer>> res;
+                    std::map<std::string,
+                             std::reference_wrapper<
+                                 core::components::analizer::Analizer>>
+                        res;
 
-                    for (auto& analizer: analizers)
+                    for (auto& analizer : analizers)
                     {
-                        res.insert({analizer.first, *analizer.second.get()});
+                        res.insert({ analizer.first, *analizer.second.get() });
                     }
 
                     return res;
@@ -58,7 +73,8 @@ namespace utils
                     sb << analizers.size();
                     sb << '\n';
 
-                    for (auto it = analizers.begin(); it != analizers.end(); it++)
+                    for (auto it = analizers.begin(); it != analizers.end();
+                         it++)
                     {
                         sb << "\t- ";
                         sb << it->first;
@@ -67,7 +83,7 @@ namespace utils
 
                     return sb.str();
                 }
-            }
-        }
-    }
-}
+            } // namespace analizers
+        } // namespace data
+    } // namespace config
+} // namespace utils

@@ -1,12 +1,5 @@
 #include "source.hh"
-#include "core/event/event-manager.hh"
-#include "core/event/events/modules/trigger/triggered-event.hh"
-#include "core/event/events/modules/trigger/untriggered-event.hh"
-#include "utils/config/data/sources/source-settings.hh"
-#include "utils/config/data/sources/source-type/url-source-settings.hh"
-#include "utils/logger/logger.hh"
-#include "utils/opencv/video-stream/live-video-stream.hh"
-#include "utils/opencv/video-stream/sequence-video-stream.hh"
+
 #include <chrono>
 #include <cstddef>
 #include <ctime>
@@ -15,6 +8,15 @@
 #include <opencv2/videoio.hpp>
 #include <optional>
 #include <stdexcept>
+
+#include "core/event/event-manager.hh"
+#include "core/event/events/modules/trigger/triggered-event.hh"
+#include "core/event/events/modules/trigger/untriggered-event.hh"
+#include "utils/config/data/sources/source-settings.hh"
+#include "utils/config/data/sources/source-type/url-source-settings.hh"
+#include "utils/logger/logger.hh"
+#include "utils/opencv/video-stream/live-video-stream.hh"
+#include "utils/opencv/video-stream/sequence-video-stream.hh"
 
 #define CATEGORY_NAME "Source"
 
@@ -26,37 +28,47 @@ namespace core
     {
         namespace source
         {
-            std::unique_ptr<Source> Source::getSourceFromConfig(const utils::config::data::sources::SourceSettings& config)
+            std::unique_ptr<Source> Source::getSourceFromConfig(
+                const utils::config::data::sources::SourceSettings& config)
             {
-                switch (config.getType()) {
-                    case utils::config::data::sources::SourceSettings::SourceType::URL:
+                switch (config.getType())
+                {
+                case utils::config::data::sources::SourceSettings::SourceType::
+                    URL: {
+                    auto* url_config = dynamic_cast<
+                        const utils::config::data::sources::UrlSourceSettings*>(
+                        &config);
+
+                    if (url_config == nullptr)
                     {
-                        auto* url_config = dynamic_cast<const utils::config::data::sources::UrlSourceSettings*>(&config);
-
-                        if (url_config == nullptr)
-                        {
-                            throw std::runtime_error("[ConfigManager]: Unable to cast source config to the correct type! Please report this error.");
-                        }
-
-                        cv::VideoCapture video_stream(url_config->getUrl(), cv::CAP_FFMPEG);
-
-                        return std::make_unique<Source>(*url_config);
+                        throw std::runtime_error(
+                            "[ConfigManager]: Unable to cast source config to "
+                            "the correct type! Please report this error.");
                     }
+
+                    cv::VideoCapture video_stream(url_config->getUrl(),
+                                                  cv::CAP_FFMPEG);
+
+                    return std::make_unique<Source>(*url_config);
+                }
                 }
 
-                throw std::runtime_error("[ConfigManager]: Unkown source config type! Please report this error.");
+                throw std::runtime_error(
+                    "[ConfigManager]: Unkown source config type! Please report "
+                    "this error.");
             }
 
-            Source::Source(const utils::config::data::sources::SourceSettings& config)
-                : name(config.getName()),
-                  active_fps(config.getActiveFps()),
-                  passive_fps(config.getPassiveFps()),
-                  max_fail_retries(config.getMaxRetries()),
-                  restart(config.getRestart()),
-                  enabled(config.getEnabled()),
-                  is_active(false),
-                  is_triggered(false),
-                  last_frame(std::chrono::steady_clock::now())
+            Source::Source(
+                const utils::config::data::sources::SourceSettings& config)
+                : name(config.getName())
+                , active_fps(config.getActiveFps())
+                , passive_fps(config.getPassiveFps())
+                , max_fail_retries(config.getMaxRetries())
+                , restart(config.getRestart())
+                , enabled(config.getEnabled())
+                , is_active(false)
+                , is_triggered(false)
+                , last_frame(std::chrono::steady_clock::now())
             {
                 source_config = config.clone();
             }
@@ -82,11 +94,13 @@ namespace core
             {
                 if (source_config->getIsLive())
                 {
-                    video_stream = std::make_unique<LiveVideoStream>(source_config->getVideoCapture());
+                    video_stream = std::make_unique<LiveVideoStream>(
+                        source_config->getVideoCapture());
                 }
                 else
                 {
-                    video_stream = std::make_unique<SequenceVideoStream>(source_config->getVideoCapture());
+                    video_stream = std::make_unique<SequenceVideoStream>(
+                        source_config->getVideoCapture());
                 }
             }
 
@@ -141,9 +155,11 @@ namespace core
                     return last_frame;
                 }
 
-                float f_interval_sec = 1.0/c_fps;
+                float f_interval_sec = 1.0 / c_fps;
 
-                return last_frame + std::chrono::milliseconds(secsToMillisRound(f_interval_sec));
+                return last_frame
+                    + std::chrono::milliseconds(
+                           secsToMillisRound(f_interval_sec));
             }
 
             float Source::getRemainingCoolSecs() const
@@ -206,9 +222,13 @@ namespace core
                         sb << getName();
                         sb << " has been triggered!";
 
-                        utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::INFO);
+                        utils::logger::Logger::instance().Log(
+                            CATEGORY_NAME, sb.str(),
+                            utils::logger::Logger::LogLevel::INFO);
 
-                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::TriggeredEvent>(*this));
+                        event::EventManager::instance().registerEvent(
+                            std::make_unique<event::modules::TriggeredEvent>(
+                                *this));
                     }
                     else
                     {
@@ -218,16 +238,21 @@ namespace core
                         sb << getName();
                         sb << " has been untriggered!";
 
-                        utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::TRACE);
+                        utils::logger::Logger::instance().Log(
+                            CATEGORY_NAME, sb.str(),
+                            utils::logger::Logger::LogLevel::TRACE);
 
-                        event::EventManager::instance().registerEvent(std::make_unique<event::modules::UnTriggeredEvent>(*this));
+                        event::EventManager::instance().registerEvent(
+                            std::make_unique<event::modules::UnTriggeredEvent>(
+                                *this));
                     }
 
                     UpdateGroupActivation(*this);
                 }
             }
 
-            void Source::UpdateGroupActivation(components::source::Source& source)
+            void
+            Source::UpdateGroupActivation(components::source::Source& source)
             {
                 // TODO: Manage groups
                 source.setActive(source.isTriggered());
@@ -247,6 +272,6 @@ namespace core
             {
                 stop.store(false);
             }
-        }
-    }
-}
+        } // namespace source
+    } // namespace components
+} // namespace core

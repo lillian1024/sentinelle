@@ -1,9 +1,10 @@
 #include "sequence-video-stream.hh"
-#include "utils/opencv/video-stream/video-stream.hh"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
 #include <optional>
+
+#include "utils/opencv/video-stream/video-stream.hh"
 
 namespace utils
 {
@@ -11,11 +12,10 @@ namespace utils
     {
         namespace video_stream
         {
-            SequenceVideoStream::SequenceVideoStream(const cv::VideoCapture& video_stream)
+            SequenceVideoStream::SequenceVideoStream(
+                const cv::VideoCapture& video_stream)
                 : VideoStream(video_stream)
-            {
-
-            }
+            {}
 
             SequenceVideoStream::~SequenceVideoStream()
             {
@@ -43,6 +43,6 @@ namespace utils
 
                 return res;
             }
-        }
-    }
-}
+        } // namespace video_stream
+    } // namespace opencv
+} // namespace utils

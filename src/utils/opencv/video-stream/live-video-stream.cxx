@@ -1,12 +1,14 @@
 #include "live-video-stream.hh"
-#include "utils/logger/logger.hh"
-#include "utils/opencv/video-stream/video-stream.hh"
-#include "utils/thread/thread-manager.hh"
+
 #include <functional>
 #include <memory>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
 #include <optional>
+
+#include "utils/logger/logger.hh"
+#include "utils/opencv/video-stream/video-stream.hh"
+#include "utils/thread/thread-manager.hh"
 
 namespace utils
 {
@@ -14,15 +16,21 @@ namespace utils
     {
         namespace video_stream
         {
-            LiveVideoStream::LiveVideoStream(const cv::VideoCapture& video_stream)
-                : VideoStream(video_stream),
-                  stop(false)
+            LiveVideoStream::LiveVideoStream(
+                const cv::VideoCapture& video_stream)
+                : VideoStream(video_stream)
+                , stop(false)
             {
-                auto t = thread::ThreadManager::instance().CreateThread(false, false, handleVideoStream, std::ref(*this));
+                auto t = thread::ThreadManager::instance().CreateThread(
+                    false, false, handleVideoStream, std::ref(*this));
 
                 if (!t.has_value())
                 {
-                    logger::Logger::instance().Log(LIVE_VIDEO_STREAM_CATEGORY_NAME, "Unable to start the live video stream: thread limit reached!", logger::Logger::LogLevel::ERROR);
+                    logger::Logger::instance().Log(
+                        LIVE_VIDEO_STREAM_CATEGORY_NAME,
+                        "Unable to start the live video stream: thread limit "
+                        "reached!",
+                        logger::Logger::LogLevel::ERROR);
 
                     return;
                 }
@@ -94,12 +102,13 @@ namespace utils
                     current.video_stream.read(*frame);
 
                     {
-                        std::lock_guard<std::mutex> lock(current.last_image_lock);
+                        std::lock_guard<std::mutex> lock(
+                            current.last_image_lock);
 
                         current.last_image = std::move(frame);
                     }
 
-                    //Gives more chances for other threads to lock the mutex
+                    // Gives more chances for other threads to lock the mutex
                     std::this_thread::yield();
                 }
 
@@ -108,6 +117,6 @@ namespace utils
                     current.video_stream.release();
                 }
             }
-        }
-    }
-}
+        } // namespace video_stream
+    } // namespace opencv
+} // namespace utils

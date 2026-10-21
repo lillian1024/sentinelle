@@ -1,20 +1,24 @@
 #include "thread-manager.hh"
-#include "utils/config/config-manager.hh"
+
 #include <cstddef>
+
+#include "utils/config/config-manager.hh"
 
 namespace utils
 {
     namespace thread
     {
         ThreadManager::ThreadManager()
-            : main_thread_id(GetCurrentThreadId()),
-              thread_count(0),
-              thread_count_mutex()
-        { }
+            : main_thread_id(GetCurrentThreadId())
+            , thread_count(0)
+            , thread_count_mutex()
+        {}
 
         std::size_t ThreadManager::getThreadLimit()
         {
-            return config::ConfigManager::instance().getGeneralSettings().getThreadLimit();
+            return config::ConfigManager::instance()
+                .getGeneralSettings()
+                .getThreadLimit();
         }
 
         bool ThreadManager::CanCreateNewThread()
@@ -31,5 +35,5 @@ namespace utils
         {
             return GetCurrentThreadId() == main_thread_id;
         }
-    }
-}
+    } // namespace thread
+} // namespace utils

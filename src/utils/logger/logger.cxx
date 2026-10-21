@@ -1,6 +1,5 @@
 #include "logger.hh"
-#include "utils/config/config-manager.hh"
-#include "utils/thread/thread-manager.hh"
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -8,6 +7,9 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+
+#include "utils/config/config-manager.hh"
+#include "utils/thread/thread-manager.hh"
 
 namespace utils
 {
@@ -28,7 +30,8 @@ namespace utils
             output_stream << message;
         }
 
-        bool Logger::Log(std::string category_name, std::string message, LogLevel level)
+        bool Logger::Log(std::string category_name, std::string message,
+                         LogLevel level)
         {
             if (level > logging_level)
             {
@@ -38,13 +41,18 @@ namespace utils
             time_t timestamp;
             time(&timestamp);
 
-            output_stream << std::put_time(std::localtime(&timestamp), "%d-%m-%Y %X") << ": ";
+            output_stream << std::put_time(std::localtime(&timestamp),
+                                           "%d-%m-%Y %X")
+                          << ": ";
 
             output_stream << "[" << level << "]";
 
             if (!thread::ThreadManager::instance().IsMainThread())
             {
-                output_stream << "[Thread-" << thread::ThreadManager::instance().GetCurrentThreadId() << "]";
+                output_stream
+                    << "[Thread-"
+                    << thread::ThreadManager::instance().GetCurrentThreadId()
+                    << "]";
             }
 
             output_stream << "[" << category_name << "]: ";
@@ -56,7 +64,9 @@ namespace utils
 
         void Logger::Init()
         {
-            logging_level = config::ConfigManager::instance().getGeneralSettings().getLoggingLevel();
+            logging_level = config::ConfigManager::instance()
+                                .getGeneralSettings()
+                                .getLoggingLevel();
 
             std::ostringstream sb;
 
@@ -67,9 +77,9 @@ namespace utils
         }
 
         Logger::Logger()
-            : logging_level(LogLevel::INFO),
-            output_stream(getLogFileBuffer())
-        { }
+            : logging_level(LogLevel::INFO)
+            , output_stream(getLogFileBuffer())
+        {}
 
         Logger::~Logger()
         {
@@ -81,7 +91,9 @@ namespace utils
 
         std::streambuf* Logger::getLogFileBuffer()
         {
-            std::string log_file = config::ConfigManager::instance().getGeneralSettings().getLogFile();
+            std::string log_file = config::ConfigManager::instance()
+                                       .getGeneralSettings()
+                                       .getLogFile();
 
             if (log_file.length() == 0)
             {
@@ -96,5 +108,5 @@ namespace utils
 
             return buf;
         }
-    }
-}
+    } // namespace logger
+} // namespace utils

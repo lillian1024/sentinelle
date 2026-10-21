@@ -1,10 +1,5 @@
 #include "analizer-dnn-generic-ident.hh"
-#include "core/components/analizers/modules/dnn/analizer-dnn.hh"
-#include "utils/config/data-module.hh"
-#include "utils/io_data/types/io_data_bool.hh"
-#include "utils/io_data/types/io_data_mat.hh"
-#include "utils/logger/logger.hh"
-#include "utils/cache/cache-manager.hh"
+
 #include <iostream>
 #include <map>
 #include <memory>
@@ -15,6 +10,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+
+#include "core/components/analizers/modules/dnn/analizer-dnn.hh"
+#include "utils/cache/cache-manager.hh"
+#include "utils/config/data-module.hh"
+#include "utils/io_data/types/io_data_bool.hh"
+#include "utils/io_data/types/io_data_mat.hh"
+#include "utils/logger/logger.hh"
 
 #define CATEGORY_NAME "AnalizerDNNGenericIdent"
 
@@ -39,7 +41,8 @@
 #define IDENT_CATEGORY_FILE_NAME "ssd_mobilenet_v2_coc_categories.txt"
 #define DNN_CATEGORY_NAME "DDNManager"
 
-#define MISSING_CLASS_FILE_ERROR_MSG "Unable to start analizer: unable to locate class data file in cache!"
+#define MISSING_CLASS_FILE_ERROR_MSG                                           \
+    "Unable to start analizer: unable to locate class data file in cache!"
 
 namespace core
 {
@@ -49,13 +52,22 @@ namespace core
         {
             namespace dnn
             {
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(YAML::Node node, std::string name)
-                    : AnalizerDNN(name, NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW)
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(
+                    YAML::Node node, std::string name)
+                    : AnalizerDNN(name, NN_NAME, NN_URL, true,
+                                  NetStoreType::TENSOR_FLOW)
                 {
-                    auto cat_map = utils::config::DataModule::readSequenceOrError(node, CATEGORY_PROPERTY_NAME, name + " analizer");
-                    auto min_confidence_str = utils::config::DataModule::readScalarOptional(node, CONFIDENCE_PROPERTY_NAME).value_or(CONFIDENCE_PROPERTY_DEFAULT);
+                    auto cat_map =
+                        utils::config::DataModule::readSequenceOrError(
+                            node, CATEGORY_PROPERTY_NAME, name + " analizer");
+                    auto min_confidence_str =
+                        utils::config::DataModule::readScalarOptional(
+                            node, CONFIDENCE_PROPERTY_NAME)
+                            .value_or(CONFIDENCE_PROPERTY_DEFAULT);
 
-                    auto use_cuda = utils::config::DataModule::readBool(node, USE_CUDA_PROPERTY_NAME, name + " analizer", true, USE_CUDA_PROPERTY_DEFAULT);
+                    auto use_cuda = utils::config::DataModule::readBool(
+                        node, USE_CUDA_PROPERTY_NAME, name + " analizer", true,
+                        USE_CUDA_PROPERTY_DEFAULT);
                     setUseCUDA(use_cuda);
 
                     std::string prefix = "[";
@@ -64,7 +76,10 @@ namespace core
                     {
                         if (!cat_map[i].IsScalar())
                         {
-                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CATEGORY_PROPERTY_NAME + " must only contain strings!");
+                            throw std::runtime_error(
+                                prefix + CATEGORY_NAME
+                                + "]: " + CATEGORY_PROPERTY_NAME
+                                + " must only contain strings!");
                         }
 
                         searching_category.push_back(cat_map[i].Scalar());
@@ -72,28 +87,46 @@ namespace core
 
                     try
                     {
-                        unsigned int percent_min_confidence = std::stoi(min_confidence_str);
+                        unsigned int percent_min_confidence =
+                            std::stoi(min_confidence_str);
 
-                        if (percent_min_confidence < CONFIDENCE_PROPERTY_MIN_VAL || percent_min_confidence > CONFIDENCE_PROPERTY_MAX_VAL)
+                        if (percent_min_confidence < CONFIDENCE_PROPERTY_MIN_VAL
+                            || percent_min_confidence
+                                > CONFIDENCE_PROPERTY_MAX_VAL)
                         {
-                            throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                            throw std::runtime_error(
+                                prefix + CATEGORY_NAME
+                                + "]: " + CONFIDENCE_PROPERTY_NAME
+                                + " must be an integer between 1 and 100 "
+                                  "included!");
                         }
 
-                        min_confidence = ((float)percent_min_confidence) / 100.0;
+                        min_confidence =
+                            ((float)percent_min_confidence) / 100.0;
                     }
                     catch (const std::invalid_argument&)
                     {
-                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                        throw std::runtime_error(
+                            prefix + CATEGORY_NAME
+                            + "]: " + CONFIDENCE_PROPERTY_NAME
+                            + " must be an integer between 1 and 100 "
+                              "included!");
                     }
                     catch (const std::out_of_range&)
                     {
-                        throw std::runtime_error(prefix + CATEGORY_NAME + "]: " + CONFIDENCE_PROPERTY_NAME + " must be an integer between 1 and 100 included!");
+                        throw std::runtime_error(
+                            prefix + CATEGORY_NAME
+                            + "]: " + CONFIDENCE_PROPERTY_NAME
+                            + " must be an integer between 1 and 100 "
+                              "included!");
                     }
                 }
 
-                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(const AnalizerDNNGenericIdent& from)
-                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true, NetStoreType::TENSOR_FLOW),
-                    min_confidence(from.min_confidence)
+                AnalizerDNNGenericIdent::AnalizerDNNGenericIdent(
+                    const AnalizerDNNGenericIdent& from)
+                    : AnalizerDNN(from.getName(), NN_NAME, NN_URL, true,
+                                  NetStoreType::TENSOR_FLOW)
+                    , min_confidence(from.min_confidence)
                 {
                     setUseCUDA(from.getUseCUDA());
 
@@ -103,51 +136,72 @@ namespace core
                     }
                 }
 
-                std::map<std::string, utils::io_data::IODataType> AnalizerDNNGenericIdent::getInputs()
+                std::map<std::string, utils::io_data::IODataType>
+                AnalizerDNNGenericIdent::getInputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
-                    res.insert({INPUT_IMAGE_NAME, utils::io_data::IODataType::MAT});
+                    res.insert(
+                        { INPUT_IMAGE_NAME, utils::io_data::IODataType::MAT });
 
                     return res;
                 }
 
-                std::map<std::string, utils::io_data::IODataType> AnalizerDNNGenericIdent::getOutputs()
+                std::map<std::string, utils::io_data::IODataType>
+                AnalizerDNNGenericIdent::getOutputs()
                 {
                     std::map<std::string, utils::io_data::IODataType> res;
 
-                    res.insert({OUTPUT_DEBUG_IMAGE_NAME, utils::io_data::IODataType::MAT});
-                    res.insert({OUTPUT_DETECTED_NAME, utils::io_data::IODataType::BOOL});
+                    res.insert({ OUTPUT_DEBUG_IMAGE_NAME,
+                                 utils::io_data::IODataType::MAT });
+                    res.insert({ OUTPUT_DETECTED_NAME,
+                                 utils::io_data::IODataType::BOOL });
 
                     return res;
                 }
 
-                std::map<std::string, std::unique_ptr<utils::io_data::IOData>> AnalizerDNNGenericIdent::process(std::map<std::string, utils::io_data::IOData*> inputs, source::Source&, bool&)
+                std::map<std::string, std::unique_ptr<utils::io_data::IOData>>
+                AnalizerDNNGenericIdent::process(
+                    std::map<std::string, utils::io_data::IOData*> inputs,
+                    source::Source&, bool&)
                 {
-                    //Check input types
+                    // Check input types
                     if (!validateInputs(inputs))
                     {
-                        utils::logger::Logger::instance().Log(ANALIZE_CATEGORY_NAME, "Unable to analize: missmatched arguments!", utils::logger::Logger::LogLevel::ERROR);
+                        utils::logger::Logger::instance().Log(
+                            ANALIZE_CATEGORY_NAME,
+                            "Unable to analize: missmatched arguments!",
+                            utils::logger::Logger::LogLevel::ERROR);
 
-                        return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                        return std::map<
+                            std::string,
+                            std::unique_ptr<utils::io_data::IOData>>();
                     }
 
-                    //Retrieve image
-                    utils::io_data::IOData* image_data = inputs[INPUT_IMAGE_NAME];
+                    // Retrieve image
+                    utils::io_data::IOData* image_data =
+                        inputs[INPUT_IMAGE_NAME];
 
-                    utils::io_data::IODataMat* image_mat_data = dynamic_cast<utils::io_data::IODataMat*>(image_data);
+                    utils::io_data::IODataMat* image_mat_data =
+                        dynamic_cast<utils::io_data::IODataMat*>(image_data);
 
                     if (image_mat_data == nullptr)
                     {
-                        utils::logger::Logger::instance().Log(ANALIZE_CATEGORY_NAME, "Unable to analize: missmatched arguments!", utils::logger::Logger::LogLevel::ERROR);
+                        utils::logger::Logger::instance().Log(
+                            ANALIZE_CATEGORY_NAME,
+                            "Unable to analize: missmatched arguments!",
+                            utils::logger::Logger::LogLevel::ERROR);
 
-                        return std::map<std::string, std::unique_ptr<utils::io_data::IOData>>();
+                        return std::map<
+                            std::string,
+                            std::unique_ptr<utils::io_data::IOData>>();
                     }
 
                     cv::Mat image = image_mat_data->getData();
 
-                    cv::Mat blob = cv::dnn::dnn4_v20260709::blobFromImage(image, 1.0, cv::Size(600, 600), cv::Scalar(127.5, 127.5, 127.5),
-                                            true, false);
+                    cv::Mat blob = cv::dnn::dnn4_v20260709::blobFromImage(
+                        image, 1.0, cv::Size(600, 600),
+                        cv::Scalar(127.5, 127.5, 127.5), true, false);
 
                     cv::dnn::dnn4_v20260709::Net& net = getNet();
 
@@ -155,14 +209,17 @@ namespace core
 
                     cv::Mat output = net.forward();
 
-                    cv::Mat results(output.size[2], output.size[3], CV_32F, output.ptr<float>());
+                    cv::Mat results(output.size[2], output.size[3], CV_32F,
+                                    output.ptr<float>());
 
                     bool detected = false;
 
-                    for (int i = 0; i < results.rows; i++){
+                    for (int i = 0; i < results.rows; i++)
+                    {
                         int class_id = int(results.at<float>(i, 1));
 
-                        if (class_id-1 < 0 || size_t(class_id-1) >= coco_class_names.size())
+                        if (class_id - 1 < 0
+                            || size_t(class_id - 1) >= coco_class_names.size())
                         {
                             std::ostringstream sb;
 
@@ -172,22 +229,31 @@ namespace core
                             sb << coco_class_names.size();
                             sb << " !";
 
-                            utils::logger::Logger::instance().Log(CATEGORY_NAME, sb.str(), utils::logger::Logger::LogLevel::WARNING);
+                            utils::logger::Logger::instance().Log(
+                                CATEGORY_NAME, sb.str(),
+                                utils::logger::Logger::LogLevel::WARNING);
 
                             continue;
                         }
 
-                        std::string class_name = coco_class_names[class_id-1];
+                        std::string class_name = coco_class_names[class_id - 1];
                         float confidence = results.at<float>(i, 2);
 
-                        bool is_searched_class = std::ranges::contains(searching_category, class_name);
+                        bool is_searched_class = std::ranges::contains(
+                            searching_category, class_name);
 
-                        // Check if the detection is over the min threshold and then draw bbox
-                        if (confidence > min_confidence && is_searched_class){
-                            int bboxX = int(results.at<float>(i, 3) * image.cols);
-                            int bboxY = int(results.at<float>(i, 4) * image.rows);
-                            int bboxWidth = int(results.at<float>(i, 5) * image.cols - bboxX);
-                            int bboxHeight = int(results.at<float>(i, 6) * image.rows - bboxY);
+                        // Check if the detection is over the min threshold and
+                        // then draw bbox
+                        if (confidence > min_confidence && is_searched_class)
+                        {
+                            int bboxX =
+                                int(results.at<float>(i, 3) * image.cols);
+                            int bboxY =
+                                int(results.at<float>(i, 4) * image.rows);
+                            int bboxWidth = int(
+                                results.at<float>(i, 5) * image.cols - bboxX);
+                            int bboxHeight = int(
+                                results.at<float>(i, 6) * image.rows - bboxY);
 
                             detected = true;
 
@@ -200,18 +266,26 @@ namespace core
                             sb << "%";
 
                             // TODO: Change to event system
-                            utils::logger::Logger::instance().Log("Event", sb.str(), utils::logger::Logger::LogLevel::WARNING);
+                            utils::logger::Logger::instance().Log(
+                                "Event", sb.str(),
+                                utils::logger::Logger::LogLevel::WARNING);
 
-                            cv::rectangle(image, cv::Point(bboxX, bboxY), cv::Point(bboxX+bboxWidth, bboxY+bboxHeight), cv::Scalar(255,255,255), 2);
+                            cv::rectangle(image, cv::Point(bboxX, bboxY),
+                                          cv::Point(bboxX + bboxWidth,
+                                                    bboxY + bboxHeight),
+                                          cv::Scalar(255, 255, 255), 2);
 
                             std::ostringstream box_string_builder;
 
                             box_string_builder << class_name;
                             box_string_builder << " ";
-                            box_string_builder << (confidence*100);
+                            box_string_builder << (confidence * 100);
                             box_string_builder << "%";
 
-                            cv::putText(image, box_string_builder.str(), cv::Point(bboxX, bboxY-5), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
+                            cv::putText(image, box_string_builder.str(),
+                                        cv::Point(bboxX, bboxY - 5),
+                                        cv::FONT_HERSHEY_SIMPLEX, 0.5,
+                                        cv::Scalar(0, 255, 255), 1);
                         }
                     }
 
@@ -220,26 +294,32 @@ namespace core
                     sb << "Detected: ";
                     sb << (detected ? "true" : "false");
 
-                    cv::putText(image, sb.str(), cv::Point(5, 90), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,255), 1);
+                    cv::putText(image, sb.str(), cv::Point(5, 90),
+                                cv::FONT_HERSHEY_SIMPLEX, 0.5,
+                                cv::Scalar(0, 255, 255), 1);
 
-                    std::map<std::string, std::unique_ptr<utils::io_data::IOData>> res;
+                    std::map<std::string,
+                             std::unique_ptr<utils::io_data::IOData>>
+                        res;
 
-                    auto debug_image_data = std::make_unique<utils::io_data::IODataMat>(image);
-                    auto debug_detected_data = std::make_unique<utils::io_data::IODataBool>(detected);
+                    auto debug_image_data =
+                        std::make_unique<utils::io_data::IODataMat>(image);
+                    auto debug_detected_data =
+                        std::make_unique<utils::io_data::IODataBool>(detected);
 
-                    res.insert({OUTPUT_DEBUG_IMAGE_NAME, std::move(debug_image_data)});
-                    res.insert({OUTPUT_DETECTED_NAME, std::move(debug_detected_data)});
+                    res.insert({ OUTPUT_DEBUG_IMAGE_NAME,
+                                 std::move(debug_image_data) });
+                    res.insert({ OUTPUT_DETECTED_NAME,
+                                 std::move(debug_detected_data) });
 
                     return res;
                 }
-
-
 
                 std::unique_ptr<Analizer> AnalizerDNNGenericIdent::clone()
                 {
                     return std::make_unique<AnalizerDNNGenericIdent>(*this);
                 }
-            }
-        }
-    }
-}
+            } // namespace dnn
+        } // namespace analizer
+    } // namespace components
+} // namespace core

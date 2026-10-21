@@ -1,7 +1,8 @@
+#include <csignal>
+
 #include "core/event/event-manager.hh"
 #include "core/orchestrator/orchestrator.hh"
 #include "utils/config/config-manager.hh"
-#include <csignal>
 
 void stopSignalHandler(int)
 {
@@ -29,7 +30,7 @@ int main()
 
     core::event::EventManager::instance().AttachToRunning();
 
-    //cv::destroyAllWindows();
+    // cv::destroyAllWindows();
 
     return 0;
 }

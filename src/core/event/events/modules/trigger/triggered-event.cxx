@@ -9,8 +9,9 @@ namespace core
         namespace modules
         {
             TriggeredEvent::TriggeredEvent(components::source::Source& source)
-                : Event("Source has been triggered"),
-                source(source) { }
+                : Event("Source has been triggered")
+                , source(source)
+            {}
 
             components::source::Source& TriggeredEvent::getSource()
             {
@@ -21,6 +22,6 @@ namespace core
             {
                 return EventType::TRIGGERED;
             }
-        }
-    }
-}
+        } // namespace modules
+    } // namespace event
+} // namespace core

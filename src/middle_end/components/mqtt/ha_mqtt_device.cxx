@@ -15,14 +15,16 @@ namespace middle_end
 {
     namespace mqtt
     {
-        const std::string MQTTSourceDevice::topic_prefix = "homeassistant/sentinelle/";
+        const std::string MQTTSourceDevice::topic_prefix =
+            "homeassistant/sentinelle/";
 
-        MQTTSourceDevice::MQTTSourceDevice(core::components::source::Source& source)
+        MQTTSourceDevice::MQTTSourceDevice(
+            core::components::source::Source& source)
             : base_source(source)
-        {
-        }
+        {}
 
-        core::components::source::Source& MQTTSourceDevice::getBaseSource() const
+        core::components::source::Source&
+        MQTTSourceDevice::getBaseSource() const
         {
             return base_source;
         }
@@ -46,7 +48,7 @@ namespace middle_end
             payload_origin["sw"] = "1.0";
             payload_origin["url"] = "https://github.com/lillian1024/sentinelle";
 
-            //Components
+            // Components
 
             Json::Value trigger_state_comp = getDeviceTriggerComponent();
             Json::Value enabled_state_comp = getDeviceEnabledComponent();
@@ -73,7 +75,8 @@ namespace middle_end
 
             trigger_state_comp["p"] = "binary_sensor";
 
-            trigger_state_comp["unique_id"] = base_source.getName() + "_" + TRIGGER_SENSOR_ID;
+            trigger_state_comp["unique_id"] =
+                base_source.getName() + "_" + TRIGGER_SENSOR_ID;
 
             std::ostringstream val_temp_sb;
             val_temp_sb << "{{ value_json.";
@@ -81,8 +84,10 @@ namespace middle_end
             val_temp_sb << " }}";
             trigger_state_comp["value_template"] = val_temp_sb.str();
 
-            trigger_state_comp[STATE_TOPIC_CATEGORY_NAME] = getStateTopic(TRIGGER_SENSOR_ID);
-            trigger_state_comp[STATUS_TOPIC_CATEGORY_NAME] = getStatusTopic(TRIGGER_SENSOR_ID);
+            trigger_state_comp[STATE_TOPIC_CATEGORY_NAME] =
+                getStateTopic(TRIGGER_SENSOR_ID);
+            trigger_state_comp[STATUS_TOPIC_CATEGORY_NAME] =
+                getStatusTopic(TRIGGER_SENSOR_ID);
 
             return trigger_state_comp;
         }
@@ -93,7 +98,8 @@ namespace middle_end
 
             enabled_state_comp["p"] = "switch";
 
-            enabled_state_comp["unique_id"] = base_source.getName() + "_" + ENABLED_SWITCH_ID;
+            enabled_state_comp["unique_id"] =
+                base_source.getName() + "_" + ENABLED_SWITCH_ID;
 
             std::ostringstream val_temp_sb;
             val_temp_sb << "{{ value_json.";
@@ -101,19 +107,27 @@ namespace middle_end
             val_temp_sb << " }}";
             enabled_state_comp["value_template"] = val_temp_sb.str();
 
-            enabled_state_comp[STATE_TOPIC_CATEGORY_NAME] = getStateTopic(ENABLED_SWITCH_ID);
-            enabled_state_comp[STATUS_TOPIC_CATEGORY_NAME] = getStatusTopic(ENABLED_SWITCH_ID);
-            enabled_state_comp["command_topic"] = getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME);
+            enabled_state_comp[STATE_TOPIC_CATEGORY_NAME] =
+                getStateTopic(ENABLED_SWITCH_ID);
+            enabled_state_comp[STATUS_TOPIC_CATEGORY_NAME] =
+                getStatusTopic(ENABLED_SWITCH_ID);
+            enabled_state_comp["command_topic"] =
+                getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME);
 
             return enabled_state_comp;
         }
 
-        void MQTTSourceDevice::subscribeToDeviceTopic(mosquitto *mosq) const
+        void MQTTSourceDevice::subscribeToDeviceTopic(mosquitto* mosq) const
         {
-            mosquitto_subscribe(mosq, nullptr, getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME).c_str(), 1);
+            mosquitto_subscribe(
+                mosq, nullptr,
+                getCommandTopic(ENABLED_SWITCH_ID, SWITCH_COMMAND_NAME).c_str(),
+                1);
         }
 
-        std::string MQTTSourceDevice::getSerializedBoolState(std::string value_name, bool state) const
+        std::string
+        MQTTSourceDevice::getSerializedBoolState(std::string value_name,
+                                                 bool state) const
         {
             Json::Value payload_root;
 
@@ -130,7 +144,9 @@ namespace middle_end
             return status ? "online" : "offline";
         }
 
-        std::string MQTTSourceDevice::getSerializedState(std::string value_name, std::string value) const
+        std::string
+        MQTTSourceDevice::getSerializedState(std::string value_name,
+                                             std::string value) const
         {
             Json::Value payload_root;
 
@@ -142,17 +158,21 @@ namespace middle_end
             return sb.str();
         }
 
-        std::string MQTTSourceDevice::getStateTopic(std::string component_name) const
+        std::string
+        MQTTSourceDevice::getStateTopic(std::string component_name) const
         {
             return getCommandTopic(component_name, STATE_TOPIC_NAME);
         }
 
-        std::string MQTTSourceDevice::getStatusTopic(std::string component_name) const
+        std::string
+        MQTTSourceDevice::getStatusTopic(std::string component_name) const
         {
             return getCommandTopic(component_name, STATUS_TOPIC_NAME);
         }
 
-        std::string MQTTSourceDevice::getCommandTopic(std::string component_name, std::string command_name) const
+        std::string
+        MQTTSourceDevice::getCommandTopic(std::string component_name,
+                                          std::string command_name) const
         {
             std::ostringstream state_topic_builder;
 
@@ -165,5 +185,5 @@ namespace middle_end
 
             return state_topic_builder.str();
         }
-    }
-}
+    } // namespace mqtt
+} // namespace middle_end
