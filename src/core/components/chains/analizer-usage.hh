@@ -13,6 +13,10 @@ namespace core
     {
         namespace chains
         {
+            /**
+             * \brief A class describing a single usage of an analyzer.
+             * \details The used analyzer will be copied into the AnalizerUsage.
+             */
             class AnalizerUsage
             {
                 public:
