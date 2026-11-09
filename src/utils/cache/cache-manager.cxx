@@ -1,7 +1,7 @@
 #include "cache-manager.hh"
 
 #include <filesystem>
-#include <optional>
+#include <stdexcept>
 #include <string>
 #include <unistd.h>
 
@@ -39,9 +39,11 @@ namespace utils
                 {
                     logger::Logger::instance().Log(
                         CACHE_CATEGORY_NAME,
-                        "Unable to initialize cahce: cache path is not a "
+                        "Unable to initialize cache: cache path is not a "
                         "directory!",
                         logger::Logger::LogLevel::ERROR);
+
+                    throw new std::runtime_error("Unable to initialize cache: cache path is not a directory!");
                 }
 
                 std::filesystem::create_directories(cachePath);
@@ -60,9 +62,7 @@ namespace utils
         {
             checkOrCreateCachePath();
 
-            std::string path = config::ConfigManager::instance()
-                                   .getGeneralSettings()
-                                   .getCachePath()
+            std::string path = getCachePath()
                 + "/" + category + "/" + file_name;
 
             return path;
@@ -72,17 +72,10 @@ namespace utils
         {
             checkOrCreateCachePath();
 
-            std::string path = config::ConfigManager::instance()
-                                   .getGeneralSettings()
-                                   .getCachePath()
+            std::string path = getCachePath()
                 + "/" + category + "/" + file_name;
 
-            if (access(path.c_str(), R_OK) == -1)
-            {
-                return false;
-            }
-
-            return true;
+            return fileExist(path);
         }
     } // namespace cache
 } // namespace utils

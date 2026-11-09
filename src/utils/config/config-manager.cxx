@@ -22,11 +22,11 @@ namespace utils
         {
             if (std::getenv(CONFIG_FILE_ENV_VAR) == NULL)
             {
-                settings_file = DEFAULT_CONFIG_FILE;
+                configuration_file = DEFAULT_CONFIG_FILE;
             }
             else
             {
-                settings_file = std::getenv(CONFIG_FILE_ENV_VAR);
+                configuration_file = std::getenv(CONFIG_FILE_ENV_VAR);
             }
         }
 
@@ -34,7 +34,7 @@ namespace utils
         {
             try
             {
-                YAML::Node doc = YAML::LoadFile(settings_file);
+                YAML::Node doc = YAML::LoadFile(configuration_file);
 
                 if (!doc.IsMap())
                 {
@@ -49,7 +49,7 @@ namespace utils
             {
                 throw std::runtime_error(managerMessagePrefix
                                          + "Unable to read configuration file: "
-                                         + settings_file
+                                         + configuration_file
                                          + ", check that the file exist and "
                                            "has the right permissions!");
             }
