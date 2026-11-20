@@ -8,6 +8,8 @@
 
 #define SOURCE_TYPE_FIELD "type"
 
+#define SOURCE_NB_RESTART_ALWAYS_VALUE -1
+
 namespace core
 {
     namespace components
@@ -59,9 +61,14 @@ namespace utils
                             return passive_fps;
                         }
 
-                        float getMaxRetries() const
+                        int getMaxMissedFrames() const
                         {
-                            return max_fail_retries;
+                            return max_missed_frames;
+                        }
+
+                        int getMaxRestart() const
+                        {
+                            return max_restart;
                         }
 
                         bool getRestart() const
@@ -98,7 +105,8 @@ namespace utils
                         float active_fps;
                         float passive_fps;
 
-                        int max_fail_retries;
+                        int max_missed_frames;
+                        int max_restart;
                         bool restart;
 
                         std::vector<std::unique_ptr<core::components::chains::Chain>> process;

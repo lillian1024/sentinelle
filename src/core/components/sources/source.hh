@@ -76,13 +76,33 @@ namespace core
                 inline bool isSourceOpen() const { return video_stream->isOpened(); }
 
                 /**
-                 * \brief Get max fail retries config value. This function is thread-safe.
+                 * \brief Get max consecutive missed frames before a source restart config value. This function is thread-safe.
                  */
-                int getMaxFailRetries() const;
+                int getMaxMissedFrames() const;
+                /**
+                 * \brief Get max restart alowed before source complete stop. This function is thread-safe.
+                 */
+                int getMaxRestart() const;
                 /**
                  * \brief Get restart config value. This function is thread-safe.
                  */
                 bool getRestart() const;
+                /**
+                 * \brief Get restart count. This function is thread-safe.
+                 */
+                int getNbRestart() const;
+                /**
+                 * \brief Get if the source is alowed to restart. This function is thread-safe.
+                 */
+                bool getCanRestart() const;
+                /**
+                 * \brief Set restart count. This function is thread-safe.
+                 */
+                void setNbRestart(int value);
+                /**
+                 * \brief Increase the restart count by one. This function is thread-safe.
+                 */
+                void increaseNbRestart();
                 /**
                  * \brief Get last frame time. This function is NOT thread-safe!
                  */
@@ -161,13 +181,16 @@ namespace core
                 float active_fps;
                 float passive_fps;
 
-                int max_fail_retries;
+                int max_missed_frames;
+                int max_restart;
                 bool restart;
 
                 std::atomic<bool> enabled;
 
                 std::atomic<bool> is_active;
                 std::atomic<bool> is_triggered;
+
+                std::atomic<int> restartNb;
 
                 std::atomic<bool> stop;
 

@@ -258,7 +258,7 @@ namespace core
 
         void Orchestrator::RunSourceLoop(components::source::Source& source)
         {
-            int nbFail = 0;
+            int nbMissedFrames = 0;
 
             while (!source.isStopping())
             {
@@ -287,9 +287,9 @@ namespace core
                         "Image not available! Frame processing skipped!",
                         utils::logger::Logger::LogLevel::WARNING);
 
-                    nbFail++;
+                    nbMissedFrames++;
 
-                    if (nbFail >= 0 && nbFail > source.getMaxFailRetries())
+                    if (nbMissedFrames >= 0 && nbMissedFrames > source.getMaxMissedFrames())
                     {
                         source.Stop();
 
@@ -307,7 +307,7 @@ namespace core
                     continue;
                 }
 
-                nbFail = 0;
+                nbMissedFrames = 0;
 
                 bool trigger = false;
 
@@ -364,8 +364,12 @@ namespace core
                 return;
             }
 
-            if (stop_event->getSource().getRestart())
+            auto& source = stop_event->getSource();
+
+            if (source.getCanRestart())
             {
+                source.increaseNbRestart();
+
                 createSourceThread(stop_event->getSource());
             }
             else

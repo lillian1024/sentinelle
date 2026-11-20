@@ -63,7 +63,8 @@ namespace core
                 : name(config.getName())
                 , active_fps(config.getActiveFps())
                 , passive_fps(config.getPassiveFps())
-                , max_fail_retries(config.getMaxRetries())
+                , max_missed_frames(config.getMaxMissedFrames())
+                , max_restart(config.getMaxRestart())
                 , restart(config.getRestart())
                 , enabled(config.getEnabled())
                 , is_active(false)
@@ -71,6 +72,7 @@ namespace core
                 , last_frame(std::chrono::steady_clock::now())
             {
                 source_config = config.clone();
+                restartNb = 0;
             }
 
             Source::~Source()
@@ -122,14 +124,43 @@ namespace core
                 return is_active ? active_fps : passive_fps;
             }
 
-            int Source::getMaxFailRetries() const
+            int Source::getMaxMissedFrames() const
             {
-                return max_fail_retries;
+                return max_missed_frames;
+            }
+
+            int Source::getMaxRestart() const
+            {
+                return max_restart;
             }
 
             bool Source::getRestart() const
             {
                 return restart;
+            }
+
+            int Source::getNbRestart() const
+            {
+                return restartNb;
+            }
+
+            bool Source::getCanRestart() const
+            {
+                bool restartNbLimited = getNbRestart() <= getMaxRestart();
+
+                bool nbAllowRestart = getMaxRestart() == SOURCE_NB_RESTART_ALWAYS_VALUE || restartNbLimited;
+
+                return nbAllowRestart && getRestart();
+            }
+
+            void Source::setNbRestart(int value)
+            {
+                restartNb = value;
+            }
+
+            void Source::increaseNbRestart()
+            {
+                restartNb++;
             }
 
             time_type Source::getLastFrameTime() const

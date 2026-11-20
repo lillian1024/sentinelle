@@ -18,13 +18,15 @@
 #define ENABLED_FIELD "enabled"
 #define ACTIVE_FPS_FIELD "active_fps"
 #define PASSIVE_FPS_FIELD "passive_fps"
-#define MAX_FAIL_RETRIES_FIELD "max_retries"
+#define MAX_MISSED_FRAMES_FIELD "max_missed_frames"
+#define MAX_RESTART_FIELD "max_restart"
 #define RESTART_FIELD "restart"
 #define PROCESS_FIELD "process"
 
 #define ENABLED_DEFAULT_VALUE TRUE_STR
 #define IS_LIVE_DEFAULT_VALUE true
-#define MAX_FAIL_RETRIES_DEFAULT_VALUE "10"
+#define MAX_MISSED_FRAMES_DEFAULT_VALUE "10"
+#define MAX_RESTART_DEFAULT_VALUE "-1"
 #define RESTART_DEFAULT_VALUE "true"
 
 namespace utils
@@ -39,8 +41,6 @@ namespace utils
                                                std::string source_name)
                     : source_name(source_name)
                 {
-                    // std::optional<std::string> is_live_str =
-                    // DataModule::readScalarOptional(node, IS_LIVE_FIELD);
                     is_live = DataModule::readBool(node, IS_LIVE_FIELD,
                                                    source_name + " source",
                                                    true, IS_LIVE_FIELD);
@@ -48,20 +48,19 @@ namespace utils
                         DataModule::readScalarOptional(node, ENABLED_FIELD)
                             .value_or(ENABLED_DEFAULT_VALUE)
                         == TRUE_STR;
-                    // std::string active_fps_str =
-                    // DataModule::readScalarOrError(node, ACTIVE_FPS_FIELD,
-                    // source_name + " source"); std::string passive_fps_str =
-                    // DataModule::readScalarOrError(node, PASSIVE_FPS_FIELD,
-                    // source_name + " source");
+
                     active_fps = DataModule::readDouble(node, ACTIVE_FPS_FIELD,
                                                         source_name + " source",
                                                         false, "");
                     passive_fps = DataModule::readDouble(
                         node, PASSIVE_FPS_FIELD, source_name + " source", false,
                         "");
-                    max_fail_retries = DataModule::readInt(
-                        node, MAX_FAIL_RETRIES_FIELD, source_name + " source",
-                        true, MAX_FAIL_RETRIES_DEFAULT_VALUE);
+                    max_missed_frames = DataModule::readInt(
+                        node, MAX_MISSED_FRAMES_FIELD, source_name + " source",
+                        true, MAX_MISSED_FRAMES_DEFAULT_VALUE);
+                    max_restart = DataModule::readInt(
+                        node, MAX_RESTART_FIELD, source_name + " source",
+                        true, MAX_RESTART_DEFAULT_VALUE);
                     restart = DataModule::readBool(node, RESTART_FIELD,
                                                    source_name + " source",
                                                    true, RESTART_DEFAULT_VALUE);

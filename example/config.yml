@@ -86,6 +86,7 @@ sources_settings:
       is_live: true
       active_fps: 15
       passive_fps: 1
+      max_missed_frames: 5
       process:
         - process_debug
     cam02:
@@ -94,5 +95,6 @@ sources_settings:
       is_live: true
       active_fps: 15
       passive_fps: 1
+      max_missed_frames: 5
       process:
         - process
