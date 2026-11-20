@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
 enable_testing()
 
-find_program(CLANG_FORMAT_EXE clang-format REQUIRED)
+find_program(CLANG_FORMAT_EXE clang-format OPTIONAL)
 
 #Included libraries
 find_package(OpenCV REQUIRED)

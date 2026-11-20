@@ -2,6 +2,7 @@
 
 #include "core/event/event-handler.hh"
 #include "core/event/events/event.hh"
+#include "core/event/events/modules/source-fail-event.hh"
 #include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
 #include "core/event/events/modules/trigger/untriggered-event.hh"
@@ -70,6 +71,7 @@ namespace middle_end
                 virtual void handleTriggerEvent(core::event::modules::TriggeredEvent& event);
                 virtual void handleUnTriggerEvent(core::event::modules::UnTriggeredEvent& event);
                 virtual void handleSourceStopEvent(core::event::modules::SourceStopEvent& event);
+                virtual void handleSourceFailEvent(core::event::modules::SourceFailEvent& event);
                 virtual void handleSourceStartEvent(core::event::modules::SourceStartEvent& event);
 
                 void sendDeviceState(MQTTSourceDevice device) const;

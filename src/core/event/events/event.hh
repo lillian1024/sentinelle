@@ -13,7 +13,8 @@ namespace core
             TRIGGERED,
             UNTRIGGERED,
             SOURCE_STOP,
-            SOURCE_START
+            SOURCE_START,
+            SOURCE_FAIL
         };
 
         /**

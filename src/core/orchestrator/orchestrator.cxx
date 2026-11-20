@@ -19,6 +19,7 @@
 #include "core/components/chains/chain.hh"
 #include "core/components/sources/source.hh"
 #include "core/event/event-manager.hh"
+#include "core/event/events/modules/source-fail-event.hh"
 #include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/source-stop-event.hh"
 #include "utils/config/config-manager.hh"
@@ -192,9 +193,6 @@ namespace core
         {
             source.ResetStopState();
 
-            event::EventManager::instance().registerEvent(
-                std::make_unique<event::modules::SourceStartEvent>(source));
-
             source.startResource();
 
             if (!source.isSourceOpen())
@@ -211,7 +209,7 @@ namespace core
                 source.Stop();
 
                 event::EventManager::instance().registerEvent(
-                    std::make_unique<event::modules::SourceStopEvent>(source));
+                    std::make_unique<event::modules::SourceFailEvent>(source));
 
                 return;
             }
@@ -225,6 +223,9 @@ namespace core
 
                 utils::logger::Logger::instance().Log(
                     "Source", sb.str(), utils::logger::Logger::LogLevel::INFO);
+
+                event::EventManager::instance().registerEvent(
+                    std::make_unique<event::modules::SourceStartEvent>(source));
             }
 
             try
@@ -354,9 +355,23 @@ namespace core
             event::modules::SourceStopEvent* stop_event =
                 dynamic_cast<event::modules::SourceStopEvent*>(&event);
 
+            components::source::Source* source;
+
             if (stop_event == nullptr)
             {
-                return;
+                event::modules::SourceFailEvent* fail_event =
+                    dynamic_cast<event::modules::SourceFailEvent*>(&event);
+
+                if (fail_event == nullptr)
+                {
+                    return;
+                }
+
+                source = &fail_event->getSource();
+            }
+            else
+            {
+                source = &stop_event->getSource();
             }
 
             if (!IsRunning())
@@ -364,13 +379,11 @@ namespace core
                 return;
             }
 
-            auto& source = stop_event->getSource();
-
-            if (source.getCanRestart())
+            if (source->getCanRestart())
             {
-                source.increaseNbRestart();
+                source->increaseNbRestart();
 
-                createSourceThread(stop_event->getSource());
+                createSourceThread(*source);
             }
             else
             {

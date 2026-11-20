@@ -9,6 +9,7 @@
 
 #include "core/event/event-manager.hh"
 #include "core/event/events/event.hh"
+#include "core/event/events/modules/source-fail-event.hh"
 #include "core/event/events/modules/source-start-event.hh"
 #include "core/event/events/modules/source-stop-event.hh"
 #include "core/event/events/modules/trigger/triggered-event.hh"
@@ -407,6 +408,13 @@ namespace middle_end
         }
         void MiddleEndMQTT::handleSourceStopEvent(
             core::event::modules::SourceStopEvent& event)
+        {
+            MQTTSourceDevice dev(event.getSource());
+
+            sendDeviceStatus(dev, false);
+        }
+        void MiddleEndMQTT::handleSourceFailEvent(
+            core::event::modules::SourceFailEvent& event)
         {
             MQTTSourceDevice dev(event.getSource());
 
